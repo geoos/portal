@@ -1,0 +1,34 @@
+{
+  "name": "portal",
+  "version": "1.0.0",
+  "description": "GEOOS Portal",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --watch ./lib --watch ./index.js --inspect=0.0.0.0:9234 --nolazy ./index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geoos/portal.git"
+  },
+  "keywords": [
+    "GEOOS",
+    "Pomeo",
+    "PUCV",
+    "Geoportal"
+  ],
+  "author": "Jota",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geoos/portal/issues"
+  },
+  "homepage": "https://github.com/geoos/portal#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "hjson": "^3.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
