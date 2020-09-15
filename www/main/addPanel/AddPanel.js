@@ -5,7 +5,7 @@ class AddPanel extends ZCustomController {
         this.hide();
         window.geoos.events.on("top", "clickAddVariables", _ => this.toggle())
         this.edLayerType.setRows([{
-            code:"raster", name:"Capas con Variables"
+            code:"variables", name:"Capas con Variables"
         }, {
             code:"vector", name:"Puntos o Áreas de Interés"
         }, {
@@ -55,6 +55,7 @@ class AddPanel extends ZCustomController {
             this.addPanelContainer.view.style["margin-left"] = (window.geoos.size.width - 30) + "px";
             $(this.addPanelContainer.view).animate({"margin-left": 0}, 300, _ => {
                 this.addPanelContent.show();
+                this.refreshLayerType();
                 this.open = true;
                 window.geoos.topPanel.activateOption("opAddVariables");
             });
@@ -66,14 +67,14 @@ class AddPanel extends ZCustomController {
     onEdLayerType_change() {this.refreshLayerType()}
 
     refreshLayerType() {
-        let layerType = this.edLayerType.value;        
+        let layerType = this.edLayerType.value;
         this.filters = {};
         this.sections.forEach(section => this.filters[section.code] = [])
         this.layers = window.geoos.getAvailableLayers(layerType);
         this.refresh();
     }
 
-    filterLayers(excludeSection) {
+    filterLayers(excludeSection, textFilter) {
         let filtered = [];
         for (let layer of this.layers) {
             let passFilter = true;
@@ -95,10 +96,10 @@ class AddPanel extends ZCustomController {
             }
             if (passFilter) filtered.push(layer);
         }
+        if (textFilter) filtered = filtered.filter(l => (l.name.toLowerCase().indexOf(textFilter.toLowerCase()) >= 0))
         return filtered;
     }
     refresh() {
-        let htmlFilters = "";
         let htmlSections = "";
         for (let section of this.sections) {
             let firstSection = !htmlSections;
@@ -178,9 +179,91 @@ class AddPanel extends ZCustomController {
             } else {
                 this.filters[sectionCode].splice(idx, 1);
             }
-            console.log("idx", idx, this.filters)
             this.refresh();
         })
+
+        // Filters
+        let htmlFilters = "";
+        for (let section of this.sections) {
+            let filters = this.filters[section.code];
+            for (let code of filters) {
+                htmlFilters += `
+                    <div class="add-panel-filter">
+                        ${section.data.find(r => r.code == code).name}
+                        <i class="closer fas fa-times ml-2" data-section="${section.code}" data-code="${code}"></i>
+                    </div>
+                `;
+            }
+        }
+        if (htmlFilters.length) {
+            this.filterPills.html = "<b style='margin-left: 6px;'>Filtros Activos: </b>" + htmlFilters + "<a href='#' class='filters-cleaner'>Limpiar Filtros</a>";
+            this.filterPills.show();
+            $(this.filterPills.view).find(".add-panel-filter i").click(e => {
+                let item = $(e.currentTarget);
+                let sectionCode = item.data("section");
+                let rowCode = item.data("code");
+                console.log(sectionCode, rowCode)
+                let idx = this.filters[sectionCode].indexOf(rowCode);
+                this.filters[sectionCode].splice(idx, 1);
+                this.refresh();
+            })
+            $(this.filterPills.view).find(".filters-cleaner").click(_ => this.refreshLayerType());
+        } else {
+            this.filterPills.html = "";
+            this.filterPills.hide();
+        }
+
+        // Results
+        this.filteredLayers = this.filterLayers(null, this.edNameFilter.value);
+        let name = this.edLayerType.value == "variables"?"Variables":"Capas";
+        this.lblResume.text = name + ": (Encontradas " + this.filteredLayers.length + ")";
+        let htmlVars = "";
+        for (let layer of this.filteredLayers) {
+            htmlVars += `
+                <div class="add-panel-variable" data-code="${layer.code}">
+                    <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                    ${layer.name}
+                    <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/info.svg" />
+                    <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/favo.svg" />
+                    <img class="add-panel-variable-icon inactive" style="height: 16px;" src="img/icons/variable-added.svg" />
+                </div>
+            `;
+        }
+        this.variablesContainer.html = htmlVars;
+        $(this.variablesContainer.view).find(".add-panel-variable").click(e => {
+            let div = $(e.currentTarget);
+            let code = div.data("code");
+            let variable = this.filteredLayers.find(v => v.code == code);
+            variable.selected = !variable.selected;
+            this.refresh();
+        })
+        this.refreshResume();
+    }
+
+    refreshResume() {
+        let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
+        let name = this.edLayerType.value == "variables"?"Variables":"Capas";
+        let name1 = this.edLayerType.value == "variables"?"Variable":"Capa";
+        if (!nSelected) {
+            this.lblCountResume.text = "No hay " + name + " seleccionadas";
+            this.cmdAddLayers.disable();
+        } else if (nSelected == 1) {
+            this.lblCountResume.text = "Una " + name1 + " seleccionada";
+            this.cmdAddLayers.enable();
+        } else {
+            this.lblCountResume.text = nSelected + " " + name + " seleccionadas";
+            this.cmdAddLayers.enable();
+        }
+    }
+
+    onEdNameFilter_change() {
+        this.refresh();
+    }
+
+    onCmdCancelLayers_click() {this.toggle()}
+    onCmdAddLayers_click(){
+        this.toggle();
+        window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
     }
 }
 ZVC.export(AddPanel);

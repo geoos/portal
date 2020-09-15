@@ -111,19 +111,20 @@ class GEOOS {
 
     getAvailableLayers(type) {
         let layers = [];
-        if (type == "raster") {
+        if (type == "variables") {
             for (let geoServer of this.geoServers) {
                 for (let dataSet of geoServer.dataSets) {
                     if (dataSet.type == "raster") {
                         for (let variable of dataSet.variables) {
                             layers.push({
+                                type:"raster",
                                 geoServer:geoServer, dataSet:dataSet,
                                 providers:[dataSet.provider],
                                 subjects:variable.options.subjects,
                                 regions:variable.options.regions,
                                 types:variable.options.types,
                                 variable:variable,
-                                code:variable.code, name:variable.name
+                                code:dataSet.code + "." + variable.code, name:variable.name
                             })
                         }
                     }
@@ -132,7 +133,12 @@ class GEOOS {
         } else {
             throw "Layer type '" + type + "' not yet supported";
         }
+        layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
         return layers;
+    }
+
+    addLayers(layers) {
+        console.log("addLayers", layers);
     }
 }
 

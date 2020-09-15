@@ -6,14 +6,32 @@
             <span id="cmdCloseAddPanel" class="geoos-panel-close" data-z-clickable="true"></span>
         </div>
         <div id="contentRow" class="d-flex flex-row" style="padding: 5px;">
-            <div class="d-flex flex-column" style="flex: 1 1 350px; padding: 5px; ">
+            <div class="d-flex flex-column" style="flex: 1 1 450px; padding: 5px; ">
                 <div style="flex: 1 1 30px;">
                     <select id="edLayerType" class="custom-select" data-z-id-field="code" data-z-label-field="name"></select>
                 </div>
                 <div id="accordion" class="filter-accordion" style="flex: 1 10 100%; padding: 5px; overflow-y: auto;">                    
                 </div>
             </div>
-            <div class="" style="flex: 1 10 100%;">
+            <div class="ml-3 d-flex flex-column" style="flex: 1 2 100%; padding: 5px;">
+                <div id="filterPills" class="add-panel-filters mb-2">
+                </div>
+                <div id="edNameFilter" style="max-width: 600px;" data-z-component="common/TextSearch" data-z-placeholder="Buscar Variable o Capa"></div>
+                <div id="lblResume" class="add-panel-resume"></div>
+                <div id="variablesContainer" class="add-panel-variables" style="flex:1 10 100%; overflow-y: auto;">
+                    <div class="add-panel-variable" data-section="${layer.code}">
+                        <i class="far fa-lg fa-check-square float-left mr-2"></i>
+                        Nombre de la Variable Filtrada
+                        <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/info.svg" />
+                        <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/favo.svg" />
+                        <img class="add-panel-variable-icon inactive" style="height: 16px;" src="img/icons/variable-added.svg" />
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <div id="lblCountResume" class="add-panel-count-resume float-left"></div>
+                    <button id="cmdCancelLayers" type="button" class="btn btn-sm btn-danger float-right ml-2">Cancelar</button>
+                    <button id="cmdAddLayers" type="button" class="btn btn-sm btn-primary float-right">Agregar a Mi Panel</button>
+                </div>
             </div>
         </div>
     </div>

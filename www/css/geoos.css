@@ -20,6 +20,16 @@ body {
     color: white;
     background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='white' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px
 }
+.form-control {
+    background: #444343;
+    border: 1px solid white;
+    color: white;
+}
+.form-control:focus {
+    background: #444343;
+    border: 1px solid white;
+    color: white;
+}
 
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
@@ -206,4 +216,62 @@ body {
     line-height: 16px;
     cursor: pointer;
 }
-
+.add-panel-filters {
+    border: 1px solid white;
+    padding: 5px;
+}
+.add-panel-filter {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 3px 6px 3px 6px;
+    height: 24px;
+    background-color: rgb(68, 68, 67);
+    display: inline-block;
+    margin-left: 6px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+.add-panel-filter i {
+    cursor: pointer;
+}
+.add-panel-filters a {
+    color: white;
+    float: right;
+    margin-top: 8px;
+    margin-right: 10px;
+}
+.add-panel-filters a:hover {
+    color: white;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.add-panel-resume {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid white;
+    font-weight: bold;
+    line-height: 22px;
+}
+.add-panel-variable {
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.add-panel-variable:hover {
+    text-decoration: underline;
+}
+.add-panel-variable-icon {
+    cursor: pointer;
+    float: right;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.add-panel-variable-icon.inactive {
+    opacity: 0.5;
+}
+.add-panel-count-resume {
+    background: #444343;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+}
