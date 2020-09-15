@@ -30,6 +30,26 @@ body {
     border: 1px solid white;
     color: white;
 }
+.nav-tabs {
+    /*background: #1B1B2C;*/
+    padding-top: 10px;
+    border-bottom: none;
+}
+.nav-link {
+    color: lightgray;
+}
+.nav-link:hover {
+    color: lightgray;
+    border-bottom: none;
+}
+.nav-link.active {
+    color: white !important;
+    background-color: #444343 !important;
+    border-bottom: none;
+}
+.tab-content {
+    background: #444343;
+}
 
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
@@ -274,4 +294,16 @@ body {
     color: white;
     border-radius: 5px;
     padding: 10px;
+}
+.add-panel-info-panel {
+    margin-top: 10px;    
+}
+.provider-url {
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+.provider-url:hover {
+    color: white;
+    text-decoration: underline;
 }

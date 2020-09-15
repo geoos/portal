@@ -2,6 +2,10 @@ class AddPanel extends ZCustomController {
     onThis_init() {
         window.geoos.addPanel = this;
         this.open = false;
+        this.infoOpen = false;
+        this.infoVarCode = null;
+        this.infoContent.hide();
+        this.infoPanel.hide();
         this.hide();
         window.geoos.events.on("top", "clickAddVariables", _ => this.toggle())
         this.edLayerType.setRows([{
@@ -223,13 +227,42 @@ class AddPanel extends ZCustomController {
                 <div class="add-panel-variable" data-code="${layer.code}">
                     <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>
                     ${layer.name}
-                    <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/info.svg" />
-                    <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/favo.svg" />
-                    <img class="add-panel-variable-icon inactive" style="height: 16px;" src="img/icons/variable-added.svg" />
+                    <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoVarCode==layer.code?"-active":""}.svg" />
+                    <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
+                    <img class="add-panel-variable-icon inactive added" style="height: 16px;" src="img/icons/variable-added.svg" />
                 </div>
             `;
         }
         this.variablesContainer.html = htmlVars;
+        if (this.infoOpen && this.filteredLayers.findIndex(l => (l.code == this.infoVarCode)) < 0) this.closeInfo();
+        $(this.variablesContainer.view).find(".info").click(e => {
+            $(this.variablesContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
+            let img = $(e.currentTarget);
+            let div = img.parent();
+            let code = div.data("code");
+            let layer = this.filteredLayers.find(v => v.code == code);
+            if (this.infoOpen) {
+                if (this.infoVarCode == layer.code) {
+                    this.closeInfo();
+                } else {
+                    this.refreshInfo(layer);
+                    img.attr("src", "img/icons/info-active.svg");
+                }
+            } else {
+                img.attr("src", "img/icons/info-active.svg");
+                this.openInfo()
+                    .then(_ => this.refreshInfo(layer));
+            }
+            return false;           
+        });
+        $(this.variablesContainer.view).find(".added").click(e => (false))
+        $(this.variablesContainer.view).find(".favo").click(e => {
+            let img = $(e.currentTarget);
+            let code = img.parent().data("code");
+            let variable = this.filteredLayers.find(v => v.code == code);
+            console.log("favo-variable", variable);
+            return false;
+        });
         $(this.variablesContainer.view).find(".add-panel-variable").click(e => {
             let div = $(e.currentTarget);
             let code = div.data("code");
@@ -264,6 +297,52 @@ class AddPanel extends ZCustomController {
     onCmdAddLayers_click(){
         this.toggle();
         window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
+    }
+
+    openInfo() {
+        return new Promise(resolve => {
+            this.infoContent.hide();
+            this.infoPanel.view.style.height = "0";
+            this.infoPanel.show();
+            $(this.infoPanel.view).animate({height:200}, 300, _ => {
+                this.infoOpen = true;
+                this.addPanelTabContent.view.style.height = "150px";
+                this.infoContent.show();
+                resolve();
+            });
+        })
+    }
+    closeInfo() {
+        return new Promise(resolve => {
+            this.infoContent.hide();
+            this.infoPanel.view.style.height = "200px";
+            $(this.infoPanel.view).animate({height:0}, 300, _ => {
+                this.infoOpen = false;
+                this.infoVarCode = null;
+                this.infoPanel.hide();
+                resolve()
+            })
+        })
+    }
+
+    onCmdCloseInfoPanel_click() {
+        $(this.variablesContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
+        this.closeInfo()
+    }
+
+    refreshInfo(layer) {
+        console.log("variable", layer);
+        this.infoVarCode = layer.code;
+        this.lblVarName.text = layer.name;
+        let provider = window.geoos.providers.find(p => p.code == layer.providers[0]);
+        this.logoProvider.view.src = provider.logo;
+        this.providerUrl.view.setAttribute("href", provider.url);
+        this.providerUrl.text = provider.name;
+        if (layer.type == "raster") {
+            this.layerDescription.html = layer.variable.options.description || "<p>No hay descripción de la Capa</p>";
+            this.layerDetails.html = layer.variable.options.details || "<p>No hay detalles de la Capa</p>";
+            this.layerAvailability.html = layer.variable.options.availability || "<p>No hay detalles de la disponibilidad en GEOOS para la Capa</p>";
+        }
     }
 }
 ZVC.export(AddPanel);

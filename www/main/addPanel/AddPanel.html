@@ -32,6 +32,42 @@
                     <button id="cmdCancelLayers" type="button" class="btn btn-sm btn-danger float-right ml-2">Cancelar</button>
                     <button id="cmdAddLayers" type="button" class="btn btn-sm btn-primary float-right">Agregar a Mi Panel</button>
                 </div>
+                <div id="infoPanel" class="add-panel-info-panel ">
+                    <div id="infoContent" class="info-content" >
+                        <ul id="tabAddPanel" class="nav nav-tabs justify-content-end" role="tablist">
+                            <span id="lblVarName" class="ml-2 mr-auto mt-1" style="font-weight: bold;"></span>
+                            <li class="nav-item">
+                              <a id="tabGeneralDesc" class="nav-link active" data-toggle="tab" href="#generalDescPage" role="tab">Descripción General</a>
+                            </li>
+                            <li class="nav-item">
+                              <a id="tabDetails" class="nav-link" data-toggle="tab" href="#detailsPage" role="tab">Detalles</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="tabAvailability" class="nav-link" data-toggle="tab" href="#availabilityPage" role="tab">Disponibilidad GEOOS</a>
+                            </li>
+                            <span id="cmdCloseInfoPanel" class="geoos-panel-close ml-4" data-z-clickable="true"></span>
+                        </ul>
+                        <div id="addPanelTabContent" class="tab-content p-2">
+                            <div id="generalDescPage" class="tab-pane fade show active" role="tabpanel" style="height: 130px;">
+                                <img id="logoProvider" class="mr-4 float-left" style="max-height: 130px; max-width: 200px;" />
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <a id="providerUrl" class="provider-url" href="#" target="_blank"></a>
+                                    <div id="layerDescription" class="mt-2"></div>
+                                </div>
+                            </div>
+                            <div id="detailsPage" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <div id="layerDetails"></div>
+                                </div>
+                            </div>
+                            <div id="availabilityPage" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <div id="layerAvailability"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
