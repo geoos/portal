@@ -1,6 +1,6 @@
 class Top extends ZCustomController {
     onThis_init() {
-        window.geoos.events.on("portal", "resize", size => this.doResize(size));
+        window.geoos.topPanel = this;
         this.leftState = "open";
         this.rightState = "open";
         this.lastSizeLevel = null;
@@ -82,7 +82,9 @@ class Top extends ZCustomController {
                 $(this.leftBar.view).find(".left-toggler").show();
                 $(this.leftBar.view).find("#leftToggler").removeClass("left-toggler-closed")
                 this.leftState = "open";
+                this.lastSizeLevel = null;
                 this.adjustLeft();
+                this.lastSizeLevel = window.geoos.size.sizeLevel;
             })
         }
     }
@@ -116,6 +118,23 @@ class Top extends ZCustomController {
                 this.adjustRight();
             })
         }
+    }
+
+    activateOption(id) {
+        $(this.view).find("#" + id).addClass("active");
+    }
+    deactivateOption(id) {
+        $(this.view).find("#" + id).removeClass("active");
+    }
+    toggleOption(id) {
+        if ($(this.view).find("#" + id).hasClass("active")) this.deactivateOption(id); else this.activateOption(id);
+    }
+
+    onOpMyPanel_click() {
+        window.geoos.events.trigger("top", "clickMyPanel");
+    }
+    onOpAddVariables_click() {
+        window.geoos.events.trigger("top", "clickAddVariables");
     }
 }
 ZVC.export(Top)

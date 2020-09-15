@@ -15,6 +15,54 @@ body {
     transform: translate(-50%, -50%);
 }
 
+.custom-select {
+    border: 1px solid white;
+    color: white;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='white' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px
+}
+
+/* Comunes Paneles y Ventanas */
+.geoos-panel {
+    padding: 10px;
+    z-index: 5100;
+    position: absolute;
+    background-color: rgba(68, 68, 67, 0.9);
+    font-family: Ubuntu;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 16px;
+    border: 1px solid white;
+}
+.geoos-panel-caption {
+    font-family: Ubuntu;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 18px;
+    height: 32px;
+    margin-top: 4px;
+    border-bottom: 1px solid white;
+}
+.geoos-panel-icon {    
+    height: 22px;
+    float: left;
+    margin-right: 10px;
+    margin-left: 6px;
+}
+.geoos-panel-close {
+    float: right;   
+    width: 22px; height: 22px;
+    background-image: url(../img/icons/close.svg);
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+    cursor: pointer;    
+    margin-right: 6px;
+}
+.geoos-panel-close:hover {
+    background-image: url(../img/icons/close-active.svg);
+}
+
 /* Top Panel */
 .top-panel {
     z-index: 5000;
@@ -30,7 +78,7 @@ body {
     width: 74px; height: 74px;
 }
 .top-option {
-    height: 56px;
+    height: 52px;
     padding-left: 4px;
     font-family: Ubuntu;
     font-style: normal;
@@ -41,9 +89,20 @@ body {
     flex: 1 1;
     display: flex;
     flex-direction: row;
+    border-bottom: 5px solid rgba(0,0,0,0);
+    margin-left:  4px; 
+    margin-right: 4px;
+}
+.top-option.active {
+    border-bottom: 5px solid rgb(0,160,249);
+    font-weight: bold;
 }
 .top-option:hover {
     border-bottom: 5px solid rgba(0,160,249, 30%);
+    font-weight: bold;
+}
+.top-option.active:hover {
+    border-bottom: 5px solid rgb(0,160,249);
     font-weight: bold;
 }
 .top-option img {
@@ -119,5 +178,32 @@ body {
 }
 .top-action img {
     margin-top: 15px;
+}
+
+/* Panel Agregar */
+.filter-accordion {
+    border: 1px solid white;
+    margin-top: 10px;
+}
+.section-filter-caption {
+    padding-top:10px;
+    padding-bottom:5px;
+    margin-left: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.section-filter-caption:hover {
+    text-decoration: underline;
+}
+.section-filter-items {
+    margin-top: 5px;
+}
+.section-filter-item {
+    margin-left: 20px;
+    height: 22px;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
 }
 
