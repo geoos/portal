@@ -3,6 +3,19 @@ body {
     height: 100%;
     overflow: hidden;
     color: white;
+    font-family: Ubuntu;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 16px;
+}
+
+a {
+    color: white;    
+}
+a:hover {
+    color: white;
+    text-decoration: underline;
 }
 
 #main {
@@ -31,7 +44,6 @@ body {
     color: white;
 }
 .nav-tabs {
-    /*background: #1B1B2C;*/
     padding-top: 10px;
     border-bottom: none;
 }
@@ -51,22 +63,23 @@ body {
     background: #444343;
 }
 
+/* Modals */
+.modal-content {
+    background-color: rgba(68, 68, 67, 0.9);
+    border: 1px solid white;
+    color:white;
+    font-size: 16px;
+}
+
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
     padding: 10px;
     z-index: 5100;
     position: absolute;
     background-color: rgba(68, 68, 67, 0.9);
-    font-family: Ubuntu;
-    font-style: normal;
-    font-weight: normal;
-    font-size: 14px;
-    line-height: 16px;
     border: 1px solid white;
 }
 .geoos-panel-caption {
-    font-family: Ubuntu;
-    font-style: normal;
     font-weight: bold;
     font-size: 16px;
     line-height: 18px;
@@ -91,6 +104,35 @@ body {
 }
 .geoos-panel-close:hover {
     background-image: url(../img/icons/close-active.svg);
+}
+.geoos-panel-subtitle {
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 22px;
+    height: 32px;
+    margin-top: 6px;
+    border-bottom: 1px solid white;
+}
+.geoos-panel-subicon {    
+    height: 18px;
+    float: left;
+    margin-right: 10px;
+    margin-left: 6px;
+    margin-top: 2px;
+}
+.geoos-panel-subtitle a {
+    margin-top: 4px;
+}
+
+/* Details Menu */
+.details-menu-icon {
+    background: #00A0F9;
+    color: white;
+    border-radius: 12px;
+    padding: 5px;
+    margin-top: -15px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 /* Top Panel */
@@ -306,4 +348,60 @@ body {
 .provider-url:hover {
     color: white;
     text-decoration: underline;
+}
+
+/* My Panel */
+.my-panel-group {
+    margin-top: 10px;
+    font-weight: normal;
+    font-size: 16px;
+}
+.my-panel-group .group-name:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+.my-panel-group.group-inactive {
+    opacity: 0.5;
+}
+.my-panel-group .group-expander {
+    cursor: pointer;
+}
+.my-panel-group .group-activator {
+    cursor: pointer;
+}
+.my-panel-layers {
+    margin-top: 7px;
+    border-top: 3px solid transparent;
+}
+.my-panel-layers.target {
+    border-top: 3px solid rgb(0,160,249);;
+}
+.my-panel-layer {
+    margin-left: 60px;
+    margin-top: 5px;
+    border-bottom: 3px solid transparent;
+    font-weight: normal;
+    font-size: 14px;
+}
+.my-panel-layer.target {
+    border-bottom: 3px solid rgb(0,160,249);
+}
+.my-panel-layer .layer-name:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+.my-panel-layer .layer-expander {
+    cursor: pointer;
+}
+.my-panel-layer .layer-activator {
+    cursor: pointer;
+}
+.my-panel-layer-items {
+    margin-left: 50px;
+    margin-top: 5px;
+    font-weight: normal;
+    font-size: 12px;
+}
+.my-panel-visualizer .visualizer-activator {
+    cursor: pointer;
 }

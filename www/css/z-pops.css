@@ -1,0 +1,67 @@
+#pops-container {
+    z-index: 10500;
+}
+.zpop {
+    min-width: 100px;
+    min-height: 30px;
+    float: left;
+    border-radius: 5px;
+    background: #00A0F9;
+    border-color: white;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 9px 11px 19px -8px rgba(0,0,0,0.75);
+    color:white;
+    font-size: 13px;
+    padding-left:6px;
+    padding-right:6px;
+}
+.zpop-divider {
+    background-color: rgb(200,200,200);
+    margin-top:3px;
+    margin-bottom:3px;    
+}
+.zpop-search-container {
+    padding: 5px;
+}
+.zpop-search {
+    border-radius: 8px;
+    font-size: 10px;
+    width:100% !important;
+}
+.zpop-search-icon {
+    margin-left: -20px;
+    color:lightgray;
+}
+.zpop-items-container {
+    padding: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.zpop-item-container {
+    display: flex;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+.zpop-item-active {
+    text-decoration: underline;
+}
+.zpop-item-label {
+    width: 100%;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+.zpop-item-icon {
+    width: 16px;
+}
+.zpop-item-icon img {
+    width: 16px;
+}
+.zpop-item-icon i {
+    width: 16px;
+}
+.zpop-item-icon-invert {
+    filter: invert(1);
+}

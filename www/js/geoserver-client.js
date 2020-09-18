@@ -40,7 +40,6 @@ class GEOServerClient {
                         .catch(err => {this._decWorking(); reject(err)})
                 })
                 .catch(err => {
-                    console.log("falla fetch")
                     this._decWorking();
                     reject(err.name == "AbortError"?"aborted":err)
                 });

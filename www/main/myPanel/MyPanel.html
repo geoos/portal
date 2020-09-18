@@ -1,9 +1,15 @@
 <div id="myPanelContainer" class="geoos-panel">
-    <div id="myPanelContent" style="width: 100%; height: 100%;">
+    <div id="myPanelContent" class="my-panel-content d-flex flex-column" style="width: 100%;">
         <div class="geoos-panel-caption">
             <img src="img/icons/my-panel.svg" class="geoos-panel-icon" />
             <span>Mi Panel</span>
             <span id="cmdCloseMyPanel" class="geoos-panel-close" data-z-clickable="true"></span>
+        </div>
+        <div id="cmdAddGroup" class="geoos-panel-subtitle" data-z-clickable="true">
+            <img src="img/icons/add-group.svg" class="geoos-panel-subicon" />
+            <a href="#">Crear Grupo</a>
+        </div>
+        <div id="myContainer" class="p-1" style="flex: 1 1 100%; overflow-y: auto;">
         </div>
     </div>
 </div>

@@ -19,15 +19,21 @@ L.KonvaCustomLayer = L.Layer.extend({
 }) 
 
 class KonvaLeafletLayer {
-    constructor(map, zIndex, options) {
+    constructor(map, zIndex, options, layerOptions) {
         this.options = options;
-        this.map = map;        
-        this.uniqueId = parseInt(Math.random() * 99999999);
-        let paneName = "geoos" + this.uniqueId;
-        map.createPane(paneName);
-        //map.getPane(paneName).style.pointerEvents = "none";
-        map.getPane(paneName).style.zIndex = "" + zIndex;
-        this.leafletLayer = new L.KonvaCustomLayer({wrapper:this, pane:paneName});
+        this.map = map;
+        if (layerOptions) {
+            this.uniqueId = layerOptions.pane?layerOptions.pane:parseInt(Math.random() * 99999999);
+            layerOptions.wrapper = this;
+            this.leafletLayer = new L.KonvaCustomLayer(layerOptions);
+        } else {
+            this.uniqueId = parseInt(Math.random() * 99999999);
+            let paneName = "geoos" + this.uniqueId;
+            map.createPane(paneName);
+            //map.getPane(paneName).style.pointerEvents = "none";
+            map.getPane(paneName).style.zIndex = "" + zIndex;
+            this.leafletLayer = new L.KonvaCustomLayer({wrapper:this, pane:paneName});
+        }
         this.visualizers = []
     }
     get lOptions() {return this.leafletLayer.options}

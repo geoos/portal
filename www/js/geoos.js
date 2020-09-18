@@ -1,23 +1,31 @@
 class GEOOS {
     constructor() {
         this.events = new GEOOSEvents();
+        this.groups = [];
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());
     }
 
     async init() {
         this.config = await zPost("getPortalConfig.geoos");
-        console.log("config", this.config);
         await this.buildMetadata();
-        console.log("geoServers", this.geoServers);
+        this.scalesFactory = new ScalesFactory();
+        await this.scalesFactory.init();
     }
 
     get baseMaps() {return this.config.maps}
-    get groups() {return this.config.groups}
-    get regions() {return this.groups.regions}
-    get subjects() {return this.groups.subjects}
-    get types() {return this.groups.types}
+    get regions() {return this.config.groups.regions}
+    get subjects() {return this.config.groups.subjects}
+    get types() {return this.config.groups.types}
     get providers() {return this._providers}
+
+    get map() {return this.mapPanel.map}
+    get time() {return Date.now()}
+    get bounds() {
+        let b = this.map.getBounds();
+        return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
+    }
+    
 
     triggerResize() {
         if (this.timerResize) clearTimeout(this.timerResize);
@@ -43,6 +51,12 @@ class GEOOS {
     closeFloatingPanels() {
         if (this.myPanel.open) this.myPanel.toggle();
         if (this.addPanel.open) this.addPanel.toggle();
+    }
+    openMyPanel() {
+        if (!this.myPanel.open) this.myPanel.toggle();
+    }
+    closeMyPanel() {
+        if (this.myPanel.open) this.myPanel.toggle();
     }
 
     buildMetadata() {
@@ -137,8 +151,47 @@ class GEOOS {
         return layers;
     }
 
-    addLayers(layers) {
+    getGroup(id) {return this.groups.find(g => g.id == id)}
+    getActiveGroup() {return this.groups.find(g => (g.active))}
+    addGroup(config) {
+        let g = new GEOOSGroup(config);
+        this.groups.push(g);
+        return g;
+    }
+    async deleteGroup(id) {
+        try {
+            if (this.groups.length == 1) throw "No puede eliminar el último grupo";
+            let group = this.getGroup(id);
+            if (group.active) {
+                let newActive = this.groups.find(g => !g.active);
+                this.activateGroup(newActive.id);
+            }
+            let idx = this.groups.findIndex(g => g.id == id);
+            this.groups.splice(idx,1);
+            await this.events.trigger("portal", "groupDeleted", group)
+        } catch(error) {
+            throw error;
+        }
+    }
+    async activateGroup(groupId) {
+        let g = this.getGroup(groupId);
+        if (!g) throw "Can't find group '" + groupId + "'";
+        let current = this.getActiveGroup();
+        if (current) {
+            await current.deactivate();
+            await this.events.trigger("portal", "groupDeactivated", current)
+        }
+        await g.activate();
+        await this.events.trigger("portal", "groupActivated", g)
+    }
+    async addLayers(layers, inGroup) {
         console.log("addLayers", layers);
+        let group = inGroup || this.getActiveGroup();
+        for (let layerDef of layers) {
+            let geoosLayer = GEOOSLayer.create(layerDef);
+            group.addLayer(geoosLayer);
+        }
+        await this.events.trigger("portal", "layersAdded", group)
     }
 }
 

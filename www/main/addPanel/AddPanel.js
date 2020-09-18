@@ -221,6 +221,7 @@ class AddPanel extends ZCustomController {
         this.filteredLayers = this.filterLayers(null, this.edNameFilter.value);
         let name = this.edLayerType.value == "variables"?"Variables":"Capas";
         this.lblResume.text = name + ": (Encontradas " + this.filteredLayers.length + ")";
+        let activeGroup = window.geoos.getActiveGroup();
         let htmlVars = "";
         for (let layer of this.filteredLayers) {
             htmlVars += `
@@ -229,7 +230,7 @@ class AddPanel extends ZCustomController {
                     ${layer.name}
                     <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoVarCode==layer.code?"-active":""}.svg" />
                     <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
-                    <img class="add-panel-variable-icon inactive added" style="height: 16px;" src="img/icons/variable-added.svg" />
+                    <img class="add-panel-variable-icon ${(activeGroup && activeGroup.containsLayer(layer))?"":"inactive"} added" style="height: 16px;" src="img/icons/variable-added.svg" />
                 </div>
             `;
         }
@@ -297,6 +298,7 @@ class AddPanel extends ZCustomController {
     onCmdAddLayers_click(){
         this.toggle();
         window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
+        window.geoos.openMyPanel();
     }
 
     openInfo() {
