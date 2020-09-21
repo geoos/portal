@@ -71,6 +71,12 @@ class GEOOSGroup {
             return this.layers.find(l => (l instanceof GEOOSRasterLayer && l.variable.code == layerConfig.variable.code))?true:false;
         } else throw "layer type '" + layerConfig.type + "' not handled yet in 'containsLayer'"
     }
+
+    getPropertyPanels() {
+        return [{
+            code:"group-properties", name:"Propiedades del Grupo", path:"./groups/GroupProperties"
+        }]
+    }
 }
 
 class GEOOSLayer {
@@ -127,6 +133,12 @@ class GEOOSLayer {
         if (this.nWorking == 0) {
             window.geoos.events.trigger("layer", "finishWorking", this);
         }
+    }
+
+    getPropertyPanels() {
+        return [{
+            code:"layer-properties", name:"Propiedades de la Capa", path:"./layers/LayerProperties"
+        }]
     }
 }
 

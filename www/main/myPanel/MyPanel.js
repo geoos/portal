@@ -10,6 +10,8 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("portal", "layersAdded", _ => this.refresh())
         window.geoos.events.on("layer", "startWorking", layer => this.layerStartWorking(layer))
         window.geoos.events.on("layer", "finishWorking", layer => this.layerFinishWorking(layer))
+        window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.refreshSelection(oldSelection, newSelection))
+        window.geoos.events.on("group", "change", group => this.groupChange(group))
     }
 
     doResize(size) {
@@ -32,6 +34,7 @@ class MyPanel extends ZCustomController {
         this.myPanelContent.hide();
         this.applySize();
         if (this.open) {
+            if (window.geoos.configPanel.open) window.geoos.configPanel.close();
             this.myPanelContainer.view.style["margin-left"] = "-2px";
             $(this.myPanelContainer.view).animate({"margin-left": -402}, 300, _ => {
                 this.hide();
@@ -41,7 +44,7 @@ class MyPanel extends ZCustomController {
         } else {
             window.geoos.closeFloatingPanels();
             this.show();
-            this.myPanelContainer.view.style["margin-left"] = "-302px";
+            this.myPanelContainer.view.style["margin-left"] = "-402px";
             $(this.myPanelContainer.view).animate({"margin-left": -2}, 300, _ => {
                 this.myPanelContent.show();
                 this.open = true;
@@ -59,21 +62,24 @@ class MyPanel extends ZCustomController {
     }
 
     refresh() {
+        let selection = window.geoos.selection;
         let html = ``;
         for (let group of window.geoos.groups) {
+            let groupSelected = selection.type == "group" && selection.element.id == group.id;
             html += `<div class="my-panel-group ${group.active?"group-active":"group-inactive"}" data-group-id="${group.id}">`;
             html += `  <i class="group-expander fas fa-lg fa-folder${group.expanded?"-open":""} mr-2 float-left" style="width:24px;"></i>`;
             html += `  <i class="group-expander fas fa-lg fa-chevron${group.expanded?"-up":"-down"} mr-2 float-left"></i>`;
             html += `  <i class="group-activator far fa-lg fa-${group.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
-            html += `  <div class="group-name">${group.name}</div>`;
+            html += `  <div class="group-name"><span ${groupSelected?" class='my-panel-selected-name'":""}>${group.name}</span></div>`;
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
             html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;
             for (let layer of group.layers) {
+                let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
                 let layerItems = layer.getItems();
                 html += `<div class="my-panel-layer" data-layer-id="${layer.id}" data-group-id="${group.id}">`;
                 html += `  <i class="layer-expander fas fa-lg fa-chevron${layer.expanded?"-up":"-down"} mr-2 float-left"></i>`;
                 html += `  <i class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
-                html += `  <div class="layer-name">${layer.name}</div>`;
+                html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layer.name}</span></div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
                 if (layerItems) {
@@ -103,6 +109,9 @@ class MyPanel extends ZCustomController {
         $myContainer.find(".layer-activator").click(e => this.layerActivator_click(e))
         $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e))
         $myContainer.find(".group-context").click(e => this.groupContext_click(e))
+        $myContainer.find(".layer-context").click(e => this.layerContext_click(e))
+        $myContainer.find(".group-name").click(e => this.groupName_click(e))
+        $myContainer.find(".layer-name").click(e => this.layerName_click(e))
 
         $myContainer.find(".layer-name").draggable({
             scroll: false,            
@@ -321,11 +330,97 @@ class MyPanel extends ZCustomController {
         z.show();
     }
 
+    async groupName_click(e) {
+        let opener = $(e.currentTarget);
+        opener.find("span").addClass("my-panel-selected-name")
+        let groupDiv = opener.parent();
+        let groupId = groupDiv.data("group-id");
+        let group = window.geoos.getGroup(groupId);
+        await window.geoos.selectElement("group", group);
+    }
+    async layerName_click(e) {
+        let opener = $(e.currentTarget);
+        opener.find("span").addClass("my-panel-selected-name")
+        let layerDiv = opener.parent();
+        let groupId = layerDiv.data("group-id");
+        let group = window.geoos.getGroup(groupId);
+        let layerId = layerDiv.data("layer-id");
+        let layer = group.getLayer(layerId);
+        await window.geoos.selectElement("layer", layer);
+    }    
+
+    async layerContext_click(e) {
+        let opener = $(e.currentTarget);
+        let layerDiv = opener.parent();
+        let groupId = layerDiv.data("group-id");
+        let group = window.geoos.getGroup(groupId);
+        let layerId = layerDiv.data("layer-id");
+        let layer = group.getLayer(layerId);
+        let z = new ZPop(opener, [{
+            code:"duplicate", icon:"far fa-copy", label:"Duplicar Capa", 
+        }, {
+            code:"sep", icon:"-", label:"-", 
+        }, {
+            code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
+        }, {
+            code:"sep", icon:"-", label:"-", 
+        }, {
+            code:"delete", icon:"far fa-trash-alt", label:"Eliminar la Capa", 
+        }], {
+            vMargin:10,
+            onClick:(code, item) => {
+                if (code == "delete") {
+                    this.showDialog("common/WConfirm", {
+                        subtitle:"Eliminar Capa",
+                        message:"¿Confirma que desea eliminar la Capa '" + layer.name + "'?"
+                    }, async _ => {
+                        try {
+                            await group.removeLayer(layerId);
+                            this.refresh();
+                        } catch(error) {
+                            console.log("error")
+                            this.showDialog("common/WError", {
+                                subtitle:"Ha ocurrido un error eliminando la Capa",
+                                message:error.toString()
+                            });    
+                        }
+                    })
+                }
+            }
+        })
+        z.show();
+    }
+
     layerStartWorking(layer) {
         $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .fa-spin").show();
     }
     layerFinishWorking(layer) {
         $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .fa-spin").hide();
+    }
+
+    clearSelection() {
+        let $myContainer = $(this.myContainer.view);
+        $myContainer.find(".group-name span").removeClass("my-panel-selected-name");
+        $myContainer.find(".layer-name span").removeClass("my-panel-selected-name");
+    }
+    async refreshSelection(oldSelection, newSelection) {
+        this.clearSelection();
+        let $myContainer = $(this.myContainer.view);
+        if (newSelection.type) {
+            if (newSelection.type == "group") {
+                $myContainer.find(".my-panel-group[data-group-id='" + newSelection.element.id + "'] .group-name span").addClass("my-panel-selected-name");
+            } else if (newSelection.type == "layer") {
+                $myContainer.find(".my-panel-layer[data-group-id='" + newSelection.element.group.id + "'][data-layer-id='" + newSelection.element.id + "'] .layer-name span").addClass("my-panel-selected-name");
+            }    
+            if (!window.geoos.configPanel.open) {
+                await window.geoos.configPanel.toggle();
+                await window.geoos.configPanel.refresh(newSelection);
+            }
+        }
+    }
+
+    groupChange(group) {
+        $(this.myContainer.view).find(".my-panel-group[data-group-id='" + group.id + "'] .group-name span").text(group.name);
     }
 }
 ZVC.export(MyPanel);

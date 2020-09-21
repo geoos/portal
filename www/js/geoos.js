@@ -2,6 +2,7 @@ class GEOOS {
     constructor() {
         this.events = new GEOOSEvents();
         this.groups = [];
+        this.selection = {type:null}
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());
     }
@@ -161,6 +162,9 @@ class GEOOS {
     async deleteGroup(id) {
         try {
             if (this.groups.length == 1) throw "No puede eliminar el último grupo";
+            if (this.selection.type == "group" && this.selection.element.id == id) {
+                await this.unselect();
+            }
             let group = this.getGroup(id);
             if (group.active) {
                 let newActive = this.groups.find(g => !g.active);
@@ -192,6 +196,23 @@ class GEOOS {
             group.addLayer(geoosLayer);
         }
         await this.events.trigger("portal", "layersAdded", group)
+    }
+
+    async unselect() {
+        if (!this.selection.type) return;
+        let oldSelection = this.selection;
+        this.selection = {type:null}
+        await this.events.trigger("portal", "selectionChange", {oldSelection:oldSelection, newSelection:this.selection})
+        
+    }
+    async selectElement(type, element) {
+        if (!type) {
+            this.unselect();
+            return;
+        }        
+        let oldSelection = this.selection;                
+        this.selection = {type:type, element:element};
+        await this.events.trigger("portal", "selectionChange", {oldSelection:oldSelection, newSelection:this.selection})
     }
 }
 

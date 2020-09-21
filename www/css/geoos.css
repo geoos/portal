@@ -64,8 +64,9 @@ a:hover {
 }
 
 /* Modals */
+.modal {z-index: 6000;}
 .modal-content {
-    background-color: rgba(68, 68, 67, 0.9);
+    background-color: rgba(68, 68, 67, 1);
     border: 1px solid white;
     color:white;
     font-size: 16px;
@@ -404,4 +405,36 @@ a:hover {
 }
 .my-panel-visualizer .visualizer-activator {
     cursor: pointer;
+}
+
+.group-name span {
+    padding: 5px;
+}
+.layer-name span {
+    padding: 5px;
+}
+.my-panel-selected-name {
+    background: #444343;
+}
+
+/* Proiedades */
+.prop-panel {
+    border-bottom: 1px solid white;
+    padding-bottom: 5px;
+}
+.prop-caption div {
+    padding: 5px;;
+    font-size: 16px;
+    font-weight: normal;
+    cursor: pointer;
+}
+.prop-caption div:hover {
+    text-decoration: underline;
+}
+.prop-caption .panel-expander {
+    margin-top: 7px;
+    cursor: pointer;
+}
+.prop-panel-content {
+    padding: 5px;
 }
