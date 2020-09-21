@@ -126,8 +126,8 @@ class AddPanel extends ZCustomController {
             htmlSections += `
                 <div class="section-filter ${firstSection?"":"border-top"}" data-section="${section.code}">
                     <div class="section-filter-caption">
+                        <i class="fas fa-chevron-right float-left mr-2 ${section.open?" expanded":""}"></i>
                         ${section.name}
-                        <i class="fas fa-chevron-down float-right mr-2"></i>
                     </div>
                     <div class="section-filter-items">
             `;
@@ -158,17 +158,19 @@ class AddPanel extends ZCustomController {
             let section = this.sections.find(s => s.code == code)
             let items = caption.parent().find(".section-filter-items");
             if (section.open) {
+                caption.find("i").removeClass("expanded");
                 items.animate({height:0}, 300, _ => {
                     items.hide();
                     section.open = false;
-                    caption.find("i").removeClass("fa-chevron-up").addClass("fa-chevron-down")
+                    //caption.find("i").removeClass("fa-chevron-up").addClass("fa-chevron-down")
                 })
             } else {
                 items.css({height:0});
                 items.show();
+                caption.find("i").addClass("expanded");
                 items.animate({height:section.filteredData.length * 22}, 300, _ => {
                     section.open = true;
-                    caption.find("i").removeClass("fa-chevron-down").addClass("fa-chevron-up")
+                    //caption.find("i").removeClass("fa-chevron-down").addClass("fa-chevron-up")
                 })
             }
         })

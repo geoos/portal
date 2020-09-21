@@ -72,6 +72,20 @@ a:hover {
     font-size: 16px;
 }
 
+/* Slider */
+.slider-bar {
+    border-radius: 5px;
+    height: 8px;
+    background-color: rgba(68, 68, 67, 1);
+    border: 1px solid white;
+    color:white;
+    margin-top:16px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.slider .fa-minus {margin-top: -3px}
+.slider .fa-plus {margin-top: -11px}
+
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
     padding: 10px;
@@ -269,6 +283,12 @@ a:hover {
 .section-filter-caption:hover {
     text-decoration: underline;
 }
+.section-filter-caption i {
+    transition: 0.3s ease-in-out;
+}
+.section-filter-caption i.expanded {
+    transform: rotate(90deg);
+}
 .section-filter-items {
     margin-top: 5px;
 }
@@ -364,8 +384,12 @@ a:hover {
 .my-panel-group.group-inactive {
     opacity: 0.5;
 }
-.my-panel-group .group-expander {
+.group-expander {
     cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+.group-expander.expanded {
+    transform: rotate(90deg);
 }
 .my-panel-group .group-activator {
     cursor: pointer;
@@ -391,8 +415,12 @@ a:hover {
     text-decoration: underline;
     cursor: pointer;
 }
-.my-panel-layer .layer-expander {
+.layer-expander {
     cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+.layer-expander.expanded {
+    transform: rotate(90deg);
 }
 .my-panel-layer .layer-activator {
     cursor: pointer;
@@ -417,7 +445,7 @@ a:hover {
     background: #444343;
 }
 
-/* Proiedades */
+/* Propiedades */
 .prop-panel {
     border-bottom: 1px solid white;
     padding-bottom: 5px;
@@ -431,9 +459,13 @@ a:hover {
 .prop-caption div:hover {
     text-decoration: underline;
 }
-.prop-caption .panel-expander {
+.panel-expander {
     margin-top: 7px;
     cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+.panel-expander.expanded {
+    transform: rotate(90deg);
 }
 .prop-panel-content {
     padding: 5px;

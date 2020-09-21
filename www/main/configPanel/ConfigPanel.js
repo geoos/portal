@@ -74,7 +74,6 @@ class ConfigPanel extends ZCustomController {
         this.type = type;
         this.element = element;
         if (!this.element.panelsConfig) this.element.panelsConfig = {};
-        console.log("create from ", type, element.name)
         let panelDefs = element.getPropertyPanels() || [];
         let html = "";
         for (let panelDef of panelDefs) {
@@ -88,7 +87,7 @@ class ConfigPanel extends ZCustomController {
             html += `
                 <div class="prop-panel" data-panel-code="${panelDef.code}" >
                     <div class="prop-caption">
-                        <i class="panel-expander fas fa-lg fa-chevron${panelConfig.expanded?"-up":"-down"} mr-2 float-left"></i>
+                        <i class="panel-expander fas fa-lg fa-chevron-right ${panelConfig.expanded?" expanded":""} mr-2 float-left"></i>
                         <div>${panelDef.name}</div>
                     </div>
                     <div id="${panelDef.code}" class="prop-panel-content"></div>
@@ -119,18 +118,20 @@ class ConfigPanel extends ZCustomController {
             let panelConfig = element.panelsConfig[panelCode];
             if (panelConfig.expanded) {
                 panel.savedHeight = $panel.height();
+                $(e.currentTarget).parent().find("i").removeClass("expanded");
                 $panel.animate({height:0}, 200, _ => {
                     panelConfig.expanded = false;
                     $panel.hide();
-                    $(e.currentTarget).parent().find("i").removeClass("fa-chevron-up").addClass("fa-chevron-down");
+                    //$(e.currentTarget).parent().find("i").removeClass("fa-chevron-up").addClass("fa-chevron-down");
                 })
             } else {
                 $panel.height(0);
                 $panel.show();
+                $(e.currentTarget).parent().find("i").addClass("expanded");
                 $panel.animate({height:panel.savedHeight}, 200, _ => {
                     panelConfig.expanded = true;
                     panel.view.style.removeProperty("height");
-                    $(e.currentTarget).parent().find("i").removeClass("fa-chevron-down").addClass("fa-chevron-up");
+                    //$(e.currentTarget).parent().find("i").removeClass("fa-chevron-down").addClass("fa-chevron-up");
                 })
             }
         })

@@ -11,7 +11,8 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("layer", "startWorking", layer => this.layerStartWorking(layer))
         window.geoos.events.on("layer", "finishWorking", layer => this.layerFinishWorking(layer))
         window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.refreshSelection(oldSelection, newSelection))
-        window.geoos.events.on("group", "change", group => this.groupChange(group))
+        window.geoos.events.on("group", "rename", group => this.groupRename(group))
+        window.geoos.events.on("layer", "rename", layer => this.layerRename(layer))
     }
 
     doResize(size) {
@@ -68,7 +69,7 @@ class MyPanel extends ZCustomController {
             let groupSelected = selection.type == "group" && selection.element.id == group.id;
             html += `<div class="my-panel-group ${group.active?"group-active":"group-inactive"}" data-group-id="${group.id}">`;
             html += `  <i class="group-expander fas fa-lg fa-folder${group.expanded?"-open":""} mr-2 float-left" style="width:24px;"></i>`;
-            html += `  <i class="group-expander fas fa-lg fa-chevron${group.expanded?"-up":"-down"} mr-2 float-left"></i>`;
+            html += `  <i class="group-expander fas fa-lg fa-chevron-right ${group.expanded?" expanded":""} mr-2 float-left"></i>`;
             html += `  <i class="group-activator far fa-lg fa-${group.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
             html += `  <div class="group-name"><span ${groupSelected?" class='my-panel-selected-name'":""}>${group.name}</span></div>`;
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
@@ -77,7 +78,7 @@ class MyPanel extends ZCustomController {
                 let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
                 let layerItems = layer.getItems();
                 html += `<div class="my-panel-layer" data-layer-id="${layer.id}" data-group-id="${group.id}">`;
-                html += `  <i class="layer-expander fas fa-lg fa-chevron${layer.expanded?"-up":"-down"} mr-2 float-left"></i>`;
+                html += `  <i class="layer-expander fas fa-lg fa-chevron-right ${layer.expanded?" expanded":""} mr-2 float-left"></i>`;
                 html += `  <i class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
                 html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layer.name}</span></div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
@@ -191,20 +192,20 @@ class MyPanel extends ZCustomController {
         let group = window.geoos.getGroup(groupId);
         if (group.expanded) {
             group.savedHeight = layersDiv.height();
+            $(groupDiv.children()[1]).removeClass("expanded");
             layersDiv.animate({height:0}, 200, _ => {
                 group.expanded = false;
                 layersDiv.hide();
                 $(groupDiv.children()[0]).removeClass("fa-folder-open").addClass("fa-folder");
-                $(groupDiv.children()[1]).removeClass("fa-chevron-up").addClass("fa-chevron-down");
             })
         } else {
             layersDiv.show();
             layersDiv.height(0);
+            $(groupDiv.children()[1]).addClass("expanded");
             layersDiv.animate({height:group.savedHeight}, 200, _ => {
                 group.expanded = true;
                 layersDiv.css({height:""})
                 $(groupDiv.children()[0]).removeClass("fa-folder").addClass("fa-folder-open");
-                $(groupDiv.children()[1]).removeClass("fa-chevron-down").addClass("fa-chevron-up");
             })
         }
     }
@@ -216,7 +217,6 @@ class MyPanel extends ZCustomController {
     }
 
     layerExpander_click(e) {
-        console.log("expander", e);
         let expander = $(e.currentTarget);
         let layerDiv = expander.parent();
         let groupId = layerDiv.data("group-id");
@@ -226,18 +226,18 @@ class MyPanel extends ZCustomController {
         let layer = group.getLayer(layerId);
         if (layer.expanded) {
             layer.savedHeight = itemsDiv.height();
+            expander.removeClass("expanded");
             itemsDiv.animate({height:0}, 200, _ => {
                 layer.expanded = false;
                 itemsDiv.hide();
-                $(layerDiv.children()[0]).removeClass("fa-chevron-up").addClass("fa-chevron-down");
             })
         } else {
             itemsDiv.show();
             itemsDiv.height(0);
+            expander.addClass("expanded");
             itemsDiv.animate({height:layer.savedHeight}, 200, _ => {
                 layer.expanded = true;
                 itemsDiv.css({height:""})
-                $(layerDiv.children()[0]).removeClass("fa-chevron-down").addClass("fa-chevron-up");
             })
         }
     }
@@ -419,8 +419,11 @@ class MyPanel extends ZCustomController {
         }
     }
 
-    groupChange(group) {
+    groupRename(group) {
         $(this.myContainer.view).find(".my-panel-group[data-group-id='" + group.id + "'] .group-name span").text(group.name);
+    }
+    layerRename(layer) {
+        $(this.myContainer.view).find(".my-panel-layer[data-group-id='" + layer.group.id + "'][data-layer-id='" + layer.id + "'] .layer-name span").text(layer.name);
     }
 }
 ZVC.export(MyPanel);

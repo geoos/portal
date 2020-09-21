@@ -37,6 +37,7 @@ class GEOOSGroup {
         layer.group = this; 
         this.layers.push(layer)
         if (this.active) await layer.create();
+        this.adjustOrder();
     }
     async removeLayer(id) {
         let layer = this.getLayer(id);
@@ -94,6 +95,7 @@ class GEOOSLayer {
     }
     constructor(config) {
         this.id = generateId();
+        config.opacity = config.opacity === undefined?80:config.opacity;
         this.config = config;
         this.active = true;
         this.expanded = true;
@@ -103,6 +105,11 @@ class GEOOSLayer {
     set name(n) {this.config.name = n}
     get index() {return this.group.getIndexOfLayer(this)}
     get isWorking() {return this.nWorking > 0}
+    get opacity() {return this.config.opacity}
+    set opacity(o) {
+        this.config.opacity = o;
+        window.geoos.mapPanel.adjustOpacity(this);
+    }
 
     async create() {console.warn("Abstract create for layer")}
     async destroy() {console.warn("Abstract destroy for layer")}

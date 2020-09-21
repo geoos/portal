@@ -189,7 +189,6 @@ class GEOOS {
         await this.events.trigger("portal", "groupActivated", g)
     }
     async addLayers(layers, inGroup) {
-        console.log("addLayers", layers);
         let group = inGroup || this.getActiveGroup();
         for (let layerDef of layers) {
             let geoosLayer = GEOOSLayer.create(layerDef);

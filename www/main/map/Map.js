@@ -19,6 +19,7 @@ class Map extends ZCustomController {
         let p = this.map.createPane("ly-" + layer.id);
         p.id = "ly-" + layer.id;
         p.style.pointerEvents = "none";
+        this.adjustOpacity(layer);
         return p;
     }
     destroyPanelFromLayer(layer) {
@@ -26,7 +27,10 @@ class Map extends ZCustomController {
     }
     adjustPanelZIndex(layer) {
         let p = document.getElementById("ly-" + layer.id);
-        p.style.zIndex = 500 + layer.index;
+        p.style.zIndex = 500 + (layer.group.layers.length - layer.index);
+    }
+    adjustOpacity(layer) {
+        document.getElementById("ly-" + layer.id).style.opacity = layer.opacity / 100;
     }
 }
 ZVC.export(Map);

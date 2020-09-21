@@ -8,7 +8,7 @@ class GroupProperties extends ZCustomController {
         let newName = this.edGroupName.value;
         if (newName.trim().length > 2) {
             this.group.name = newName;
-            window.geoos.events.trigger("group", "change", this.group);
+            window.geoos.events.trigger("group", "rename", this.group);
         }
     }
 }
