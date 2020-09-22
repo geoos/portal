@@ -7,16 +7,18 @@ class ConfigPanel extends ZCustomController {
         this.panels = [];
         this.hide();
         this.doResize(window.geoos.size)
-        window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.selectionChange(oldSelection, newSelection))
+        window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.selectionChange(oldSelection, newSelection))        
+        window.geoos.events.on("portal", "layerDeleted", async layer => this.layerDeleted(layer))
     }
 
     doResize(size) {
         if (!this.open) return;
-        thjis.applySize()
+        this.applySize()
     }
 
     applySize() {
-        this.configPanelContent.view.style.height = (window.geoos.size.height - 150 - 50) + "px";
+        let h = Math.max(window.geoos.size.height - 150 - 50, 100);
+        this.configPanelContent.view.style.height = h + "px";
     }
 
     toggle() {
@@ -141,6 +143,18 @@ class ConfigPanel extends ZCustomController {
             await panel.deactivate();
         }
         this.panels = [];
+    }
+
+    async layerDeleted(layer) {
+        if (!this.type) return;
+        if (this.type == "layer" && layer.id == this.element.id) {
+            window.geoos.unselect();
+            return;
+        }
+        if (this.type == "visualizer" && layer.id == this.element.layer.id) {
+            window.geoos.unselect();
+            return;
+        }
     }
 }
 ZVC.export(ConfigPanel);

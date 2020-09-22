@@ -5,18 +5,30 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
 
     constructor(layer, config) {
         super(layer);
+        config = config || {};
+        if (config.autoIncrement === undefined) config.autoIncrement = true;
+        if (config.lineWidth === undefined) config.lineWidth = 1;
+        if (config.lineColor === undefined) config.lineColor = "#000000"
         this.config = config;
         this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "isolines");
         this.aborter = null;
     }
     get code() {return "isolines"}
     get name() {return "Isolineas"}
+    get autoIncrement() {return this.config.autoIncrement?true:false}
+    set autoIncrement(a) {this.config.autoIncrement = a; this.startQuery()}
+    get increment() {return this.config.increment}
+    set increment(i) {this.config.increment = i; this.startQuery()}
+    get lineWidth() {return this.config.lineWidth}
+    set lineWidth(w) {this.config.lineWidth = w; this.update()}
+    get lineColor() {return this.config.lineColor}
+    set lineColor(c) {this.config.lineColor = c; this.update()}
 
     async create() {
         this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new GeoJsonVisualizer({
             zIndex:3,
             onBeforeUpdate: _ => {this.startQuery(); return false},
-            lineStyle:{stroke:"black", strokeWidth:1.2, hitStrokeWidth:0, perfectDrawEnabled:false, listenning:false, tension:0.2},
+            lineStyle:f => ({stroke:this.lineColor, strokeWidth:this.lineWidth, hitStrokeWidth:0, perfectDrawEnabled:false, listenning:false, tension:0.2}),
             markerLabel:m => (m.value)
         }));
         this.startQuery();
@@ -26,8 +38,13 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             this.aborter.abort();
             this.aborter = null;
         }
-        this.layer.konvaLeafletLayer.removeVisualizer(this.code);
+        if (this.layer.konvaLeafletLayer) this.layer.konvaLeafletLayer.removeVisualizer(this.code);
         this.visualizer = null;
+    }
+    update() {
+        if (this.active && this.layer.active && this.layer.group.active) {
+            this.layer.konvaLeafletLayer.getVisualizer(this.code).update();
+        }
     }
     startQuery() {
         if (this.aborter) {
@@ -35,13 +52,15 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({});
+        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
             .then(ret => {
                 this.aborter = null;
                 this.finishWorking();
+                if (this.autoIncrement) this.config.increment = ret.increment;
+                window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGeoJson(ret.geoJson, ret.markers.length < 1000?ret.markers:null);
             })
             .catch(err => {
@@ -52,6 +71,12 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
                 }
                 visualizer.setGeoJson(null);
             })
+    }
+
+    getPropertyPanels() {
+        return [{
+            code:"isolines-properties", name:"Configurar Isolineas", path:"./layers/visualizers/IsolinesProperties"
+        }]
     }
 }
 

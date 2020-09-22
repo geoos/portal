@@ -38,10 +38,18 @@ a:hover {
     border: 1px solid white;
     color: white;
 }
+.form-control:disabled {
+    background: #444343;
+    border: 1px solid white;
+    color: lightgray;
+}
 .form-control:focus {
     background: #444343;
     border: 1px solid white;
     color: white;
+}
+.form-control.error {
+    border: 1px solid orangered;
 }
 .nav-tabs {
     padding-top: 10px;
@@ -85,6 +93,10 @@ a:hover {
 }
 .slider .fa-minus {margin-top: -3px}
 .slider .fa-plus {margin-top: -11px}
+
+/* Controles */
+.checkbox i {cursor: pointer;}
+.checkbox-label:hover {cursor: pointer; text-decoration: underline;}
 
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
@@ -433,6 +445,15 @@ a:hover {
 }
 .my-panel-visualizer .visualizer-activator {
     cursor: pointer;
+    float: left;
+    margin-top: 3px;
+    margin-right: 8px;
+}
+.my-panel-visualizer .visualizer-name {
+    cursor: pointer;
+}
+.my-panel-visualizer .visualizer-name:hover {
+    text-decoration: underline;
 }
 
 .group-name span {
@@ -469,4 +490,9 @@ a:hover {
 }
 .prop-panel-content {
     padding: 5px;
+}
+.scale-preview {
+    border-radius: 5px;
+    border: 1px solid white;
+    height: 26px;
 }

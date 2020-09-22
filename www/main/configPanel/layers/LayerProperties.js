@@ -1,4 +1,4 @@
-class GroupProperties extends ZCustomController {
+class LayerProperties extends ZCustomController {
     onThis_init(layer) {
         this.layer = layer;
         this.edLayerName.value = layer.name;
@@ -23,4 +23,4 @@ class GroupProperties extends ZCustomController {
         this.lblOpacity.text = "Opacidad: " + this.layer.opacity + "%";
     }
 }
-ZVC.export(GroupProperties);
+ZVC.export(LayerProperties);

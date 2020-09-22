@@ -1,4 +1,4 @@
-# docker build -t geoos/portal:latest -t geoos/portal:0.15 .
+# docker build -t geoos/portal:latest -t geoos/portal:0.17 .
 # docker push geoos/portal:latest
 
 FROM node:14-alpine

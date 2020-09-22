@@ -13,6 +13,7 @@ class KonvaCanvasVisualizer extends KonvaLeafletVisualizer {
         this.canvas.style.border = "0";
         this.canvas.style.left = "0";
         this.canvas.style.top= "0";
+        this.canvas.style["z-index"] = 10000;
         this.positionCanvas();
     }
 

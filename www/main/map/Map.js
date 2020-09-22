@@ -15,6 +15,10 @@ class Map extends ZCustomController {
         this.lyBase.addTo(this.map);
     }
 
+    doResize(size) {
+        setTimeout(_ => this.map.invalidateSize(), 400);
+    }
+
     createPanelForLayer(layer) {
         let p = this.map.createPane("ly-" + layer.id);
         p.id = "ly-" + layer.id;

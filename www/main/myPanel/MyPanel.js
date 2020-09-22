@@ -89,7 +89,7 @@ class MyPanel extends ZCustomController {
                         if (layerItem.type == "visualizer") {
                             html += `<div class="my-panel-visualizer" data-code="${layerItem.code}">`;
                             html += `  <img class="visualizer-activator" src="/img/icons/switch${layerItem.active?"-active":""}.svg" />`;
-                            html += `  <span>${layerItem.name}</span>`;
+                            html += `  <div class="visualizer-name">${layerItem.name}</div>`;
                             html += `</div>`;
                         }
                     }
@@ -109,6 +109,7 @@ class MyPanel extends ZCustomController {
         $myContainer.find(".layer-expander").click(e => this.layerExpander_click(e))
         $myContainer.find(".layer-activator").click(e => this.layerActivator_click(e))
         $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e))
+        $myContainer.find(".visualizer-name").click(e => this.visualizerName_click(e))
         $myContainer.find(".group-context").click(e => this.groupContext_click(e))
         $myContainer.find(".layer-context").click(e => this.layerContext_click(e))
         $myContainer.find(".group-name").click(e => this.groupName_click(e))
@@ -265,6 +266,23 @@ class MyPanel extends ZCustomController {
         let layerId = layerItemsDiv.data("layer-id");
         let layer = window.geoos.getGroup(groupId).getLayer(layerId);
         let visualizer = layer.getVisualizer(visualizerCode);
+        await this.toggleVisualizer(visualizer);
+    }
+    async visualizerName_click(e) {
+        let visNameDiv = $(e.currentTarget);
+        let visualizerDiv = visNameDiv.parent();
+        let visualizerCode = visualizerDiv.data("code");
+        let layerItemsDiv = visualizerDiv.parent();
+        let groupId = layerItemsDiv.data("group-id");
+        let layerId = layerItemsDiv.data("layer-id");
+        let layer = window.geoos.getGroup(groupId).getLayer(layerId);
+        let visualizer = layer.getVisualizer(visualizerCode);
+        if (!visualizer.active) await this.toggleVisualizer(visualizer);
+        await window.geoos.selectElement("visualizer", visualizer);
+    }
+    async toggleVisualizer(visualizer) {
+        let query = ".my-panel-layer-items[data-group-id='" + visualizer.layer.group.id + "'][data-layer-id='" + visualizer.layer.id + "'] .my-panel-visualizer[data-code='" + visualizer.code + "'] img";
+        let activator = $(this.myContainer.view).find(query)
         await visualizer.toggleActive();
         if (visualizer.active) {
             activator.attr("src", "img/icons/switch-active.svg");
@@ -376,6 +394,7 @@ class MyPanel extends ZCustomController {
                     }, async _ => {
                         try {
                             await group.removeLayer(layerId);
+                            await window.geoos.events.trigger("portal", "layerDeleted", layer);
                             this.refresh();
                         } catch(error) {
                             console.log("error")

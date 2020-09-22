@@ -1,6 +1,6 @@
-class IsobandsRasterVisualizer extends RasterVisualizer {
+class ShaderRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("isobands");
+        return layer.variable.queries.includes("grid");
     }
 
     constructor(layer, config) {
@@ -15,16 +15,12 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
         }
         config.colorScale.unit = layer.variable.unit;
         this.config = config;
-        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "isobands");
+        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "grid");
         this.aborter = null;
         this.createColorScale();
     }
-    get code() {return "isobands"}
-    get name() {return "Isobandas"}
-    get autoIncrement() {return this.config.autoIncrement?true:false}
-    set autoIncrement(a) {this.config.autoIncrement = a; this.startQuery()}
-    get increment() {return this.config.increment}
-    set increment(i) {this.config.increment = i; this.startQuery()}
+    get code() {return "shader"}
+    get name() {return "Shader"}
     get colorScaleConfig() {return this.config.colorScale}
 
     createColorScale() {
@@ -39,12 +35,12 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
     }
 
     async create() {
-        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new GeoJsonVisualizer({
-            zIndex:1,
+        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new ShaderVisualizer({
+            zIndex:2,
             onBeforeUpdate: _ => {this.startQuery(); return false},
-            polygonStyle:f => {
-                let value = (f.properties.minValue + f.properties.maxValue) / 2;                
-                return {fill:this.colorScale.getColor(value), opacity:1}
+            pointColor:value => {
+                let color = this.colorScale.getColor(value)
+                return color;
             }
         }));
         this.startQuery();
@@ -68,17 +64,16 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment});
+        let {promise, controller} = this.query.query({margin:1});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
             .then(ret => {
                 this.aborter = null;
                 this.finishWorking();
-                if (this.autoIncrement) this.config.increment = ret.increment;
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
-                visualizer.setGeoJson(ret.geoJson);
+                visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
             })
             .catch(err => {
                 this.aborter = null;
@@ -92,11 +87,9 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
 
     getPropertyPanels() {
         return [{
-            code:"isobands-properties", name:"Configurar Isobandas", path:"./layers/visualizers/IsobandsProperties"
-        }, {
             code:"color-scale", name:"Escala de Colores", path:"./ColorScaleProperties"
         }]
     }
 }
 
-RasterVisualizer.registerVisualizerClass("isobands", IsobandsRasterVisualizer);
+RasterVisualizer.registerVisualizerClass("shader", ShaderRasterVisualizer);

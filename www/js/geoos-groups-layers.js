@@ -25,6 +25,7 @@ class GEOOSGroup {
         for (let layer of this.layers) {
             if (layer.active) await layer.create();
         }
+        this.adjustOrder();
     }
     async deactivate() {
         for (let layer of this.layers) {
@@ -118,11 +119,15 @@ class GEOOSLayer {
     getItems() {return null}
     async activate() {
         this.active = true;
-        if (this.group.active) await this.create();
+        if (this.group.active) {
+            await this.create();
+            this.group.adjustOrder();
+        }
     }
     async deactivate() {
         await this.destroy();
         this.active = false;
+        this.group.adjustOrder();
     }
     async toggleActive() {
         if (this.active) await this.deactivate();
@@ -147,6 +152,11 @@ class GEOOSLayer {
             code:"layer-properties", name:"Propiedades de la Capa", path:"./layers/LayerProperties"
         }]
     }
+
+    formatValue(v) {
+        if (v === undefined || v === null) return "";
+        return v.toLocaleString();
+    }
 }
 
 class GEOOSRasterLayer extends GEOOSLayer {
@@ -161,6 +171,11 @@ class GEOOSRasterLayer extends GEOOSLayer {
 
     getVisualizer(code) {return this.visualizers.find(v => (v.code == code))}
     getItems() {return this.visualizers}
+
+    formatValue(v) {
+        if (v === undefined || v === null) return "";
+        return this.geoServer.client.formatValue(this.dataSet.code, this.variable.code, v, false);
+    }
 
     async create() {
         this.pane = window.geoos.mapPanel.createPanelForLayer(this);

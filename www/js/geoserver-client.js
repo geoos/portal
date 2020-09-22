@@ -21,8 +21,10 @@ class GEOServerClient {
     _getJSON(url, args, signal) {
         let urlArgs = "";
         for (const argName in args) {
-            urlArgs = urlArgs?(urlArgs + "&"):"?";
-            urlArgs += argName + "=" + encodeURI(args[argName]);
+            if (args[argName] !== undefined) {
+                urlArgs = urlArgs?(urlArgs + "&"):"?";
+                urlArgs += argName + "=" + encodeURI(args[argName]);
+            }
         }
         this._incWorking();
         return new Promise((resolve, reject) => {
@@ -72,17 +74,17 @@ class GEOServerClient {
         }
     }
 
-    isolines(dataSetCode, varCode, time, n, w, s, e, level) {
+    isolines(dataSetCode, varCode, time, n, w, s, e, level, increment) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e, level}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e, level, increment}, controller.signal),
             controller:controller
         }
     }
-    isobands(dataSetCode, varCode, time, n, w, s, e, level) {
+    isobands(dataSetCode, varCode, time, n, w, s, e, level, increment) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e, level}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e, level, increment}, controller.signal),
             controller:controller
         }
     }

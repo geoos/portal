@@ -128,15 +128,14 @@ class ShaderVisualizer extends KonvaCanvasVisualizer {
                     pointIndex[key] = vertexPositions.length / 2;
                     vertexPositions.push(x, y);                    
                     let color = this.getColor(v, lat, lng);
-                    let colors = parseColor(color);
+                    let colors = parseColor(color) || [0,0,0,0];
                     while (colors.length < 4) colors.push(255);                    
                     let [r,g,b,a] = colors;
                     if (typeof a == "string" && a.indexOf(".") >= 0) {
                         a = parseFloat(a);
                         if (a <= 1) a *= 255;
-                    } 
+                    }  else if (a <= 1) a *= 255
                     vertexColors.push(r/255, g/255, b/255, a/255);
-
                 }
                 if (iRow < (nrows - 1) && iCol > 0) {
                     let keySE = key, idxSE = pointIndex[keySE], existeSE = idxSE !== undefined;

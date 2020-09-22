@@ -7,7 +7,7 @@ function parseColor(color) {
         return [
             parseInt(hex3.charAt(0),16)*0x11,
             parseInt(hex3.charAt(1),16)*0x11,
-            parseInt(hex3.charAt(2),16)*0x11, 1
+            parseInt(hex3.charAt(2),16)*0x11, 255
         ];
     }
     var hex6 = color.match(/^#([0-9a-f]{6})$/i);
@@ -16,7 +16,7 @@ function parseColor(color) {
         return [
             parseInt(hex6.substr(0,2),16),
             parseInt(hex6.substr(2,2),16),
-            parseInt(hex6.substr(4,2),16), 1
+            parseInt(hex6.substr(4,2),16), 255
         ];
     }
     var rgba = color.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+.*\d*)\s*\)$/i) || color.match(/^rgba\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
@@ -25,7 +25,7 @@ function parseColor(color) {
     }
     var rgb = color.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
     if( rgb ) {
-        return [rgb[1],rgb[2],rgb[3],1];
+        return [rgb[1],rgb[2],rgb[3], 255];
     }
     if(color.indexOf('hsl')== 0)
         return _hslToRgb(color);
@@ -35,7 +35,7 @@ function _hslToRgb(hsl){
     if(typeof hsl== 'string'){
         hsl= hsl.match(/(\d+(\.\d+)?)/g);
     }
-    var sub, h= hsl[0]/360, s= hsl[1]/100, l= hsl[2]/100, a = hsl[3]===undefined?1:hsl[3], t1, t2, t3, rgb, val;
+    var sub, h= hsl[0]/360, s= hsl[1]/100, l= hsl[2]/100, a = hsl[3]===undefined?"1.0":hsl[3], t1, t2, t3, rgb, val;
     if(s== 0){
         val= Math.round(l*255);
         rgb= [val, val, val, a];
