@@ -6,9 +6,15 @@ class Slider extends ZCustomController {
         this.barWidth = $(this.view).find(".slider-bar").width() - 22;
         this.$handler = $(this.handler.view);
         this.$handler.draggable({axis: "x", containment: "parent",
-            start:_ => this.barWidth = $(this.view).find(".slider-bar").width() - 22,
+            start:_ => {
+                this.$handler.addClass("text-primary");
+                this.barWidth = $(this.view).find(".slider-bar").width() - 22
+            },
             drag:_ => this.triggerEvent("changing", this.value),
-            stop:_ => this.triggerEvent("change", this.value),
+            stop:_ => {
+                this.$handler.removeClass("text-primary");
+                this.triggerEvent("change", this.value)
+            },
         })
     }
 

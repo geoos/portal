@@ -17,11 +17,12 @@ class Main extends ZCustomController {
             }
         }
         if (!initialGroup) initialGroup = window.geoos.addGroup({name:"Mis Capas"});
-        await window.geoos.activateGroup(initialGroup.id)
         if (initialView) {
             window.geoos.mapPanel.deserialize(initialView);
-            window.geoos.myPanel.toggle();
+            await (new Promise(resolve => setTimeout(_ => resolve(), 500)));
+            await window.geoos.myPanel.toggleAndWait();
         }
+        await window.geoos.activateGroup(initialGroup.id)
     }
 
     getParameterByName(name) {

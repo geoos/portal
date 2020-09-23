@@ -136,11 +136,33 @@ class GEOOS {
                                 type:"raster",
                                 geoServer:geoServer, dataSet:dataSet,
                                 providers:[dataSet.provider],
-                                subjects:variable.options.subjects,
-                                regions:variable.options.regions,
-                                types:variable.options.types,
+                                subjects:variable.options.subjects || [],
+                                regions:variable.options.regions || [],
+                                types:variable.options.types || [],
                                 variable:variable,
-                                code:dataSet.code + "." + variable.code, name:variable.name
+                                code:dataSet.code + "." + variable.code, 
+                                name:variable.name
+                            })
+                        }
+                    }
+                }
+            }
+        } else if (type == "vector") {
+            for (let geoServer of this.geoServers) {
+                for (let dataSet of geoServer.dataSets) {
+                    if (dataSet.type == "vector") {
+                        for (let file of dataSet.files) {
+                            layers.push({
+                                type:"vector",
+                                name:file.commonName,
+                                geoServer:geoServer,
+                                dataSet:dataSet,
+                                providers:[dataSet.provider],
+                                subjects:file.options.subjects || [],
+                                regions:file.options.regions || [],
+                                types:file.options.types || [],
+                                file:file,
+                                code:dataSet.code + "." + file.name 
                             })
                         }
                     }

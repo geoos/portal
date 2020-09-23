@@ -1,26 +1,25 @@
-class ShaderRasterVisualizer extends RasterVisualizer {
+class VectorsRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("grid");
+        return layer.variable.queries.includes("vectorsGrid");
     }
 
     constructor(layer, config) {
         super(layer);
         config = config || {};
-        if (config.autoIncrement === undefined) config.autoIncrement = true;
         if (!config.colorScale) {
             if (layer.variable.options.colorScale) config.colorScale = layer.variable.options.colorScale;
             else config.colorScale = {
-                name:"Verde a Rojo", auto:true, clipOutOfRange:false
+                name:"Open Weather - Wind", auto:true, clipOutOfRange:false
             }            
         }
         config.colorScale.unit = layer.variable.unit;
         this.config = config;
-        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "grid");
+        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "vectors");
         this.aborter = null;
         this.createColorScale();
     }
-    get code() {return "shader"}
-    get name() {return "Shader"}
+    get code() {return "vectors"}
+    get name() {return "Vectors"}
     get colorScaleConfig() {return this.config.colorScale}
 
     createColorScale() {
@@ -35,12 +34,11 @@ class ShaderRasterVisualizer extends RasterVisualizer {
     }
 
     async create() {
-        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new ShaderVisualizer({
-            zIndex:2,
+        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new VectorsVisualizer({
+            zIndex:4,
             onBeforeUpdate: _ => {this.startQuery(); return false},
-            pointColor:value => {
-                let color = this.colorScale.getColor(value)
-                return color;
+            vectorColor:value => {
+                return this.colorScale.getColor(value)
             }
         }));
         this.startQuery();
@@ -58,22 +56,13 @@ class ShaderRasterVisualizer extends RasterVisualizer {
             this.layer.konvaLeafletLayer.getVisualizer(this.code).update();
         }
     }
-    refresh() {
-        return new Promise((resolve, reject) => {
-            if (!this.active) {resolve(); return}
-            this.startQuery(err => {
-                if (err) reject(err);
-                else resolve();
-            })
-        })
-    }
-    startQuery(cb) {
+    startQuery() {
         if (this.aborter) {
             this.aborter.abort();
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({margin:1, level:this.layer.level});
+        let {promise, controller} = this.query.query({margin:1});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
@@ -82,8 +71,7 @@ class ShaderRasterVisualizer extends RasterVisualizer {
                 this.finishWorking();
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
-                visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
-                if (cb) cb();
+                visualizer.setVectorData(ret.foundBox, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);
             })
             .catch(err => {
                 this.aborter = null;
@@ -91,8 +79,7 @@ class ShaderRasterVisualizer extends RasterVisualizer {
                     console.error(err);
                     this.finishWorking();
                 }
-                visualizer.setGridData(null, null, null, null);
-                if (cb) cb(err);
+                visualizer.setVectorData(null, null, null, null, null);
             })
     }
 
@@ -103,4 +90,4 @@ class ShaderRasterVisualizer extends RasterVisualizer {
     }
 }
 
-RasterVisualizer.registerVisualizerClass("shader", ShaderRasterVisualizer);
+RasterVisualizer.registerVisualizerClass("vectors", VectorsRasterVisualizer);

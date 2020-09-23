@@ -21,8 +21,10 @@ class TextSearch extends ZCustomController {
         this.edSearch.value = "";
         this.iconSearch.view.classList.remove("fa-times");
         this.iconSearch.view.classList.add("fa-search");
+        this.edSearch.view.focus();
         this.triggerEvent("change", "");
     }
+    focus() {this.edSearch.view.focus()}
     onIconSearch_click() {
         if (this.edSearch.value) {
             this.clear();

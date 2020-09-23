@@ -4,7 +4,7 @@ class Map extends ZCustomController {
         this.map = L.map(this.mapContainer.id, {
             zoomControl:false, 
             attributionControl:false,
-            minZoom:2, maxZoom:12
+            minZoom:3, maxZoom:12
         }).setView([-33.034454, -71.592093], 6);
 
         let baseMap = window.geoos.baseMaps[0];

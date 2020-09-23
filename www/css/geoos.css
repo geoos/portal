@@ -436,6 +436,11 @@ a:hover {
     cursor: pointer;
     transition: 0.3s ease-in-out;
     margin-top: 4px;
+    width: 14px;
+}
+.layer-icon {
+    margin-top: 4px;
+    width: 14px;
 }
 .layer-expander.expanded {
     transform: rotate(90deg);

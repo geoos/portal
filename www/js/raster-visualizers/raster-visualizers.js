@@ -22,6 +22,8 @@ class RasterVisualizer {
     get code() {return "abstract"}
     get name() {return "Abstract Raster Visualizer"}
 
+    async refresh() {throw "Abstract refresh in visualizer:" + this.code}
+
     serialize() {
         let v = {code: this.code, active:this.active}
         for (let key in this.config) v[key] = this.config[key];

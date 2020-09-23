@@ -61,6 +61,7 @@ class AddPanel extends ZCustomController {
                 this.addPanelContent.show();
                 this.refreshLayerType();
                 this.open = true;
+                this.edNameFilter.focus();
                 window.geoos.topPanel.activateOption("opAddVariables");
             });
         }

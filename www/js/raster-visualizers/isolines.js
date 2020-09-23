@@ -48,13 +48,22 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             this.layer.konvaLeafletLayer.getVisualizer(this.code).update();
         }
     }
-    startQuery() {
+    refresh() {
+        return new Promise((resolve, reject) => {
+            if (!this.active) {resolve(); return}
+            this.startQuery(err => {
+                if (err) reject(err);
+                else resolve();
+            })
+        })
+    }
+    startQuery(cb) {
         if (this.aborter) {
             this.aborter.abort();
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels});
+        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels ,level:this.layer.level});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
@@ -64,6 +73,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
                 if (this.autoIncrement) this.config.increment = ret.increment;
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGeoJson(ret.geoJson, ret.markers.length < 1000?ret.markers:null);
+                if (cb) cb();
             })
             .catch(err => {
                 this.aborter = null;
@@ -72,6 +82,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
                     this.finishWorking();
                 }
                 visualizer.setGeoJson(null);
+                if (cb) cb(err);
             })
     }
 
