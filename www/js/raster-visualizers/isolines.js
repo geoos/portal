@@ -23,6 +23,8 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
     set lineWidth(w) {this.config.lineWidth = w; this.update()}
     get lineColor() {return this.config.lineColor}
     set lineColor(c) {this.config.lineColor = c; this.update()}
+    get fixedLevels() {return this.config.fixedLevels?this.config.fixedLevels:""}
+    set fixedLevels(l) {this.config.fixedLevels = l; this.startQuery()}
 
     async create() {
         this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new GeoJsonVisualizer({
@@ -52,7 +54,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment});
+        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
@@ -76,6 +78,8 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
     getPropertyPanels() {
         return [{
             code:"isolines-properties", name:"Configurar Isolineas", path:"./layers/visualizers/IsolinesProperties"
+        }, {
+            code:"fixed-levels-properties", name:"Extraer Niveles Fijos", path:"./layers/visualizers/FixedLevelsProperties"
         }]
     }
 }

@@ -81,7 +81,6 @@ class ShaderRasterVisualizer extends RasterVisualizer {
                     console.error(err);
                     this.finishWorking();
                 }
-                visualizer.setGeoJson(null);
             })
     }
 

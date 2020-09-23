@@ -26,6 +26,8 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
     get increment() {return this.config.increment}
     set increment(i) {this.config.increment = i; this.startQuery()}
     get colorScaleConfig() {return this.config.colorScale}
+    get fixedLevels() {return this.config.fixedLevels?this.config.fixedLevels:""}
+    set fixedLevels(l) {this.config.fixedLevels = l; this.startQuery()}
 
     createColorScale() {
         let scaleDef = window.geoos.scalesFactory.byName(this.colorScaleConfig.name);
@@ -68,7 +70,7 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment});
+        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels});
         this.aborter = controller;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise

@@ -33,9 +33,9 @@ class RasterQuery extends GEOOSQuery {
         } else throw "Format '" + this.format + "' not handled in RasterQuery"
 
         if (this.format == "isolines") {
-            return this.geoServer.client.isolines(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.level, args.increment);
+            return this.geoServer.client.isolines(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.level, args.increment, args.fixedLevels);
         } else if (this.format == "isobands") {
-            return this.geoServer.client.isobands(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.level, args.increment);
+            return this.geoServer.client.isobands(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.level, args.increment, args.fixedLevels);
         } else if (this.format == "grid") {
             return this.geoServer.client.grid(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.margin, args.level);
         }

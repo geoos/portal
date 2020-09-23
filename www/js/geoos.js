@@ -27,6 +27,7 @@ class GEOOS {
         return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
     }
     
+    getGeoServer(code) {return this.geoServers.find(s => s.code == code)}
 
     triggerResize() {
         if (this.timerResize) clearTimeout(this.timerResize);
@@ -156,6 +157,10 @@ class GEOOS {
     getActiveGroup() {return this.groups.find(g => (g.active))}
     addGroup(config) {
         let g = new GEOOSGroup(config);
+        this.groups.push(g);
+        return g;
+    }
+    addExistingGroup(g) {
         this.groups.push(g);
         return g;
     }

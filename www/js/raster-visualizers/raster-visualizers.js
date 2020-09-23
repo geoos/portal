@@ -22,6 +22,17 @@ class RasterVisualizer {
     get code() {return "abstract"}
     get name() {return "Abstract Raster Visualizer"}
 
+    serialize() {
+        let v = {code: this.code, active:this.active}
+        for (let key in this.config) v[key] = this.config[key];
+        return v;
+    }
+    applyConfig(config) {
+        this.config = config;
+        this.active = config.active;
+        delete config.active;
+    }
+
     startWorking() {
         this.working = true;
         this.layer.startWorking();

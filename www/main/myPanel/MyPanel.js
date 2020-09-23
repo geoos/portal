@@ -321,6 +321,8 @@ class MyPanel extends ZCustomController {
         }, {
             code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
         }, {
+            code:"share", icon:"fas fa-share-square", label:"Compartir", 
+        }, {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"delete", icon:"far fa-trash-alt", label:"Eliminar el Grupo", 
@@ -342,6 +344,20 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
+                } else if (code == "share") {
+                    let s = group.serialize();
+                    s.mapView = window.geoos.mapPanel.serialize();
+                    s = JSON.stringify(s);
+                    let b = btoa(s);
+                    let url = window.location.href.split('?')[0] + "?group=" + encodeURIComponent(b);
+                    console.log("url", url);
+                    const el = document.createElement('textarea');
+                    el.value = url;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 }
             }
         })
@@ -380,6 +396,8 @@ class MyPanel extends ZCustomController {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
+        }, {
+            code:"share", icon:"fas fa-share-square", label:"Compartir", 
         }, {
             code:"sep", icon:"-", label:"-", 
         }, {

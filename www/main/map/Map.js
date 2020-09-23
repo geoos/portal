@@ -15,9 +15,17 @@ class Map extends ZCustomController {
         this.lyBase.addTo(this.map);
     }
 
+    serialize() {
+        let center = this.map.getCenter();
+        return {lat:center.lat, lng:center.lng, zoom:this.map.getZoom()}
+    }
+    deserialize(s) {
+        this.map.flyTo([s.lat, s.lng], s.zoom);
+    } 
+
     doResize(size) {
         setTimeout(_ => this.map.invalidateSize(), 400);
-    }
+    }    
 
     createPanelForLayer(layer) {
         let p = this.map.createPane("ly-" + layer.id);

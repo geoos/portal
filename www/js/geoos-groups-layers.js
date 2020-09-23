@@ -17,6 +17,31 @@ class GEOOSGroup {
         this.expanded = true;
     }
 
+    serialize() {
+        return {
+            id:this.id, 
+            name:this.name,
+            config:this.config, 
+            active:this.active, 
+            expanded:this.expanded, 
+            layers:this.layers.reduce((list, l) => {list.push(l.serialize()); return list}, [])
+        }
+    } 
+    static deserialize(s) {
+        let g = new GEOOSGroup({name: s.name});
+        g.id = s.id;
+        g.active = false;
+        g.expanded = s.expanded;
+        g.layers = s.layers.reduce((list, layer) => {
+            let l = GEOOSLayer.deserialize(layer);
+            l.group = g;
+            list.push(l);
+            return list;
+        }, [])    
+        return g;
+    }
+
+
     get name() {return this.config.name}
     set name(n) {this.config.name = n}
 
@@ -112,6 +137,23 @@ class GEOOSLayer {
         window.geoos.mapPanel.adjustOpacity(this);
     }
 
+    serialize() {
+        return {
+            id:this.id,
+            name:this.name,
+            opacity:this.opacity,
+            expanded:this.expanded,
+            active: this.active        
+        }
+    }
+    static deserialize(s) {
+        let config = {name:s.name, opacity:s.opacity, expanded:s.expanded, active:s.active}
+        if (s.type == "raster") {            
+            return GEOOSRasterLayer.deserialize(s, config);
+        }
+        throw "Layer type '" + layerConfig.type + "' not yet handled"
+    }
+
     async create() {console.warn("Abstract create for layer")}
     async destroy() {console.warn("Abstract destroy for layer")}
     reorder() {console.warn("Abstract reorder for layer")}
@@ -168,6 +210,31 @@ class GEOOSRasterLayer extends GEOOSLayer {
     get variable() {return this.config.variable}
     get geoServer() {return this.config.geoServer}
     get dataSet() {return this.config.dataSet}
+
+    serialize() {
+        let l = super.serialize();
+        l.type = "raster";        
+        l.variable = this.variable.code;
+        l.geoServer = this.geoServer.code;
+        l.dataSet = this.dataSet.code;
+        l.visualizers = this.visualizers.reduce((list, v) => {list.push(v.serialize()); return list}, [])
+        return l;
+    }
+    static deserialize(s, config) {
+        config.geoServer = window.geoos.getGeoServer(s.geoServer);
+        if (!config.geoServer) throw "GeoServer '" + s.geoServer + "' is not available";
+        config.dataSet = config.geoServer.dataSets.find(ds => ds.code == s.dataSet);
+        if (!config.dataSet) throw "DataSet '" + s.dataSet + "' is no available in GeoServer '" + s.geoServer + "'";
+        config.variable = config.dataSet.variables.find(v => v.code == s.variable);
+        if (!config.dataSet) throw "Variable '" + s.variable + "' is no available in DataSet '" + s.dataSet + "' in GeoServer '" + s.geoServer + "'";
+        let layer = new GEOOSRasterLayer(config);
+        layer.id = s.id;
+        layer.visualizers.forEach(v => {
+            let vConfig = s.visualizers.find(vis => vis.code == v.code);
+            if (vConfig) v.applyConfig(vConfig)
+        });
+        return layer;
+    }
 
     getVisualizer(code) {return this.visualizers.find(v => (v.code == code))}
     getItems() {return this.visualizers}

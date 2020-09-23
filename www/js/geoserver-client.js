@@ -74,17 +74,17 @@ class GEOServerClient {
         }
     }
 
-    isolines(dataSetCode, varCode, time, n, w, s, e, level, increment) {
+    isolines(dataSetCode, varCode, time, n, w, s, e, level, increment, fixedLevels) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e, level, increment}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isolines", {time, n, w ,s, e, level, increment, fixedLevels}, controller.signal),
             controller:controller
         }
     }
-    isobands(dataSetCode, varCode, time, n, w, s, e, level, increment) {
+    isobands(dataSetCode, varCode, time, n, w, s, e, level, increment, fixedLevels) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e, level, increment}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/isobands", {time, n, w ,s, e, level, increment, fixedLevels}, controller.signal),
             controller:controller
         }
     }

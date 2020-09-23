@@ -70,6 +70,10 @@ a:hover {
 .tab-content {
     background: #444343;
 }
+.custom-select option {
+    background: #444343;
+    color: white
+}
 
 /* Modals */
 .modal {z-index: 6000;}
@@ -157,10 +161,11 @@ a:hover {
     color: white;
     border-radius: 12px;
     padding: 5px;
-    margin-top: -15px;
     font-size: 12px;
     cursor: pointer;
 }
+.my-panel-group .details-menu-icon {margin-top: -17px;}
+.my-panel-layer .details-menu-icon {margin-top: -20px;}
 
 /* Top Panel */
 .top-panel {
@@ -430,12 +435,14 @@ a:hover {
 .layer-expander {
     cursor: pointer;
     transition: 0.3s ease-in-out;
+    margin-top: 4px;
 }
 .layer-expander.expanded {
     transform: rotate(90deg);
 }
 .my-panel-layer .layer-activator {
     cursor: pointer;
+    margin-top: 4px;
 }
 .my-panel-layer-items {
     margin-left: 50px;
@@ -460,7 +467,11 @@ a:hover {
     padding: 5px;
 }
 .layer-name span {
-    padding: 5px;
+    margin-left: 44px;
+    margin-right: 30px;
+    display: block;
+    margin-top: -5px;
+    padding: 2px;
 }
 .my-panel-selected-name {
     background: #444343;
