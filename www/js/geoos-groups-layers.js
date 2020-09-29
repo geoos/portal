@@ -179,6 +179,7 @@ class GEOOSLayer {
         }
     }
     async deactivate() {
+        if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id) await window.geoos.unselectObject();
         await this.destroy();
         this.active = false;
         this.group.adjustOrder();
@@ -325,7 +326,70 @@ class GEOOSVectorLayer extends GEOOSLayer {
     }
 
     async create() {
+        this.objectSelectedListener = selection => {
+            if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+        }
+        this.objectUnselectedListener = selection => {
+            if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+        }
+
+        window.geoos.events.on("map", "objectSelected", this.objectSelectedListener);
+        window.geoos.events.on("map", "objectUnselected", this.objectUnselectedListener);
+
+        // Styles
+        let getFeatureStyle = f => ({stroke:"black", strokeWidth:1});
+        if (this.file.options && this.file.options.getFeatureStyle) {
+            try {
+                getFeatureStyle = eval(this.file.options.getFeatureStyle);
+                if (getFeatureStyle instanceof Object) {
+                    this.fixedStyle = getFeatureStyle;
+                    getFeatureStyle = f => (this.fixedStyle)
+                } else if (!(getFeatureStyle instanceof Function)) {
+                    console.error("Invalid 'getFeatureStyle' option for file '" + this.file.name + "'. Must be a javascript object or function");
+                    getFeatureStyle = null;
+                }
+             } catch(err) {
+                console.error("Error parsing 'getFeatureStyle' for file '" + this.file.name + "'");
+                console.warn(this.file.options.getFeatureStyle);
+                console.error(err);
+            }
+        }
+        let getSelectedFeatureStyle = f => ({stroke:"blue", strokeWidth:1.2, fill:"rgba(50, 50, 250, 0.4)"});
+        if (this.file.options && this.file.options.getSelectedFeatureStyle) {
+            try {
+                getSelectedFeatureStyle = eval(this.file.options.getSelectedFeatureStyle);
+                if (getSelectedFeatureStyle instanceof Object) {
+                    this.fixedSelectedStyle = getSelectedFeatureStyle;
+                    getSelectedFeatureStyle = f => (this.fixedSelectedStyle)
+                } else if (!(getSelectedFeatureStyle instanceof Function)) {
+                    console.error("Invalid 'getSelectedFeatureStyle' option for file '" + this.file.name + "'. Must be a javascript object or function");
+                    getSelectedFeatureStyle = null;
+                }
+             } catch(err) {
+                console.error("Error parsing 'getSelectedFeatureStyle' for file '" + this.file.name + "'");
+                console.warn(this.file.options.getSelectedFeatureStyle);
+                console.error(err);
+            }
+        }
+        let getHoverFeatureStyle = f => ({stroke:"black", strokeWidth:1.2, fill:"rgba(50, 50, 250, 0.2)"});
+        if (this.file.options && this.file.options.getHoverFeatureStyle) {
+            try {
+                getHoverFeatureStyle = eval(this.file.options.getHoverFeatureStyle);
+                if (getHoverFeatureStyle instanceof Object) {
+                    this.fixedHoverStyle = getHoverFeatureStyle;
+                    getHoverFeatureStyle = f => (this.fixedHoverStyle)
+                } else if (!(getHoverFeatureStyle instanceof Function)) {
+                    console.error("Invalid 'getSelectedFeatureStyle' option for file '" + this.file.name + "'. Must be a javascript object or function");
+                    getHoverFeatureStyle = null;
+                }
+             } catch(err) {
+                console.error("Error parsing 'getSelectedFeatureStyle' for file '" + this.file.name + "'");
+                console.warn(this.file.options.getSelectedFeatureStyle);
+                console.error(err);
+            }
+        }
         this.pane = window.geoos.mapPanel.createPanelForLayer(this);
+        this.hoveredId = null;
         this.konvaLeafletLayer = new KonvaLeafletLayer(window.geoos.map, null, null, {pane:this.pane.id});
         this.konvaLeafletLayer.addTo(window.geoos.map);
         this.konvaLeafletLayer.addVisualizer("geoJsonTiles", new VectorTilesVisualizer({
@@ -334,11 +398,40 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 let time;
                 if (this.dataSet.temporality != "none") time = window.geoos.time;
                 return this.geoServer.client.fileGeoJsonTile(this.dataSet.code, this.file.name, time, z, x, y);
-            }
+            },
+            getFeatureStyle: f => {                
+                if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.objectId == f.tags.id) {
+                    return getSelectedFeatureStyle(f)
+                }
+                if (f.tags.id == this.hoveredId) return getHoverFeatureStyle(f)
+                else return getFeatureStyle(f)
+            },
+            onmouseover: f => {
+                if (f.tags.id == this.hoveredId) return;
+                this.hoveredId = f.tags.id;
+                let name = f.tags.name, lat = f.tags.centroidLat, lng = f.tags.centroidLng;
+                if (lat === undefined || lng === undefined) {
+                    lat = f.tags.centerLat, lng = f.tags.centerLng;
+                }
+                if (name !== undefined && lat !== undefined && lng !== undefined) {
+                    this.konvaLeafletLayer.getVisualizer("geoJsonTiles").setContextLegend(lat, lng, name);                    
+                } else {
+                    this.konvaLeafletLayer.getVisualizer("geoJsonTiles").unsetContextLegend();
+                }
+                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+            },
+            onmouseout: f => {
+                this.hoveredId = null;
+                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").unsetContextLegend();
+                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+            },
+            onclick:f => window.geoos.selectObject(this, f.tags.id)
         }));
         
     }
-    async destroy() {        
+    async destroy() {  
+        window.geoos.events.remove(this.objectSelectedListener);
+        window.geoos.events.remove(this.objectUnselectedListener);      
         if (!this.konvaLeafletLayer) return;
         this.konvaLeafletLayer.removeVisualizer("geoJsonTiles");
         this.konvaLeafletLayer.removeFrom(window.geoos.map);
@@ -347,10 +440,14 @@ class GEOOSVectorLayer extends GEOOSLayer {
     }
 
     async refresh() {
+        if (this.metadataAborter) this.metadataAborter.abort();
+        this.metadata = null;
+        this.metadataAborter = null;
         this.konvaLeafletLayer.getVisualizer("geoJsonTiles").reset();
     }
 
     reorder() {
         window.geoos.mapPanel.adjustPanelZIndex(this);
     }
+
 }

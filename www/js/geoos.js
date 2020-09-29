@@ -26,6 +26,10 @@ class GEOOS {
         let b = this.map.getBounds();
         return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
     }
+    get center() {
+        let center = this.map.getCenter();
+        return {lat:center.lat, lng:center.lng}
+    }
     
     getGeoServer(code) {return this.geoServers.find(s => s.code == code)}
 
@@ -239,6 +243,19 @@ class GEOOS {
         let oldSelection = this.selection;                
         this.selection = {type:type, element:element};
         await this.events.trigger("portal", "selectionChange", {oldSelection:oldSelection, newSelection:this.selection})
+    }
+
+    async selectObject(layer, objectId) {
+        if (this.selectedObject) {
+            await this.unselectObject()
+        }
+        this.selectedObject = {layer, objectId};
+        await this.events.trigger("map", "objectSelected", this.selectedObject);
+    }
+    async unselectObject() {
+        let selected = this.selectedObject;
+        this.selectedObject = null;
+        await this.events.trigger("map", "obectUnselected", selected);
     }
 }
 

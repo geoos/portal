@@ -19,7 +19,7 @@ class VectorsRasterVisualizer extends RasterVisualizer {
         this.createColorScale();
     }
     get code() {return "vectors"}
-    get name() {return "Vectors"}
+    get name() {return "Vectores"}
     get colorScaleConfig() {return this.config.colorScale}
 
     createColorScale() {

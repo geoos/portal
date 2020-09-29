@@ -119,6 +119,7 @@ class KonvaLeafletVisualizer {
     get zIndex() {return this.options.zIndex !== undefined?this.options.zIndex:0}
     get width() {return this.stageLayer.konvaStage.width()}
     get height() {return this.stageLayer.konvaStage.height()}
+    get canvas() {return this.stageLayer.canvas}
 
     toCanvas(mapPoint) {
         let p = this.map.latLngToLayerPoint(mapPoint);

@@ -95,12 +95,19 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
                 }
             }
         }
-
+        if (this.contextLegend) this.drawContextLegend();
         this.konvaLayer.draw();
     }
 
     toX(x) {return x - this.originInWorld.x}
     toY(y) {return y - this.originInWorld.y}
+
+    setContextLegend(lat, lng, label) {
+        this.contextLegend = {lat, lng, label}
+    }
+    unsetContextLegend() {
+        this.contextLegend = null;
+    }
 
     addFeatures(tile) {
         let group = new Konva.Group({
@@ -116,17 +123,30 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
             }, {
                 stroke:"red", strokeWidth:2
             }]
+            const defaultSelectedStyles = [{}, {
+                fill:"blue", stroke:"red", strokeWidth:1.2, radius: 9
+            }, {
+                stroke:"red", strokeWidth:3
+            }, {
+                stroke:"red", strokeWidth:3
+            }]
             let style = defaultStyles[type];
             if (this.options.getFeatureStyle) {
                 style = this.options.getFeatureStyle(feature) || style;
             }
+            let selectedStyle = defaultSelectedStyles[type];
+            if (this.options.getSelectedFeatureStyle) {
+                selectedStyle = this.options.getSelectedFeatureStyle(feature) || selectedStyle;
+            }
             feature.geometry.forEach(geom => {
+                let object = null;
                 if (type == 1) {
                     style.x = this.toX(tile.x0 + p[0] * tile.tileWidth / this.extent);
                     style.y = this.toY(tile.y0 + p[1] * tile.tileHeight / this.extent);
                     let circle = new Konva.Circle(style)
                     group.add(circle);
                     empty = false;
+                    object = circle;
                 } else {                    
                     let points = geom.reduce((list, p) => {
                         let x = this.toX(tile.x0 + p[0] * tile.tileWidth / this.extent);
@@ -140,10 +160,77 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
                         let polyOrLine = new Konva.Line(style)
                         group.add(polyOrLine);
                         empty = false;
+                        object = polyOrLine;
                     }
+                }
+                if (this.options.onmouseover) {
+                    object.on("mouseover", e => this.options.onmouseover(feature))
+                }
+                if (this.options.onmouseout) {
+                    object.on("mouseout", e => this.options.onmouseout(feature))
+                }
+                if (this.options.onclick) {
+                    object.on("click", e => this.options.onclick(feature))
                 }
             })
         });
         if (!empty) this.konvaLayer.add(group);
     }    
+
+    drawContextLegend() {
+        let l1_x = 60, l1_y = 30, l2_x = 70;
+        let p0 = this.toCanvas({lat:this.contextLegend.lat, lng:this.contextLegend.lng})
+        let pc = this.toCanvas(window.geoos.center);
+        let p1 = {x:p0.x < pc.x?p0.x + l1_x:p0.x - l1_x, y:p0.y < pc.y?p0.y + l1_y:p0.y - l1_y};
+        let p2 = {x:p0.x < pc.x?p1.x + l2_x:p1.x - l2_x, y:p1.y};
+        let line = new Konva.Line({
+            points:[p0.x, p0.y, p1.x, p1.y, p2.x, p2.y],
+            stroke:"blue", strokeWidth:1.5, 
+            dash: [10, 3, 3, 3],
+            lineCap: 'round'
+        })
+        this.konvaLayer.add(line);
+        let marker = new Konva.Circle({
+            x:p0.x, y:p0.y, radius:5, fill:"black"
+        });
+        this.konvaLayer.add(marker);
+
+        let kText = new Konva.Text({
+            x:0, y:0,
+            text:this.contextLegend.label,
+            fontSize:14,
+            fontFamily:"Calibri",
+            fill:"white"
+        });
+        let txtWidth = kText.width();
+        let txtHeight = kText.height();
+
+        let roundedRect = new Konva.Rect({
+            x:p0.x < pc.x?p2.x:p2.x  - txtWidth - 10, width:txtWidth + 10,
+            y:p2.y - txtHeight / 2 - 6, height:txtHeight + 12,
+            fill: 'rgb(68, 68, 67)',
+            stroke: 'white',
+            strokeWidth: 1,
+            shadowColor: 'black',
+            shadowBlur: 10,
+            shadowOffset: { x: 4, y: 4 },
+            shadowOpacity: 0.5,
+            cornerRadius:3,
+            opacity:0.9
+        });
+        this.konvaLayer.add(roundedRect);
+
+        kText.absolutePosition({
+            x:roundedRect.x() + 5, y:roundedRect.y() + 6
+        })
+        this.konvaLayer.add(kText);
+    }
+
+    redraw() {
+        if (this.redrawTimer) clearTimeout(this.redrawTimer);
+        this.redrawTimer = setTimeout(_ => {
+            this.redrawTimer = null;
+            this.update();
+        }, 50);
+    }
 }

@@ -30,7 +30,7 @@ class Map extends ZCustomController {
     createPanelForLayer(layer) {
         let p = this.map.createPane("ly-" + layer.id);
         p.id = "ly-" + layer.id;
-        p.style.pointerEvents = "none";
+        //p.style.pointerEvents = "none";
         this.adjustOpacity(layer);
         return p;
     }
