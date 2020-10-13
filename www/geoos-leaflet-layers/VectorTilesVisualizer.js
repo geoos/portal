@@ -5,6 +5,8 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
         this.tiles = {};
         this.lastZoom = -1;
     }
+
+    get interactions() {return this.options.interactions}
     
     abort() {
         for (let key in this.tiles) {
@@ -19,6 +21,10 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
     destroy() {
         this.abort();
         this.tiles = null;
+        if (this.interactions) {
+            this.interactions.clearShapes(this.uniqueId);
+            this.interactions.redraw();
+        }
         super.destroy();
     }
 
@@ -55,7 +61,10 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
 
     checkLastTile() {
         let nPendings = Object.keys(this.tiles).reduce((n, tileKey) => (this.tiles[tileKey].status == "pending"?n + 1:n), 0)
-        if (!nPendings) this.konvaLayer.draw();
+        if (!nPendings) {
+            this.konvaLayer.draw();
+            if (this.interactions) this.interactions.redraw();
+        }
     } 
 
     reset() {
@@ -65,6 +74,7 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
     update() {
         super.update()
         this.konvaLayer.destroyChildren();
+        if (this.interactions) this.interactions.clearShapes(this.uniqueId);
         let zoom = this.map.getZoom();
         if (this.lastZoom != zoom) this.abort();
         this.lastZoom = zoom;
@@ -97,6 +107,7 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
         }
         if (this.contextLegend) this.drawContextLegend();
         this.konvaLayer.draw();
+        if (this.interactions) this.interactions.redraw();
     }
 
     toX(x) {return x - this.originInWorld.x}
@@ -163,14 +174,18 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
                         object = polyOrLine;
                     }
                 }
-                if (this.options.onmouseover) {
-                    object.on("mouseover", e => this.options.onmouseover(feature))
-                }
-                if (this.options.onmouseout) {
-                    object.on("mouseout", e => this.options.onmouseout(feature))
-                }
-                if (this.options.onclick) {
-                    object.on("click", e => this.options.onclick(feature))
+                if (this.interactions) {
+                    let interObject = object.clone();
+                    this.interactions.addObservableShape(this.uniqueId, interObject);
+                    if (this.options.onmouseover) {
+                        interObject.on("mouseover", e => this.options.onmouseover(feature))
+                    }
+                    if (this.options.onmouseout) {
+                        interObject.on("mouseout", e => this.options.onmouseout(feature))
+                    }
+                    if (this.options.onclick) {
+                        interObject.on("click", e => this.options.onclick(feature))
+                    }
                 }
             })
         });

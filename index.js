@@ -2,6 +2,7 @@ const config = require("./lib/Config");
 
 async function startHTTPServer() {
     try {
+        await (require("./lib/MongoDB")).init();
         const zServer = require("./lib/z-server");
         const express = require('express');
         const app = express();

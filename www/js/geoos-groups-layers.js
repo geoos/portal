@@ -394,6 +394,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.konvaLeafletLayer.addTo(window.geoos.map);
         this.konvaLeafletLayer.addVisualizer("geoJsonTiles", new VectorTilesVisualizer({
             zIndex:1,
+            interactions:window.geoos.interactions,
             getTile: (z, x, y) => {
                 let time;
                 if (this.dataSet.temporality != "none") time = window.geoos.time;

@@ -11,8 +11,16 @@ class Map extends ZCustomController {
 
         let mapOpts = baseMap.options;
         this.lyBase = L.tileLayer(baseMap.url, mapOpts);
-
         this.lyBase.addTo(this.map);
+
+        // Interactions
+        this.interactionsPanel = this.map.createPane("interactions");
+        this.interactionsPanel.id = "interactions";
+        this.interactionsPanel.style["z-index"] = 999;
+        this.interactionsKonvaLeafletLayer = new KonvaLeafletLayer(this.map, null, null, {pane:this.interactionsPanel.id});
+        this.interactionsKonvaLeafletLayer.addTo(window.geoos.map);
+        this.interactionsKonvaLeafletLayer.addVisualizer("interactions", new GEOOSInteractions({}))
+        window.geoos.interactions = this.interactionsKonvaLeafletLayer.getVisualizer("interactions");
     }
 
     serialize() {
@@ -30,7 +38,7 @@ class Map extends ZCustomController {
     createPanelForLayer(layer) {
         let p = this.map.createPane("ly-" + layer.id);
         p.id = "ly-" + layer.id;
-        //p.style.pointerEvents = "none";
+        p.style.pointerEvents = "none";
         this.adjustOpacity(layer);
         return p;
     }

@@ -26,7 +26,8 @@
   "homepage": "https://github.com/geoos/portal#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "hjson": "^3.2.1"
+    "hjson": "^3.2.1",
+    "mongodb": "^3.6.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
