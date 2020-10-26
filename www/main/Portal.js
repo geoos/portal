@@ -6,6 +6,7 @@ class Portal extends ZCustomController {
             this.myPanel.doResize(size);
             this.configPanel.doResize(size);
             this.map.doResize(size);
+            this.time.doResize(size);
         });
     }
 }

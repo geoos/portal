@@ -3,6 +3,8 @@ class GEOOS {
         this.events = new GEOOSEvents();
         this.groups = [];
         this.selection = {type:null}
+        moment.locale("es")
+        this._time = Date.now();
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());
     }
@@ -21,7 +23,11 @@ class GEOOS {
     get providers() {return this._providers}
 
     get map() {return this.mapPanel.map}
-    get time() {return Date.now()}
+    get time() {return this._time}
+    set time(t) {
+        this._time = t;
+        this.events.trigger("portal", "timeChange");
+    }
     get bounds() {
         let b = this.map.getBounds();
         return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
