@@ -33,9 +33,14 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             lineStyle:f => ({stroke:this.lineColor, strokeWidth:this.lineWidth, hitStrokeWidth:0, perfectDrawEnabled:false, listenning:false, tension:0.2}),
             markerLabel:m => (m.value)
         }));
+        this.timeChangeListener = _ => {
+            if (this.layer.config.dataSet.temporality != "none") this.refresh()
+        }
+        window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
         this.startQuery();
     }
     async destroy() {
+        window.geoos.events.remove(this.timeChangeListener);
         if (this.aborter) {
             this.aborter.abort();
             this.aborter = null;

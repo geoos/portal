@@ -547,3 +547,36 @@ a:hover {
 .first-day-cell {
     border-left: 1px solid white;
 }
+.time-element {
+    pointer-events: all;
+    font-size: 12px;
+    padding: 4px;
+    opacity: 0.9;
+    background-color: #272626;    
+    color: white;
+    z-index: 400;
+    border: 1px solid #3D3D3D;
+}
+.time-link {
+    cursor: pointer;
+}
+.time-link:hover {
+    text-decoration: underline;
+}
+.time-icon {
+    cursor: pointer;
+}
+.time-element.datetimepicker {
+    border: 1px solid white;
+    border-radius: 5px;
+}
+.time-element.timepicker {
+    border: 1px solid white;
+    border-radius: 5px;
+    padding:0;
+}
+.timepicker-hour {
+    width: 20px !important;
+    font-size: 12px !;
+    font-weight: normal !important;    
+}

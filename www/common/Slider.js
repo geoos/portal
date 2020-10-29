@@ -20,7 +20,6 @@ class Slider extends ZCustomController {
             if (x > this.x1) x = this.x1;
             this.value = this.min + (x - this.x0) / this.pixelsRange * (this.max - this.min);
             this.triggerEvent("change", this.value)
-            console.log("x", x, " [" + this.x0 + " - " + this.x1 + "]", this.value);
         })
     }
 
@@ -59,7 +58,7 @@ class Slider extends ZCustomController {
 
     set value(v) {
         let r = (v - this.min) / (this.max - this.min);
-        let x = 36 + r * this.barWidth;
+        let x = 21 + r * this.barWidth;
         this.handler.view.style.left = x + "px";
     }
 }

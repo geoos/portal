@@ -43,9 +43,14 @@ class ShaderRasterVisualizer extends RasterVisualizer {
                 return color;
             }
         }));
+        this.timeChangeListener = _ => {
+            if (this.layer.config.dataSet.temporality != "none") this.refresh()
+        }
+        window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
         this.startQuery();
     }
     async destroy() {
+        window.geoos.events.remove(this.timeChangeListener);
         if (this.aborter) {
             this.aborter.abort();
             this.aborter = null;
