@@ -574,9 +574,28 @@ a:hover {
     border: 1px solid white;
     border-radius: 5px;
     padding:0;
+    padding-top: 10px;
 }
 .timepicker-hour {
-    width: 20px !important;
+    width: 30px !important;
+    height: 30px !important;
     font-size: 12px !;
     font-weight: normal !important;    
+    line-height: 30px !important;
+}
+.timepicker-minute {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !;
+    font-weight: normal !important;    
+    line-height: 30px !important;
+}
+.bootstrap-datetimepicker-widget table td span {
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    color: white;
+}
+.bootstrap-datetimepicker-widget table td span:hover {
+    color: gray;
 }

@@ -1,5 +1,6 @@
 class Main extends ZCustomController {
     async onThis_init() {        
+        window.timeZone = moment.tz.guess();
         await window.geoos.init();
         await this.mainLoader.load("main/Portal");
         document.getElementById("splash").remove();

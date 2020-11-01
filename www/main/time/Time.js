@@ -8,6 +8,9 @@ class Time extends ZCustomController {
         this.t0 = null;
         this.showingDate = false;
         this.datePicker.hide();
+        this.showingTime = false;
+        this.timePickerContainer.hide();
+        this.updateLabels();
         this.updatePickers();
         this.doResize();
     }
@@ -21,13 +24,15 @@ class Time extends ZCustomController {
         this.callSetTime(t.valueOf());
     }
 
-    callSetTime(t) {
+    callSetTime(t, labels=true, datePicker=true, timePicker=true) {
         if (this.timer) clearTimeout(this.timer);
         this.timer = setTimeout(_ => {
             this.timer = null;
             if (t != window.geoos.time) window.geoos.time = t;
-            this.updatePickers();
-        }, 100);
+            if (labels) this.updateLabels();
+            if (datePicker) this.updateDatePicker();
+            if (timePicker) this.updateTimePicker();
+        }, 200);
     }
 
     get t1() {return this.t0?this.t0.clone().add(this.slider.pixelsRange / pixelsPerHour, "hours").startOf("day"):null}
@@ -57,10 +62,24 @@ class Time extends ZCustomController {
         this.daysTable.html = html;
     }
 
+    updateLabels() {
+        let m = moment.tz(window.geoos.time, window.timeZone);
+        this.lblDate.text = m.format("dddd DD MMMM");
+        this.lblTime.text = m.format("HH:mm");
+    }
+
     updatePickers() {
+        this.updateDatePicker();
+        this.updateTimePicker();
+    }
+
+    updateDatePicker() {
         let m = moment.tz(window.geoos.time, window.timeZone);
         this.datePicker.value = m.clone().startOf("day");
-        this.lblDate.text = m.format("dddd DD/MMMM");
+    }
+    updateTimePicker() {
+        let m = moment.tz(window.geoos.time, window.timeZone);
+        this.timePicker.value = m.clone();
     }
 
     onDaysTable_click(e) {
@@ -75,15 +94,24 @@ class Time extends ZCustomController {
         this.showingDate = !this.showingDate;
     }
     onDatePicker_change(d) {
-        console.log("change", d);
         let m = d.clone();
         let g = moment.tz(window.geoos.time, window.timeZone);
         m.hours(g.hours()); m.minutes(g.minutes()); m = m.startOf("minute");
-        window.geoos.time = m.valueOf();
-        this.updatePickers();
-        this.toggleDate();
+        this.callSetTime(m.valueOf(), true, false, true);
     }
     onLblDate_click() {this.toggleDate()}
     onCmdCalendar_click() {this.toggleDate()}
+
+    toggleTime() {
+        if (this.showingTime) this.timePickerContainer.hide();
+        else this.timePickerContainer.show();
+        this.showingTime = !this.showingTime;
+    }
+    onTimePicker_change(d) {
+        this.datePicker.value = d.clone().startOf("day");
+        this.callSetTime(d.valueOf(), true, true, false);
+    }
+    onLblTime_click() {this.toggleTime()}
+    onCmdCclock_click() {this.toggleTime()}
 }
 ZVC.export(Time)
