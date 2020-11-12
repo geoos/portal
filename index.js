@@ -33,6 +33,7 @@ async function startHTTPServer() {
         }
     } catch(error) {
         console.error("Can't start HTTP Server", error);
+        process.exit(-1);
     }
 }
 

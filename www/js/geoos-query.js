@@ -1,10 +1,47 @@
 class GEOOSQuery {
-    constructor() {}
+    constructor(config) {
+        this.id = "GQ" + parseInt(9999999999 * Math.random());
+        this.config = config;
+    }
+    get icon() {return this.config.icon}
+    get name() {return this.config.name}
+
+    static newEmptySelector(caption, minZDimension, layerName) {
+        return new GEOOSQuery({
+            type:"selector",
+            code:"selector",
+            name:caption || "[Seleccione Variables]",
+            icon:"img/icons/search.svg",
+            minZDimension:minZDimension,
+            layerName:layerName
+        })
+    }
+
+    getHTML() {
+        return `
+            <div class="row mt-1">
+                <div class="col">
+                    <img class="mr-1 float-left inverse-image" height="16px" src="${this.icon}"/>
+                    <span id="varName${this.id}" class="selectable-name" data-z-clickable="true"'>${this.name}</span>
+                    <i id="caretVar${this.id}" class="fas fa-caret-right ml-1 float-right mt-1" ></i>
+                </div>
+            </div>
+            `;
+    }
+    registerListeners(container, listeners) {
+        container.find("#varName" + this.id).onclick = _ => {
+            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName}, variables => {
+                if (listeners.onSelect) listeners.onSelect(variables)
+            })
+        }
+    }
 }
 
 class RasterQuery extends GEOOSQuery {
     constructor(geoServer, dataSet, variable, format) {
-        super();
+        super({
+            type:"raster", name:variable.name, code:variable.code, icon:"img/icons/point.svg"
+        });
         this.variable = variable;
         this.format = format;
         this.geoServer = geoServer;
@@ -48,4 +85,15 @@ class RasterQuery extends GEOOSQuery {
             return this.geoServer.client.vectorsGrid(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.margin);
         }
     }
+
+}
+
+class MinZQuery extends GEOOSQuery {
+    constructor(zRepoServer, variable, filter) {
+        super({
+            type:"minz", name:variable.name, code:variable.code, icon:"img/icons/dashboard.svg"
+        })
+        this.zRepoServer = zRepoServer;
+        this.filter = filter;
+    } 
 }

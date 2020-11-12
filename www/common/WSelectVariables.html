@@ -1,0 +1,79 @@
+<div class="modal fade">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 id="title" class="modal-title">Buscar Variables</h6>
+                <i id="cmdCloseWindow" class="geoos-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div class="modal-body">
+
+                <div id="contentRow" class="d-flex flex-row" style="padding: 5px;">
+                    <div class="d-flex flex-column" style="flex: 1 1 450px; padding: 5px; ">
+                        <div style="flex: 1 1 30px;">
+                            <select id="edLayerType" class="custom-select" data-z-id-field="code" data-z-label-field="name"></select>
+                        </div>
+                        <div id="accordion" class="filter-accordion" style="flex: 1 10 100%; padding: 5px; overflow-y: auto;">                    
+                        </div>
+                    </div>
+                    <div class="ml-3 d-flex flex-column" style="flex: 1 2 100%; padding: 5px;">
+                        <div id="filterPills" class="add-panel-filters mb-2">
+                        </div>
+                        <div id="edNameFilter" style="max-width: 600px;" data-z-component="common/TextSearch" data-z-placeholder="Buscar Variable o Capa"></div>
+                        <div id="lblResume" class="add-panel-resume"></div>
+                        <div id="variablesContainer" class="add-panel-variables" style="flex:1 10 100%; overflow-y: auto; min-height:150px; max-height: 200px;">
+                            <div class="add-panel-variable" data-section="${layer.code}">
+                                <i class="far fa-lg fa-check-square float-left mr-2"></i>
+                                Nombre de la Variable Filtrada
+                                <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/info.svg" />
+                                <img class="add-panel-variable-icon" style="height: 16px;" src="img/icons/favo.svg" />
+                                <img class="add-panel-variable-icon inactive" style="height: 16px;" src="img/icons/variable-added.svg" />
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div id="lblCountResume" class="add-panel-count-resume float-left"></div>
+                            <button id="cmdCancelLayers" type="button" class="btn btn-sm btn-danger float-right ml-2">Cancelar</button>
+                            <button id="cmdAddLayers" type="button" class="btn btn-sm btn-primary float-right">Seleccionar</button>
+                        </div>
+                        <div id="infoPanel" class="add-panel-info-panel ">
+                            <div id="infoContent" class="info-content" >
+                                <ul id="tabAddPanelVars" class="nav nav-tabs justify-content-end" role="tablist">
+                                    <span id="lblVarName" class="ml-2 mr-auto mt-1" style="font-weight: bold;"></span>
+                                    <li class="nav-item">
+                                      <a id="tabGeneralDescVar" class="nav-link active" data-toggle="tab" href="#generalDescPageVar" role="tab">Descripción General</a>
+                                    </li>
+                                    <li class="nav-item">
+                                      <a id="tabDetailsVar" class="nav-link" data-toggle="tab" href="#detailsPageVar" role="tab">Detalles</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a id="tabAvailabilityVar" class="nav-link" data-toggle="tab" href="#availabilityPageVar" role="tab">Disponibilidad GEOOS</a>
+                                    </li>
+                                    <span id="cmdCloseInfoPanel" class="geoos-panel-close ml-4" data-z-clickable="true"></span>
+                                </ul>
+                                <div id="addPanelTabContentVars" class="tab-content p-2">
+                                    <div id="generalDescPageVar" class="tab-pane fade show active" role="tabpanel" style="height: 130px;">
+                                        <img id="logoProvider" class="mr-4 float-left" style="max-height: 130px; max-width: 200px;" />
+                                        <div style="max-height: 130px; overflow-y: auto;">
+                                            <a id="providerUrl" class="provider-url" href="#" target="_blank"></a>
+                                            <div id="layerDescription" class="mt-2"></div>
+                                        </div>
+                                    </div>
+                                    <div id="detailsPageVar" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                        <div style="max-height: 130px; overflow-y: auto;">
+                                            <div id="layerDetails"></div>
+                                        </div>
+                                    </div>
+                                    <div id="availabilityPageVar" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                        <div style="max-height: 130px; overflow-y: auto;">
+                                            <div id="layerAvailability"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

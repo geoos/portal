@@ -1,4 +1,4 @@
-# docker build -t docker.homejota.net/geoos/portal:latest -t docker.homejota.net/geoos/portal:0.28 .
+# docker build -t docker.homejota.net/geoos/portal:latest -t docker.homejota.net/geoos/portal:0.30 .
 # docker push docker.homejota.net/geoos/portal:latest
 
 # docker build -t geoos/portal:latest -t geoos/portal:0.18 .

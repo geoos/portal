@@ -11,6 +11,7 @@ class GEOOS {
 
     async init() {
         this.config = await zPost("getPortalConfig.geoos");
+        console.log("config", this.config);
         await this.buildMetadata();
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
@@ -95,6 +96,29 @@ class GEOOS {
                         }
                     })
             }
+            this.zRepoServers = [];
+            for (let i=0; i<this.config.zRepoServers.length; i++) {            
+                let url = this.config.zRepoServers[i].url;
+                let token = this.config.zRepoServers[i].token;
+                nPending++;
+                this.getZRepoMetadata(url, token)
+                    .then(metadata => {
+                        metadata.url = url;
+                        metadata.token = token;
+                        this.zRepoServers.push(metadata);
+                        if (--nPending <= 0) {
+                            this.finishBuildMetadata();
+                            resolve();
+                        }
+                    })            
+                    .catch(err => {
+                        console.error(err);
+                        if (--nPending <= 0) {
+                            this.finishBuildMetadata();
+                            resolve();
+                        }
+                    })
+            }
         })        
     }
     async getGeoServerMetadata(url) {
@@ -106,7 +130,16 @@ class GEOOS {
         } catch(error) {
             throw error;
         }
-
+    }
+    async getZRepoMetadata(url, token) {
+        try {
+            let zRepoClient = new ZRepoClient(url, token);
+            let metadata = await zRepoClient.readMetadata();
+            metadata.client = zRepoClient;
+            return metadata;
+        } catch(error) {
+            throw error;
+        }
     }
     finishBuildMetadata() {
         this._providers = [];
@@ -135,7 +168,7 @@ class GEOOS {
         this.types.forEach(r => r.nVars = 0);
     }    
 
-    getAvailableLayers(type) {
+    getAvailableLayers(type, dimCode) {
         let layers = [];
         if (type == "variables") {
             for (let geoServer of this.geoServers) {
@@ -178,11 +211,36 @@ class GEOOS {
                     }
                 }
             }
+        } else if (type == "minz") {            
+            let variables = this.getVariablesFiltrablesPorDimension(dimCode);
+            console.log("Busca Capas MinZ", variables);
+            for (let v of variables) {
+                v.variable.options = v.variable.options || {};
+                layers.push({
+                    type:"minz", name:v.variable.name, path:v.ruta, variable:v.variable,
+                    zRepoServer:v.server,
+                    providers:[v.variable.options.provider],
+                    subjects:v.variable.options.subjects || [],
+                    regions:v.variable.options.regions || [],
+                    types:v.variable.options.types || [],
+                    code:v.variable.code
+                })
+            }
         } else {
             throw "Layer type '" + type + "' not yet supported";
         }
         layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
         return layers;
+    }
+
+    getVariablesFiltrablesPorDimension(dimCode) {
+        let ret = [];
+        for (let zRepoServer of this.zRepoServers) {
+            let variables = zRepoServer.client.getVariablesFiltrables(dimCode);
+            variables.forEach(v => v.server = zRepoServer);
+            ret = ret.concat(variables);
+        }
+        return ret;
     }
 
     getGroup(id) {return this.groups.find(g => g.id == id)}

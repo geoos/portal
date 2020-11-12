@@ -599,3 +599,12 @@ a:hover {
 .bootstrap-datetimepicker-widget table td span:hover {
     color: gray;
 }
+
+/* Watchers */
+.inverse-image {filter: invert(1)}
+.selectable-name {
+    cursor: pointer;
+}
+.selectable-name:hover {
+    text-decoration: underline;
+}

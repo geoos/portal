@@ -98,6 +98,8 @@ class GEOOSGroup {
             return this.layers.find(l => (l instanceof GEOOSRasterLayer && l.variable.code == layerConfig.variable.code))?true:false;
         } else if (layerConfig.type == "vector") {
             return this.layers.find(l => (l instanceof GEOOSVectorLayer && l.file.name == layerConfig.file.name))?true:false;
+        } else if (layerConfig.type == "minz") {
+            return false;
         } else throw "layer type '" + layerConfig.type + "' not handled yet in 'containsLayer'"
     }
 
@@ -221,7 +223,7 @@ class GEOOSRasterLayer extends GEOOSLayer {
         if (this.variable.levels && this.variable.levels.length) {
             this._level = this.variable.options.defaultLevel;
             if (this._level === undefined) this._level = 0;
-        }
+        }        
     }
 
     get variable() {return this.config.variable}
@@ -299,9 +301,11 @@ class GEOOSRasterLayer extends GEOOSLayer {
 class GEOOSVectorLayer extends GEOOSLayer {
     constructor(config) {
         super(config);
+        this.watchers = [];
     }
 
     get file() {return this.config.file}
+    get minZDimension() {return this.file && this.file.options?this.file.options.minZDimension:null}
     get geoServer() {return this.config.geoServer}
     get dataSet() {return this.config.dataSet}
     
@@ -451,4 +455,9 @@ class GEOOSVectorLayer extends GEOOSLayer {
         window.geoos.mapPanel.adjustPanelZIndex(this);
     }
 
+    getPropertyPanels() {
+        return super.getPropertyPanels().concat({
+            code:"layer-watchers", name:"Observar Variables", path:"./layers/watchers/Watchers"
+        })
+    }
 }
