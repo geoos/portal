@@ -80,6 +80,10 @@ class GEOOSQuery {
         html += `</div>`;
         return html;
     } 
+
+    query(args) {
+        throw "No query";
+    }
 }
 
 class RasterQuery extends GEOOSQuery {
@@ -95,6 +99,8 @@ class RasterQuery extends GEOOSQuery {
         this.format = format;
         this.geoServer = geoServer;
         this.dataSet = dataSet;
+        this.temporality = variable.temporality;
+        this.accum = "sum";
     }
 
     static cloneQuery(q) {
@@ -175,10 +181,9 @@ class RasterQuery extends GEOOSQuery {
 
 class MinZQuery extends GEOOSQuery {
     static fromSearchItem(item) {
-        console.log("item", item);
-        return new MinZQuery(item.zRepoServer, item.variable, item.path, null, [])
+        return new MinZQuery(item.zRepoServer, item.variable, item.path, null, [], item.accum)
     }
-    constructor(zRepoServer, variable, groupingDimension, fixedFilter, filters) {
+    constructor(zRepoServer, variable, groupingDimension, fixedFilter, filters, accum) {
         super({
             type:"minz", name:variable.name, code:variable.code, icon:"img/icons/dashboard.svg"
         })
@@ -187,6 +192,7 @@ class MinZQuery extends GEOOSQuery {
         this.groupingDimension = groupingDimension;
         this.fixedFilter = fixedFilter;
         this.filters = filters;
+        this.accum = accum || "sum";
 
         this.descripcionFiltros = null;
         this.descripcionAgrupador = null;
@@ -226,7 +232,7 @@ class MinZQuery extends GEOOSQuery {
         html += "  <div class='col-sm-5 pr-0'>";
         html += "    <select id='edAcumulador" + this.id + "' class='custom-select custom-select-sm' >";
         html += Object.keys(descAcums).reduce((html, a) => {
-            return html + "<option value='" + a + "' " + (this.acumulador == a?" selected":"") + ">" + descAcums[a] + "</option>";
+            return html + "<option value='" + a + "' " + (this.accum == a?" selected":"") + ">" + descAcums[a] + "</option>";
         }, "");
         html += "    </select>";
         html += "  </div>";
@@ -234,7 +240,7 @@ class MinZQuery extends GEOOSQuery {
         html += "    <select id='edTemporalidad" + this.id + "' class='custom-select custom-select-sm' >";
         let nivel = nivelesTemporalidad.indexOf(this.variable.temporality);
         html += nivelesTemporalidad.slice(nivel).reduce((html, t) => {
-            return html + "<option value='" + t + "' " + (this.temporalidad == t?" selected":"") + ">" + descTempos[t] + "</option>";
+            return html + "<option value='" + t + "' " + (this.temporality == t?" selected":"") + ">" + descTempos[t] + "</option>";
         }, "");
         html += "    </select>";
         html += "  </div>";
@@ -297,7 +303,6 @@ class MinZQuery extends GEOOSQuery {
                 st += " igual a '" + v + "'";
                 etiquetaValor = v;
             }
-            console.log("describe", filtro, st, etiquetaValor);
             return {etiqueta:st, etiquetaValor};
         } catch(error) {
             console.error(error);
@@ -305,7 +310,6 @@ class MinZQuery extends GEOOSQuery {
         }
     }
     async construyeDescripcionFiltros() {
-        console.log("construyeDescFiltros", this);
         try {
             let ret = [];
             if (this.fixedFilter && this.fixedFilter.ruta) {
@@ -343,18 +347,17 @@ class MinZQuery extends GEOOSQuery {
     registerListeners(container, listeners) {
         let edAcumulador = container.find("#edAcumulador" + this.id);
         edAcumulador.onchange = _ => {
-            this.acumulador = edAcumulador.value;
+            this.accum = edAcumulador.value;
             if (listeners.onChange) listeners.onChange(this);
         };
         let edTemporalidad = container.find("#edTemporalidad" + this.id);
         edTemporalidad.onchange = _ => {
-            this.temporalidad = edTemporalidad.value;
+            this.temporality = edTemporalidad.value;
             if (listeners.onChange) listeners.onChange(this);
         };
         container.findAll(".filtro-" + this.id).forEach(element => {
             element.onclick = _ => {
                 container.showDialog("common/WMinZFilters", {consulta:this}, newConsulta => {
-                    console.log("newConsulta", newConsulta);
                     this.filters = JSON.parse(JSON.stringify(newConsulta.filters));
                     this.descripcionFiltros = newConsulta.descripcionFiltros;
                     this.descripcionAgrupador = newConsulta.descripcionAgrupador;
@@ -426,5 +429,28 @@ class MinZQuery extends GEOOSQuery {
             throw "No se encontró el filtro por " + filtro.ruta;
         }
         this.filters.splice(idx, 1);
+    }
+
+    query(args) {
+        let q;
+        if (args.startTime) {
+            this.startTime = args.startTime;
+            this.endTime = args.endTime;
+            this.timeDescription = "custom";
+        } else {
+            let time = args.time || window.geoos.time;
+            let {t0, t1, desc} = this.zRepoServer.client.normalizaTiempo(this.variable.temporality, time);
+            this.startTime = t0; this.endTime = t1; this.timeDescription = desc;
+        }
+        if (args.format == "dim-serie") {
+            q = {
+                tipoQuery:"dim-serie", 
+                filtros:this.filters, 
+                variable:this.variable, 
+                dimensionAgrupado:this.groupingDimension,
+                acumulador:this.accum
+            }
+        } else throw "Format '" + args.format + "' not handled";
+        return this.zRepoServer.client.query(q, this.startTime, this.endTime);
     }
 }

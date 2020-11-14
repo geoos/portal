@@ -13,8 +13,9 @@ class Watchers extends ZCustomController {
         selector.registerListeners(this.rowNew, {
             onSelect:variables => {
                 console.log("select variables", variables)
-                variables.forEach(v => this.layer.watchers.push(GEOOSQuery.fromSearchItem(v)));
-                this.refresh();
+                this.layer.addWatchers(variables.map(v => GEOOSQuery.fromSearchItem(v)));                
+                //this.refresh();
+                window.geoos.configPanel.refresh({type:"layer", element:this.layer})
             }
         });
         let html = "";
@@ -30,25 +31,22 @@ class Watchers extends ZCustomController {
         for (let q of this.layer.watchers) {
             q.registerListeners(this.cntWatch, {
                 onChange:_ => {
-                    console.log("watcher change", q);
-                    this.refresh();
-                    this.layer.refresh();
+                    this.refresh();                    
+                    this.layer.refreshWatcher(q.id);
                 },
                 onColorChange: _ => {
-                    console.log("Color Change");
                     q.color = !q.color;
                     if (q.color) {
                         this.layer.watchers.forEach(q => q.color = false);
                         q.color = true;
                     }
                     this.refresh();
-                    this.layer.refresh();
+                    this.layer.refreshWatchers();
                 },
                 onLegendChange: _ => {
-                    console.log("Legend Change");
                     q.legend = !q.legend;
                     this.refresh();
-                    this.layer.refresh();
+                    this.layer.refreshWatchers();
                 }
             })
         }

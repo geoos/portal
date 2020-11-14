@@ -223,7 +223,7 @@ class GEOOSRasterLayer extends GEOOSLayer {
         if (this.variable.levels && this.variable.levels.length) {
             this._level = this.variable.options.defaultLevel;
             if (this._level === undefined) this._level = 0;
-        }        
+        } 
     }
 
     get variable() {return this.config.variable}
@@ -302,6 +302,8 @@ class GEOOSVectorLayer extends GEOOSLayer {
     constructor(config) {
         super(config);
         this.watchers = [];
+        this.watcherResults = {}
+        this.colorScale = null;
     }
 
     get file() {return this.config.file}
@@ -392,6 +394,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 console.error(err);
             }
         }
+
         this.pane = window.geoos.mapPanel.createPanelForLayer(this);
         this.hoveredId = null;
         this.konvaLeafletLayer = new KonvaLeafletLayer(window.geoos.map, null, null, {pane:this.pane.id});
@@ -409,7 +412,12 @@ class GEOOSVectorLayer extends GEOOSLayer {
                     return getSelectedFeatureStyle(f)
                 }
                 if (f.tags.id == this.hoveredId) return getHoverFeatureStyle(f)
-                else return getFeatureStyle(f)
+                else if (this.getColorWatcher()) {
+                    let s = getFeatureStyle(f);
+                    let v = this.watchColorResults[f.tags.id];
+                    s.fill = this.getColorScale().getColor(v);
+                    return s;
+                } else return getFeatureStyle(f)
             },
             onmouseover: f => {
                 if (f.tags.id == this.hoveredId) return;
@@ -451,13 +459,105 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.konvaLeafletLayer.getVisualizer("geoJsonTiles").reset();
     }
 
+    repaint() {
+        this.konvaLeafletLayer.getVisualizer("geoJsonTiles").update();
+    }
+
     reorder() {
         window.geoos.mapPanel.adjustPanelZIndex(this);
     }
 
     getPropertyPanels() {
-        return super.getPropertyPanels().concat({
+        let panels = super.getPropertyPanels().concat({
             code:"layer-watchers", name:"Observar Variables", path:"./layers/watchers/Watchers"
         })
+        if (this.watchers.reduce((n, w) => (w.color?(n+1):n), 0) > 0) {
+            panels.push({
+                code:"color-scale", name:"Escala de Colores", path:"./ColorScaleProperties"
+            })
+        }
+        return panels;
+    }
+
+    getWatcher(id) {
+        return this.watchers.find(w => (w.id == id));
+    }
+    addWatchers(watchers) {
+        for (let w of watchers) {
+            w.legend = true;
+            this.watchers.push(w);
+            this.watcherResults[w.id] = {aborter:null, results:null}
+            this.refreshWatcher(w.id)
+        }
+        if (this.watchers.length == watchers.length) this.watchers[0].color=true;
+        this.colorWatcher = null;        
+    }
+    deleteWatcher(id) {
+        let idx = this.watchers.findIndex(w => (w.id == id));
+        if (idx >= 0) this.watchers.splice(idx);
+        delete this.watcherResults[id];
+        this.colorWatcher = null;
+    }    
+    cancelWatcher(id) {
+        let r = this.watcherResults[id];
+        if (!r) throw "Invalid Watcher:" + id;
+        if (r.aborter) r.aborter.abort();
+        r.results = null;
+    }
+    refreshWatchers() {
+        for (let w of this.watchers) this.refreshWatcher(w.id);
+        this.colorWatcher = null;
+    }
+    refreshWatcher(id) {
+        this.cancelWatcher(id);
+        let r = this.watcherResults[id];
+        if (!r) throw "Invalid Watcher:" + id;
+        let watcher = this.getWatcher(id);
+        let {promise, controller} = watcher.query({format:"dim-serie"});
+        console.log("promise", promise, "controller", controller);
+        this.startWorking();
+        r.aborter = controller;
+        promise.then(res => {
+            this.finishWorking();
+            r.results = res;
+            console.log("res", res);
+            if (watcher.color) {
+                let {min, max} = res.reduce((minMax, r) => {
+                    if (minMax.min === undefined || r.resultado < minMax.min) minMax.min = r.resultado;
+                    if (minMax.max === undefined || r.resultado > minMax.max) minMax.max = r.resultado; 
+                    return minMax;
+                }, {min:undefined, max:undefined})
+                this.getColorScale().setRange(min, max);
+                this.watchColorResults = res.reduce((map, r) => {
+                    map[r.dim.code] = r.resultado;
+                    return map;
+                }, {})
+                this.repaint();
+            }
+        }).catch(error => {
+            this.finishWorking();
+            if (error != "aborted") {
+                console.error(error);
+            }
+        });
+        this.colorWatcher = null;
+    }
+    getColorWatcher() {
+        if (this.colorWatcher) return this.colorWatcher;
+        this.colorWatcher = this.watchers.find(w => (w.color));
+        return this.colorWatcher;
+    }
+
+    getColorScale() {
+        return this.colorScale || this.createDefaultColorScale();
+    }
+    createDefaultColorScale() {
+        return this.createColorScale({name:"SAGA - 16", clipOutOfRange:false, auto:true, unit:"?"})
+    }
+    createColorScale(colorScaleConfig) {
+        let scaleDef = window.geoos.scalesFactory.byName(colorScaleConfig.name);
+        if (!scaleDef) throw "Can't find color scale '" + colorScaleConfig.name + "'";
+        this.colorScale = window.geoos.scalesFactory.createScale(scaleDef, colorScaleConfig)
+        return this.colorScale;
     }
 }

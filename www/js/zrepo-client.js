@@ -296,81 +296,118 @@ class ZRepoClient {
             default: throw "Acumulador '" + acumulador + "' no manejado";
         }
     }
-    async query(query, startTime, endTime) {
-        
+    query(query, startTime, endTime) {        
         console.log("minZ Query", query);
-        //console.log("startTime", moment.tz(startTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
-        //console.log("endTime", moment.tz(endTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
+        console.log("startTime", moment.tz(startTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
+        console.log("endTime", moment.tz(endTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
         
         try {
             let filtro, resultado;
             switch (query.tipoQuery) {
-                case "period-summary":
-                    filtro = {};
-                    if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
-                    if (query.filtroFijo) this.construyeFiltro(filtro, query.filtroFijo.ruta, query.filtroFijo.valor);
-                    resultado = await this.queryPeriodSummary(query.variable.code, startTime, endTime, filtro);
-                    //console.log("query", query, "resultado", resultado);
-                    return this.extraeAcumulador(resultado, query.acumulador);
-                case "time-serie":
-                    filtro = {};
-                    if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
-                    if (query.filtroFijo) this.construyeFiltro(filtro, query.filtroFijo.ruta, query.filtroFijo.valor);
-                    resultado = await this.queryTimeSerie(query.variable.code, startTime, endTime, filtro, query.temporalidad);
-                    //console.log("query", query, "resultado", resultado);
-                    resultado.forEach(r => r.resultado = this.extraeAcumulador(r, query.acumulador));
-                    return resultado;
-                case "dim-serie":
-                    filtro = {};
-                    if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
-                    resultado = await this.queryDimSerie(query.variable.code, startTime, endTime, filtro, query.dimensionAgrupado);
-                    //console.log("query", query, "resultado", resultado);
-                    resultado.forEach(r => r.resultado = this.extraeAcumulador(r, query.acumulador));
-                    return resultado;
+                case "period-summary": {
+                        filtro = {};
+                        if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
+                        if (query.filtroFijo) this.construyeFiltro(filtro, query.filtroFijo.ruta, query.filtroFijo.valor);
+                        let {promise, controller} = this.queryPeriodSummary(query.variable.code, startTime, endTime, filtro);
+                        let buildPromise = new Promise((resolve, reject) => {
+                            promise.then(res => {
+                                resolve(this.extraeAcumulador(res.query.acumulador));
+                            }).catch(err => reject(err))
+                        })
+                        resultado = {promise:buildPromise, controller}
+                    }
+                    break;                
+                case "time-serie": {
+                        filtro = {};
+                        if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
+                        if (query.filtroFijo) this.construyeFiltro(filtro, query.filtroFijo.ruta, query.filtroFijo.valor);
+                        let {promise, controller} = this.queryTimeSerie(query.variable.code, startTime, endTime, filtro, query.temporalidad);
+                        let buildPromise = new Promise((resolve, reject) => {
+                            promise.then(res => {
+                                res.forEach(r => r.resultado = this.extraeAcumulador(r, query.acumulador));
+                                resolve(res);
+                            }).catch(err => reject(err))
+                        })
+                        resultado = {promise:buildPromise, controller}
+                    }
+                    break;
+                case "dim-serie": {
+                        filtro = {};
+                        if (query.filtros) query.filtros.forEach(f => this.construyeFiltro(filtro, f.ruta, f.valor));
+                        let {promise, controller} = this.queryDimSerie(query.variable.code, startTime, endTime, filtro, query.dimensionAgrupado);
+                        let buildPromise = new Promise((resolve, reject) => {
+                            promise.then(res => {
+                                res.forEach(r => r.resultado = this.extraeAcumulador(r, query.acumulador));
+                                resolve(res);
+                            }).catch(err => reject(err))
+                        })
+                        resultado = {promise:buildPromise, controller}
+                    }
+                    break;                
                 default:
                     throw "Tipo de query '" + query.tipoQuery + "' no implementado";
             }
+            return resultado;
         } catch(error) {
             throw error;
         }
     }
-    async queryPeriodSummary(codigoVariable, startTime, endTime, filter) {
+    _getJSON(url, signal) {
+        return new Promise((resolve, reject) => {
+            fetch(url, {signal:signal})
+                .then(res => {
+                    if (res.status != 200) {
+                        res.text()
+                            .then(txt => reject(txt))
+                            .catch(_ => reject(res.statusText))
+                        return;
+                    }
+                    res.json()
+                        .then(json => {resolve(json)})
+                        .catch(err => {reject(err)})
+                })
+                .catch(err => {
+                    reject(err.name == "AbortError"?"aborted":err)
+                });
+        })
+    }
+    queryPeriodSummary(codigoVariable, startTime, endTime, filter) {
         try {
-            await this.getDimensiones();
-            await this.getVariables();
             let url = this.url + "/data/" + codigoVariable + "/period-summary?token=" + this.token;
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
-            let summary = (await (await fetch(url)).json());
-            return summary;
+            let controller = new AbortController();
+            return {promise: this._getJSON(url, controller.signal), controller:controller}
+            //let summary = (await (await fetch(url)).json());
+            //return summary;
         } catch(error) {
             throw error;
         }
     }
-    async queryTimeSerie(codigoVariable, startTime, endTime, filter, temporality) {
+    queryTimeSerie(codigoVariable, startTime, endTime, filter, temporality) {
         try {
-            await this.getDimensiones();
-            await this.getVariables();
             let url = this.url + "/data/" + codigoVariable + "/time-serie?token=" + this.token;
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&temporality=" + temporality;
-            let summary = (await (await fetch(url)).json());
-            return summary;
+            let controller = new AbortController();
+            return {promise: this._getJSON(url, controller.signal), controller:controller}
+            //let summary = (await (await fetch(url)).json());
+            //return summary;
         } catch(error) {
             throw error;
         }
     }
-    async queryDimSerie(codigoVariable, startTime, endTime, filter, dimensionAgrupado) {
+    queryDimSerie(codigoVariable, startTime, endTime, filter, dimensionAgrupado) {
         try {
-            await this.getDimensiones();
-            await this.getVariables();
             let url = this.url + "/data/" + codigoVariable + "/dim-serie?token=" + this.token;
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&groupDimension=" + dimensionAgrupado
-            let ret = (await (await fetch(url)).json());
-            return ret;
+            let controller = new AbortController();
+            return {promise: this._getJSON(url, controller.signal), controller:controller}
+            //let ret = (await (await fetch(url)).json());
+            //return ret;
         } catch(error) {
             throw error;
         }
