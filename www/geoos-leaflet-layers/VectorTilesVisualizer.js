@@ -106,6 +106,10 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
             }
         }
         if (this.contextLegend) this.drawContextLegend();
+        if (this.options.getExtraElements) {
+            let elements = this.options.getExtraElements();
+            if (elements) elements.forEach(e => this.konvaLayer.add(e));
+        }
         this.konvaLayer.draw();
         if (this.interactions) this.interactions.redraw();
     }

@@ -37,6 +37,13 @@ class GEOOS {
         let center = this.map.getCenter();
         return {lat:center.lat, lng:center.lng}
     }
+
+    formatNumber(value, decimals, unit) {
+        let pow = Math.pow(10, decimals);
+        let txt = (Math.floor(value * pow) / pow).toLocaleString() + "";
+        if (unit) txt += " [" + unit + "]";
+        return txt;
+    }
     
     getGeoServer(code) {return this.geoServers.find(s => s.code == code)}
 

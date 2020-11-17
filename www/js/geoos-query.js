@@ -20,6 +20,15 @@ class GEOOSQuery {
     get type() {return this.config.type}
     get icon() {return this.config.icon}
     get name() {return this.config.name}
+    get unit() {return "??"}
+    get decimals() {return 2}
+    get colorScale() {return {name:"SAGA - 01", clipOutOfRange:false, auto:true, unit:this.unit}}
+
+    redondea(value, includeUnit) {
+        let pow = Math.pow(10, this.decimals);
+        let txt = Math.floor(value * pow) / pow + "";
+        if (includeUnit) txt += "[" + this.unit + "]";
+    }
 
     static newEmptySelector(caption, minZDimension, layerName) {
         return new GEOOSQuery({
@@ -81,6 +90,8 @@ class GEOOSQuery {
         return html;
     } 
 
+    getProgressHTML() {return ""}
+
     query(args) {
         throw "No query";
     }
@@ -100,13 +111,17 @@ class RasterQuery extends GEOOSQuery {
         this.geoServer = geoServer;
         this.dataSet = dataSet;
         this.temporality = variable.temporality;
-        this.accum = "sum";
+        //this.accum = "sum";        
+        this.progress = 100;
     }
 
     static cloneQuery(q) {
         let c = new RasterQuery(q.geoServer, q.dataSet, q.variable, q.format);
         return c;
     }
+
+    get unit() {return this.variable && this.variable.unit?this.variable.unit:super.unit}
+    get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
 
     query(args) {
         if (this.format == "isolines") {
@@ -133,6 +148,9 @@ class RasterQuery extends GEOOSQuery {
                 let bounds = window.geoos.bounds;
                 args.n = bounds.n; args.s = bounds.s; args.e = bounds.e; args.w = bounds.w;
             }
+        } else if (this.format == "valueAtPoint") {
+            if (!args.time) args.time = window.geoos.time;
+            if (args.lat === undefined || args.lng === undefined) throw "Must provide lat,lng for Value at Point format";
         } else throw "Format '" + this.format + "' not handled in RasterQuery"
 
         if (this.format == "isolines") {
@@ -143,6 +161,8 @@ class RasterQuery extends GEOOSQuery {
             return this.geoServer.client.grid(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.margin, args.level);
         } else if (this.format == "vectors") {
             return this.geoServer.client.vectorsGrid(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.margin);
+        } else if (this.format == "valueAtPoint") {
+            return this.geoServer.client.valueAtPoint(this.dataSet.code, this.variable.code, args.time, args.lat, args.lng, args.level);
         }
     }
 
@@ -152,7 +172,7 @@ class RasterQuery extends GEOOSQuery {
                 <div class="col">
                     <i id="delVar${this.id}" class="fas fa-trash-alt mr-2 float-left mt-1" data-z-clickable="true" style="cursor: pointer;"></i>
                     <img class="mr-1 mt-1 float-left inverse-image" height="16px" src="${this.icon}"/>
-                    <span id="nombreVar${this.id}" class="mt-1 float-left">${this.name}</span>
+                    <span id="varName${this.id}" class="mt-1 float-left">${this.name}</span>
                 </div>
             </div>
         `
@@ -177,6 +197,42 @@ class RasterQuery extends GEOOSQuery {
         }
         return html;
     }
+
+    getProgressHTML() {
+        let html = `
+            <div id="rowWorking${this.id}" class="row mt-1" ${this.progress >= 100?'style="display: none;"':''}>
+                <div class="col">
+                    <i class="mr-1 float-left fas fa-spin fa-spinner"></i>
+                    <div class="progress">
+                        <div id="progress${this.id}" class="progress-bar" role="progressbar" style="width: ${parseInt(this.progress)}px; "></div>
+                    </div>
+                </div>
+            </div>
+        `        
+        return html;
+    } 
+    updateProgress(container) {
+        let rowWorking = container.find("#rowWorking" + this.id);
+        if (!rowWorking) return;
+        if (this.progress > 0 && this.progress < 100) {
+            rowWorking.style.removeProperty("display");
+            container.find("#progress" + this.id).style.width = this.progress + "%";
+        } else {
+            rowWorking.style.display = "none";
+        }
+    }
+
+    registerListeners(container, listeners) {
+        container.find("#delVar" + this.id).onclick =  _ => {
+            if (listeners.onDelete) listeners.onDelete(this);
+        }
+        container.find("#selLegend" + this.id).onclick = _ => {
+            if (listeners.onLegendChange) listeners.onLegendChange()
+        }
+        container.find("#selColor" + this.id).onclick = _ => {
+            if (listeners.onColorChange) listeners.onColorChange()
+        }
+    }
 }
 
 class MinZQuery extends GEOOSQuery {
@@ -197,6 +253,14 @@ class MinZQuery extends GEOOSQuery {
         this.descripcionFiltros = null;
         this.descripcionAgrupador = null;
     } 
+
+    get unit() {return this.variable && this.variable.options && this.variable.options.unit?this.variable.options.unit:super.unit}
+    get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
+
+    get colorScale() {
+        if (this.variable.options && this.variable.options.colorScale) return this.variable.options.colorScale;
+        return super.colorScale;
+    }
 
     static cloneQuery(q) {
         let c = new MinZQuery(q.zRepoServer, q.variable, q.groupingDimension, q.fixedFilter, q.filters);

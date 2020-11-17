@@ -18,7 +18,7 @@ class GEOServerClient {
         if (!(--this.nWorking) && this.workingListener) await this.workingListener.stop();
     }
 
-    _getJSON(url, args, signal) {
+    _getJSON(url, args, signal, finishListener) {
         let urlArgs = "";
         for (const argName in args) {
             if (args[argName] !== undefined) {
@@ -32,14 +32,22 @@ class GEOServerClient {
                 .then(res => {
                     if (res.status != 200) {
                         this._decWorking()
+                        if (this.finishListener) this.finishListener();
                         res.text()
                             .then(txt => reject(txt))
                             .catch(_ => reject(res.statusText))
                         return;
                     }
                     res.json()
-                        .then(json => {this._decWorking(); resolve(json)})
-                        .catch(err => {this._decWorking(); reject(err)})
+                        .then(json => {
+                            if (this.finishListener) this.finishListener();
+                            this._decWorking();
+                            resolve(json)
+                        }).catch(err => {
+                            if (this.finishListener) this.finishListener();
+                            this._decWorking();
+                            reject(err)
+                        })
                 })
                 .catch(err => {
                     this._decWorking();
@@ -104,10 +112,10 @@ class GEOServerClient {
     }
 
     // GeoJson
-    fileMetadata(dataSetCode, fileName, time) {
+    fileMetadata(dataSetCode, fileName, time, finishListener) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + fileName + "/metadata", {time}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/metadata", {time}, controller.signal, finishListener),
             controller:controller
         }
     }
@@ -118,10 +126,10 @@ class GEOServerClient {
             controller:controller
         }
     }
-    fileGeoJsonTile(dataSetCode, fileName, time, z, x, y) {
+    fileGeoJsonTile(dataSetCode, fileName, time, z, x, y, finishListener) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + fileName + "/tile/" + z + "/" + x + "/" + y, {time:time?time:0}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/tile/" + z + "/" + x + "/" + y, {time:time?time:0}, controller.signal, finishListener),
             controller:controller
         }
     }

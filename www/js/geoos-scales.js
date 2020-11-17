@@ -47,12 +47,15 @@ class GEOOSColorScale {
     }        
     get name() {return this.config.name}
     get auto() {return this.config.auto?true:false}
+    set auto(a) {this.config.auto = a}
     get clipOutOfRange() {return this.config.clipOutOfRange?true:false}
+    set clipOutOfRange(c) {this.config.clipOutOfRange = c}
     get min() {return this.config.min}
     set min(m) {this.config.min = m}
     get max() {return this.config.max}
     set max(m) {this.config.max = m}
     get unit() {return this.config.unit}
+    set unit(u) {this.config.unit = u}
     setRange(min, max) {
         if (this.auto) {
             this.config.min = min; this.config.max = max;
