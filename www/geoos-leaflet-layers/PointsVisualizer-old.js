@@ -1,34 +1,37 @@
 class PointsVisualizer extends KonvaLeafletVisualizer {
     constructor(options) {
         super(options);
+        this.points = [];
     }
 
-    get points() {return this.options.getPoints()}
+    addPoint(p) {
+        p.options = p.options || {}
+        this.points.push(p)
+        if (this.stageLayer) this.update();
+    }
     getPoint(id) {return this.points.find(p => p.id == id)}
+    removePoint(id) {
+        let idx = this.points.findIndex(p => p.id == id);
+        if (idx >= 0) this.points.splice(idx,1);
+        if (this.stageLayer) this.update();
+    }
 
     getPointRepresentation(point) {
         let p = this.toCanvas({lat:point.lat, lng:point.lng});
         let elements = [];
-        let watching = this.options.getWatching?this.options.getWatching(point):[];
-        if (watching && watching.length) {
-            let color = this.options.getColorWatch(point);
-            if (color) {
-                let opts = {stroke:"black", strokeWidth:1, radius:15, fill:color, x:p.x, y:p.y}
-                let element =  new Konva.Circle(opts);
-                elements.push(element);
-            }
+        if (point.watching && point.watching.length) {
             let rect = new Konva.Rect({
                 x:p.x - 2,
-                y:p.y - 8 - 6 - 26 * watching.length,
+                y:p.y - 8 - 6 - 26 * point.watching.length,
                 width:4,
-                height:8 + 6 + 26 * watching.length,
+                height:8 + 6 + 26 * point.watching.length,
                 fill:"#a86d32",
                 stroke:"black",
                 strokeWidth:0.5
             });
             elements.push(rect);
-            watching.forEach((o, idx) => {
-                let y = p.y - 8 - 6 - 26 * watching.length + idx * 26 + 3;
+            point.watching.forEach((o, idx) => {
+                let y = p.y - 8 - 6 - 26 * point.watching.length + idx * 26 + 3;
                 let x = p.x + 3;
                 let text = o.label, textColor = o.color?o.color:"white";
                 let txt = new Konva.Text({
@@ -62,9 +65,29 @@ class PointsVisualizer extends KonvaLeafletVisualizer {
                 opts = this.options.style;
             }
         }
-        opts = opts || {radius:6, fill:"red", stroke:"black", strokeWidth:1};
+        opts = opts || {radius:9, fill:"red", stroke:"black", strokeWidth:1};
         opts.x = p.x; opts.y = p.y;
+        if (point.options.draggable) {
+            opts.draggable = true;
+            opts.listening = true;
+        }
         let element =  new Konva.Circle(opts);
+        if (opts.draggable) {
+            element.on('mouseover',  _ => {
+                this.stageLayer.lPane.style.cursor = 'pointer';
+                this.stageLayer.map.dragging.disable();
+            });
+            element.on('mouseout', _ => {
+                this.stageLayer.lPane.style.removeProperty("cursor");
+                this.stageLayer.map.dragging.enable();
+            });
+            element.on("dragend", _ => {
+                let mapPoint = this.toMap({x:element.x(), y:element.y()})
+                point.lat = mapPoint.lat;
+                point.lng = mapPoint.lng;
+                if (this.options.onPointMoved) this.options.onPointMoved(point)
+            });
+        }
         elements.push(element);
         return elements;
     }

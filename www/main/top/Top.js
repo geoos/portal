@@ -136,5 +136,8 @@ class Top extends ZCustomController {
     onOpAddVariables_click() {
         window.geoos.events.trigger("top", "clickAddVariables");
     }
+    onOpStations_click() {
+        window.geoos.events.trigger("top", "clickStations");
+    }
 }
 ZVC.export(Top)

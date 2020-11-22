@@ -8,6 +8,7 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("portal", "groupActivated", _ => this.refresh())
         window.geoos.events.on("portal", "groupDeleted", group => this.groupDeleted(group))
         window.geoos.events.on("portal", "layersAdded", _ => this.refresh())
+        window.geoos.events.on("portal", "layersRemoved", _ => this.refresh())
         window.geoos.events.on("layer", "startWorking", layer => this.layerStartWorking(layer))
         window.geoos.events.on("layer", "finishWorking", layer => this.layerFinishWorking(layer))
         window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.refreshSelection(oldSelection, newSelection))

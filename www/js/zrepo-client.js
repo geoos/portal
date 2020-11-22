@@ -175,6 +175,10 @@ class ZRepoClient {
             throw error;
         }
     }
+    async getVariable(code) {
+        let variables = await this.getVariables();
+        return variables.find(v => (v.code == code));
+    }
     
     buscaRutasDesde(variable, origen, rutas, path, codigoDimension) {
         origen.classifiers.forEach(c => {
@@ -236,6 +240,16 @@ class ZRepoClient {
             if (filter) url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             if (startRow !== undefined && nRows !== undefined) url += "&startRow=" + startRow + "&nRows=" + nRows;
             if (includeNames) url += "&includeNames=true";
+            let f = await fetch(url);
+            if (f.status != 200) throw await f.text();
+            else return await f.json();
+        } catch(error) {
+            throw error;
+        }
+    }
+    async getAllValores(codigoDimension) {
+        try {
+            let url = this.url + "/dim/" + codigoDimension + "/all-rows?token=" + this.token;
             let f = await fetch(url);
             if (f.status != 200) throw await f.text();
             else return await f.json();
@@ -404,6 +418,7 @@ class ZRepoClient {
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&groupDimension=" + dimensionAgrupado
+            console.log("url", url);
             let controller = new AbortController();
             return {promise: this._getJSON(url, controller.signal), controller:controller}
             //let ret = (await (await fetch(url)).json());

@@ -1,0 +1,64 @@
+<div id="addStationsPanelContainer" class="geoos-panel">
+    <div id="addStationsPanelContent">
+        <div class="geoos-panel-caption">
+            <img src="img/icons/add.svg" class="geoos-panel-icon" />
+            <span>Agregar Estaciones</span>
+            <span id="cmdCloseAddStationsPanel" class="geoos-panel-close" data-z-clickable="true"></span>
+        </div>
+        <div id="stationsContentRow" class="d-flex flex-row" style="padding: 5px;">
+            <div class="d-flex flex-column" style="flex: 1 1 450px; padding: 5px; ">
+                <div id="stationsAccordion" class="filter-accordion" style="flex: 1 10 100%; padding: 5px; overflow-y: auto;">
+                </div>
+            </div>
+            <div class="ml-3 d-flex flex-column" style="flex: 1 2 100%; padding: 5px;">
+                <div id="stationsFilterPills" class="add-panel-filters mb-2">
+                </div>
+                <div id="edStationsNameFilter" style="max-width: 600px;" data-z-component="common/TextSearch" data-z-placeholder="Buscar Estación"></div>
+                <div id="lblStationsResume" class="add-panel-resume"></div>
+                <div id="stationsContainer" class="add-panel-variables" style="flex:1 10 100%; overflow-y: auto;">
+                    <div class="add-panel-variable" data-section="${layer.code}">
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <div id="lblStationsCountResume" class="add-panel-count-resume float-left"></div>
+                </div>
+                <div id="stationsInfoPanel" class="add-panel-info-panel ">
+                    <div id="stationsInfoContent" class="info-content" >
+                        <ul id="tabStationsAddPanel" class="nav nav-tabs justify-content-end" role="tablist">
+                            <span id="lblStationName" class="ml-2 mr-auto mt-1" style="font-weight: bold;"></span>
+                            <li class="nav-item">
+                              <a id="tabStationsGeneralDesc" class="nav-link active" data-toggle="tab" href="#stationsGeneralDescPage" role="tab">Descripción General</a>
+                            </li>
+                            <li class="nav-item">
+                              <a id="tabStationsDetails" class="nav-link" data-toggle="tab" href="#stationsDetailsPage" role="tab">Detalles</a>
+                            </li>
+                            <li class="nav-item">
+                                <a id="tabStationsAvailability" class="nav-link" data-toggle="tab" href="#stationsAvailabilityPage" role="tab">Disponibilidad GEOOS</a>
+                            </li>
+                            <span id="cmdStationsCloseInfoPanel" class="geoos-panel-close ml-4" data-z-clickable="true"></span>
+                        </ul>
+                        <div id="addStationsPanelTabContent" class="tab-content p-2">
+                            <div id="stationsGeneralDescPage" class="tab-pane fade show active" role="tabpanel" style="height: 130px;">
+                                <img id="stationsLogoProvider" class="mr-4 float-left" style="max-height: 130px; max-width: 200px;" />
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <a id="stationsProviderUrl" class="provider-url" href="#" target="_blank"></a>
+                                    <div id="stationDescription" class="mt-2"></div>
+                                </div>
+                            </div>
+                            <div id="stationsDetailsPage" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <div id="stationDetails"></div>
+                                </div>
+                            </div>
+                            <div id="stationsAvailabilityPage" class="tab-pane fade" role="tabpanel" style="height: 130px;">
+                                <div style="max-height: 130px; overflow-y: auto;">
+                                    <div id="stationAvailability"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

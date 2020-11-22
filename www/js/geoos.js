@@ -71,6 +71,7 @@ class GEOOS {
     closeFloatingPanels() {
         if (this.myPanel.open) this.myPanel.toggle();
         if (this.addPanel.open) this.addPanel.toggle();
+        if (this.addStationsPanel.open) this.addStationsPanel.toggle();
     }
     openMyPanel() {
         if (!this.myPanel.open) this.myPanel.toggle();
@@ -114,15 +115,16 @@ class GEOOS {
                         metadata.token = token;
                         this.zRepoServers.push(metadata);
                         if (--nPending <= 0) {
-                            this.finishBuildMetadata();
-                            resolve();
+                            this.finishBuildMetadata()
+                                .then(_ => resolve()).catch(err => reject(err))
+                            
                         }
                     })            
                     .catch(err => {
                         console.error(err);
                         if (--nPending <= 0) {
-                            this.finishBuildMetadata();
-                            resolve();
+                            this.finishBuildMetadata()
+                                .then(_ => resolve()).catch(err => reject(err))
                         }
                     })
             }
@@ -148,11 +150,11 @@ class GEOOS {
             throw error;
         }
     }
-    finishBuildMetadata() {
+    async finishBuildMetadata() {
         this._providers = [];
         for (let geoServer of this.geoServers) {
             let list = geoServer.providers.reduce((list, provider) => {
-                if (list.findIndex(p => p.code == provider.code) < 0) {
+                if (this._providers.findIndex(p => p.code == provider.code) < 0) {
                     provider.logo = geoServer.url + "/" + provider.logo;
                     list.push(provider);
                 }
@@ -173,9 +175,49 @@ class GEOOS {
         this.types.sort((r1, r2) => (r1.name > r2.name?1:-1));
         this.types.splice(0,0,{code:"no", name:"Sin Tipo Especificado"})        
         this.types.forEach(r => r.nVars = 0);
+        await this.buildStationsMetadata();
     }    
 
-    getAvailableLayers(type, dimCode) {
+    async buildStationsMetadata() {
+        this.estaciones = {
+            estaciones:{},
+            proveedores:{},
+            tipos:{},
+            variables:{}
+        }
+        for (let server of this.zRepoServers) {            
+            let client = server.client;
+            let dimProveedor = await client.getDimension("rie.proveedor");
+            let dimTipoEstacion = await client.getDimension("rie.tipoEstacion");
+            let dimEstacion = await client.getDimension("rie.estacion");
+            if (dimProveedor && dimTipoEstacion && dimEstacion) {
+                (await client.getAllValores("rie.proveedor")).forEach(p => this.estaciones.proveedores[p.code] = p);
+                (await client.getAllValores("rie.tipoEstacion")).forEach(t => this.estaciones.tipos[t.code] = t);
+                let rowsEstaciones = await client.getAllValores("rie.estacion");
+                for (let e of rowsEstaciones) {
+                    if (e.variables) {
+                        e.server = server;
+                        e.providers = [e.proveedor];
+                        e.types = [e.tipo];                    
+                        this.estaciones.estaciones[e.code] = e;
+                        for (let v of e.variables) {
+                            let variable = await client.getVariable(v);
+                            if (!variable) {
+                                console.warn("No se encontró la variable " + v + " referenciada desde la estación " + e.name + " en el servidor " + server.url);
+                            } else {
+                                this.estaciones.variables[v] = variable;
+                            }
+                        }
+                    } else {
+                        console.warn("La estación " + e.name + " en " + server.url + " no define variables", e);
+                    }
+                }
+            }
+        }
+        console.log("Estaciones", this.estaciones);
+    }
+
+    async getAvailableLayers(type, dimCode) {
         let layers = [];
         if (type == "variables") {
             for (let geoServer of this.geoServers) {
@@ -233,11 +275,42 @@ class GEOOS {
                     code:v.variable.code
                 })
             }
+        } else if (type == "stations") {
+            let stations = this.getAddedStations();
+            console.log("stations", stations);
+            let added = {};
+            for (let station of stations) {
+                for (let varCode of station.variables) {
+                    if (!added[varCode]) {
+                        let v = await station.server.client.getVariable(varCode);
+                        v.options = v.options || {};
+                        layers.push({
+                            type:"minz", name:v.name, path:"estacion", variable:v,
+                            zRepoServer:station.server,
+                            providers:[v.options.provider],
+                            subjects:v.options.subjects || [],
+                            regions:v.options.regions || [],
+                            types:v.options.types || [],
+                            code:v.code
+                        })
+                        added[varCode] = true;
+                    }
+                }
+            }
         } else {
             throw "Layer type '" + type + "' not yet supported";
         }
         layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
         return layers;
+    }
+
+    getAvailableStations() {
+        if (this.listaEstaciones) return this.listaEstaciones;
+        this.listaEstaciones = Object.keys(this.estaciones.estaciones).reduce((list, e) => {
+            list.push(this.estaciones.estaciones[e]);
+            return list;
+        }, []).sort((e1, e2) => (e2.lat - e1.lat));
+        return this.listaEstaciones;
     }
 
     getVariablesFiltrablesPorDimension(dimCode) {
@@ -327,6 +400,41 @@ class GEOOS {
         let selected = this.selectedObject;
         this.selectedObject = null;
         await this.events.trigger("map", "obectUnselected", selected);
+    }
+
+    addStation(code) {
+        let g = this.getActiveGroup();
+        let l = g.getStationsLayer();
+        if (!l) {
+            l = g.createStationsLayer();
+            this.events.trigger("portal", "layersAdded", g)
+        }
+        l.addStation(code);
+    }
+    removeStation(code) {
+        let g = this.getActiveGroup();
+        let l = g.getStationsLayer();
+        if (!l) throw "No hay capa de estaciones";
+        l.removeStation(code);
+        if (!l.hasStations()) {
+            g.removeStationsLayer();
+            this.events.trigger("portal", "layersRemoved", g)
+        }
+    }
+    isStationAdded(code) {
+        if (!this.getActiveGroup()) return false;
+        let l = this.getActiveGroup().getStationsLayer();
+        if (!l) return false;
+        return l.containsStation(code);
+    }
+    toggleStation(code) {
+        if (this.isStationAdded(code)) this.removeStation(code);
+        else this.addStation(code);
+    }
+    getAddedStations() {
+        let l = this.getActiveGroup().getStationsLayer();
+        if (!l) return [];
+        return l.getStations();
     }
 }
 

@@ -263,7 +263,7 @@ class MinZQuery extends GEOOSQuery {
     }
 
     static cloneQuery(q) {
-        let c = new MinZQuery(q.zRepoServer, q.variable, q.groupingDimension, q.fixedFilter, q.filters);
+        let c = new MinZQuery(q.zRepoServer, q.variable, q.groupingDimension, q.fixedFilter, q.filters, q.accum);
         c.descripcionAgrupador = q.descripcionAgrupador;
         c.descripcionFiltros = q.descripcionFiltros;
         return c;
@@ -496,6 +496,7 @@ class MinZQuery extends GEOOSQuery {
     }
 
     query(args) {
+        console.log("minz query", this, args);
         let q;
         if (args.startTime) {
             this.startTime = args.startTime;

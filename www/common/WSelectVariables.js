@@ -1,16 +1,24 @@
 class WSelectVariables extends ZDialog {
-    onThis_init(options) {
+    async onThis_init(options) {
         this.dimCode = options.dimCode;
         this.layerName = options.layerName;
         
         this.infoVarCode = null;
         this.infoContent.hide();
         this.infoPanel.hide();
-        this.edLayerType.setRows([{
-            code:"variables", name:"Variables en Centroide"
-        }, {
-            code:"minz", name:"Asociadas a " + this.layerName
-        }], "raster")
+        if (this.dimCode != "rie.estacion") {
+            this.edLayerType.setRows([{
+                code:"variables", name:"Variables en Centroide"
+            }, {
+                code:"minz", name:"Asociadas a " + this.layerName
+            }], "raster")
+        } else {
+            this.edLayerType.setRows([{
+                code:"stations", name:"Medidas por las Estaciones"
+            }, {
+                code:"variables", name:"Variables en Centroide"
+            }], "raster")
+        }
         this.sections = [{
             code:"subjects", name:"Filtrar por Tema", data:window.geoos.subjects
         }, {
@@ -18,16 +26,16 @@ class WSelectVariables extends ZDialog {
         }, {
             code:"types", name:"Filtrar por Tipo de Información", data:window.geoos.types
         }]
-        this.refreshLayerType();        
+        await this.refreshLayerType();        
     }
 
-    onEdLayerType_change() {this.refreshLayerType()}
+    async onEdLayerType_change() {await this.refreshLayerType()}
 
-    refreshLayerType() {
+    async refreshLayerType() {
         let layerType = this.edLayerType.value;
         this.filters = {};
         this.sections.forEach(section => this.filters[section.code] = [])
-        this.layers = window.geoos.getAvailableLayers(layerType, this.dimCode);
+        this.layers = await window.geoos.getAvailableLayers(layerType, this.dimCode);
         this.refresh();
     }
 
@@ -231,8 +239,8 @@ class WSelectVariables extends ZDialog {
 
     refreshResume() {
         let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
-        let name = this.edLayerType.value == "variables"?"Variables":"Capas";
-        let name1 = this.edLayerType.value == "variables"?"Variable":"Capa";
+        let name = "Variables";
+        let name1 = "Variable";
         if (!nSelected) {
             this.lblCountResume.text = "No hay " + name + " seleccionadas";
             this.cmdAddLayers.disable();
