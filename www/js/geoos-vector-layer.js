@@ -10,6 +10,10 @@ class GEOOSVectorLayer extends GEOOSLayer {
     get minZDimension() {return this.file && this.file.options?this.file.options.minZDimension:null}
     get geoServer() {return this.config.geoServer}
     get dataSet() {return this.config.dataSet}
+
+    get options() {
+        return this.config.file.options;
+    }
     
     serialize() {
         let l = super.serialize();
@@ -17,6 +21,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         l.file = this.file.name;
         l.geoServer = this.geoServer.code;
         l.dataSet = this.dataSet.code;
+        l.watchers = this.watchers.reduce((list, w) => [...list, w.serialize()], [])
         return l;
     }
     static deserialize(s, config) {
@@ -28,6 +33,11 @@ class GEOOSVectorLayer extends GEOOSLayer {
         if (!config.file) throw "File '" + s.file + "' is no available in DataSet '" + s.dataSet + "' in GeoServer '" + s.geoServer + "'";
         let layer = new GEOOSVectorLayer(config);
         layer.id = s.id;
+        layer.watchers = s.watchers?s.watchers.reduce((list, w) => [...list, GEOOSQuery.deserialize(w)], []):[];
+        layer.watchers.forEach(w => {
+            w.layer = layer;
+            layer.watcherResults[w.id] = {aborter:null, results:null}
+        });
         return layer;
     }
 
@@ -35,6 +45,9 @@ class GEOOSVectorLayer extends GEOOSLayer {
         await this.loadMetadata();
 
         this.objectSelectedListener = selection => {
+            if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+        }
+        this.objectReplacedListener = selection => {
             if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
         }
         this.objectUnselectedListener = selection => {
@@ -45,6 +58,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         }
 
         window.geoos.events.on("map", "objectSelected", this.objectSelectedListener);
+        window.geoos.events.on("map", "selectedObjectReplaced", this.objectReplacedListener);
         window.geoos.events.on("map", "objectUnselected", this.objectUnselectedListener);
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
 
@@ -115,7 +129,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 return this.geoServer.client.fileGeoJsonTile(this.dataSet.code, this.file.name, time, z, x, y, _ => this.finishWorking());
             },
             getFeatureStyle: f => {                
-                if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.objectId == f.tags.id) {
+                if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.code == f.tags.id) {
                     return getSelectedFeatureStyle(f)
                 }
                 if (f.tags.id == this.hoveredId) return getHoverFeatureStyle(f)
@@ -147,13 +161,17 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 this.konvaLeafletLayer.getVisualizer("geoJsonTiles").unsetContextLegend();
                 this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
             },
-            onclick:f => window.geoos.selectObject(this, f.tags.id),
+            onclick:f => window.geoos.selectObject({
+                type:"vector-object", code:f.tags.id, name:f.tags.name, layer:this, minZDimension:this.minZDimension,
+                lat:f.tags.centroidLat || f.tags.centerLat, lng:f.tags.centroidLng || f.tags.centerLng
+            }),
             getExtraElements:_ => (this.paintLegends())
         }));
-        
+        this.refreshWatchers();
     }
     async destroy() {  
         window.geoos.events.remove(this.objectSelectedListener);
+        window.geoos.events.remove(this.objectReplacedListener);
         window.geoos.events.remove(this.objectUnselectedListener);
         window.geoos.events.remove(this.timeChangeListener);
         if (!this.konvaLeafletLayer) return;

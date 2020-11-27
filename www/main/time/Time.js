@@ -2,6 +2,7 @@ const pixelsPerHour = 7;
 
 class Time extends ZCustomController {
     onThis_init() {
+        window.geoos.timePanel = this;
         this.slider.hideSigns();
         this.slider.setBgLight()
         this.slider.setHandlerFixedClass("text-primary");
@@ -47,6 +48,29 @@ class Time extends ZCustomController {
         this.slider.setRange(0, this.slider.pixelsRange, 1);        
         let gt = moment.tz(window.geoos.time, window.timeZone);
         if (!this.t0 || !gt.isBetween(this.t0, this.t1)) this.adjustTime();
+        let bot = 0;
+        if (window.geoos.analysisPanel && window.geoos.analysisPanel.open) {
+            if (window.geoos.analysisPanel.status == "min") {
+                this.daysBar.show();
+                bot = 25;    
+            } else if (window.geoos.analysisPanel.status == "normal") {
+                this.daysBar.hide();
+                bot = -80 + window.geoos.analysisPanel.getPanelHeight()
+            } else {
+                this.daysBar.hide();
+                let size = window.geoos.size;
+                let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
+                let height = size.height - (topMenuRect.top + topMenuRect.height);
+                bot = height - 95;
+            }
+        } else {
+            this.daysBar.show();
+        }
+        this.cntCol1.view.style.bottom = (78 + bot) + "px";
+        this.timePickerContainer.view.style.bottom = (110 + bot) + "px";
+        this.cntCol2.view.style.bottom = (78 + bot) + "px";
+        this.cntCol3.view.style.bottom = (78 + bot) + "px";
+        this.daysBar.view.style.bottom = (10 + bot) + "px";
         this.repaint();
     }
     repaint() {

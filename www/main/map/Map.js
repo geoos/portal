@@ -7,6 +7,17 @@ class Map extends ZCustomController {
             minZoom:3, maxZoom:12
         }).setView([-33.034454, -71.592093], 6);
 
+        this.map.on("click", e => {
+            if (this.ignoreNextClick) {
+                this.ignoreNextClick = false;
+                return;
+            }
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            let point = this.map.latLngToContainerPoint([lat, lng]);
+            window.geoos.events.trigger("map", "click", {lat:lat, lng:lng, x:point.x, y:point.y});
+        });
+
         let baseMap = window.geoos.baseMaps[0];
 
         let mapOpts = baseMap.options;

@@ -57,6 +57,16 @@ class GEOOSQuery {
         }
     }
 
+
+    serialize() {
+        throw "Serialize not overwritten";
+    }
+    static deserialize(cfg) {
+        if (cfg.type == "minz") return MinZQuery.deserialize(cfg);
+        else if (cfg.type == "raster") return RasterQuery.deserialize(cfg);
+        throw "Cannot desearialize " + cfg;
+    }
+
     getHTML() {
         return `
             <div class="row mt-1">
@@ -123,7 +133,27 @@ class RasterQuery extends GEOOSQuery {
     get unit() {return this.variable && this.variable.unit?this.variable.unit:super.unit}
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
 
+    serialize() {
+        return {
+            type:"raster", id:this.id, color:this.color, legend:this.legend, format:this.format,
+            geoServer:this.geoServer.code, dataSet:this.dataSet.code, variable:this.variable.code
+        }
+    }
+    static deserialize(cfg) {
+        let geoServer = window.geoos.getGeoServer(cfg.geoServer);
+        if (!geoServer) throw "GeoServer " + cfg.geoServer + " not available";
+        let dataSet = geoServer.dataSets.find(ds => ds.code == cfg.dataSet);
+        if (!dataSet) throw "DataSet " + cfg.dataSet + " not available in GeoServer " + cfg.geoServer;
+        let variable = dataSet.variables.find(v => v.code == cfg.variable);
+        if (!variable) throw "Variable" + cfg.variable + " not available in dataSet " + cfg.dataSet + " GeoServer " + cfg.geoServer;
+        let q = new RasterQuery(geoServer, dataSet, variable, cfg.format);
+        q.id = cfg.id;
+        q.color = cfg.color;
+        q.legend = cfg.legend;
+        return q;
+    }
     query(args) {
+        if (args.format) this.format = args.format;
         if (this.format == "isolines") {
             if (!args.time) args.time = window.geoos.time;
             if (!args.n) {
@@ -151,6 +181,9 @@ class RasterQuery extends GEOOSQuery {
         } else if (this.format == "valueAtPoint") {
             if (!args.time) args.time = window.geoos.time;
             if (args.lat === undefined || args.lng === undefined) throw "Must provide lat,lng for Value at Point format";
+        } else if (this.format == "time-serie") {
+            if (!args.startTime || !args.endTime) throw "Must provide startTime and endTime arguments";
+            if (args.lat === undefined || args.lng === undefined) throw "Must provide lat,lng for Value at Point format";
         } else throw "Format '" + this.format + "' not handled in RasterQuery"
 
         if (this.format == "isolines") {
@@ -163,6 +196,8 @@ class RasterQuery extends GEOOSQuery {
             return this.geoServer.client.vectorsGrid(this.dataSet.code, this.variable.code, args.time, args.n, args.w, args.s, args.e, args.margin);
         } else if (this.format == "valueAtPoint") {
             return this.geoServer.client.valueAtPoint(this.dataSet.code, this.variable.code, args.time, args.lat, args.lng, args.level);
+        } else if (this.format == "time-serie") {
+            return this.geoServer.client.timeSerie(this.dataSet.code, this.variable.code, args.startTime, args.endTime, args.lat, args.lng, args.level);
         }
     }
 
@@ -223,20 +258,29 @@ class RasterQuery extends GEOOSQuery {
     }
 
     registerListeners(container, listeners) {
-        container.find("#delVar" + this.id).onclick =  _ => {
-            if (listeners.onDelete) listeners.onDelete(this);
+        if (container.find("#delVar" + this.id)) {
+            container.find("#delVar" + this.id).onclick =  _ => {
+                if (listeners.onDelete) listeners.onDelete(this);
+            }
         }
-        container.find("#selLegend" + this.id).onclick = _ => {
-            if (listeners.onLegendChange) listeners.onLegendChange()
+        if (container.find("#selLegend" + this.id)) {
+            container.find("#selLegend" + this.id).onclick = _ => {
+                if (listeners.onLegendChange) listeners.onLegendChange()
+            }
         }
-        container.find("#selColor" + this.id).onclick = _ => {
-            if (listeners.onColorChange) listeners.onColorChange()
+        if (container.find("#selColor" + this.id)) {
+            container.find("#selColor" + this.id).onclick = _ => {
+                if (listeners.onColorChange) listeners.onColorChange()
+            }
         }
     }
 }
 
 class MinZQuery extends GEOOSQuery {
     static fromSearchItem(item) {
+        if (!item.accum && item.variable.options.defaults && item.variable.options.defaults.accum) {
+            item.accum = item.variable.options.defaults.accum;
+        }
         return new MinZQuery(item.zRepoServer, item.variable, item.path, null, [], item.accum)
     }
     constructor(zRepoServer, variable, groupingDimension, fixedFilter, filters, accum) {
@@ -245,6 +289,7 @@ class MinZQuery extends GEOOSQuery {
         })
         this.zRepoServer = zRepoServer;
         this.variable = variable;
+        this.temporality = variable.temporality;
         this.groupingDimension = groupingDimension;
         this.fixedFilter = fixedFilter;
         this.filters = filters;
@@ -278,6 +323,29 @@ class MinZQuery extends GEOOSQuery {
             filtro:f, fijo:false
         }))
         return ret;
+    }
+
+    serialize() {
+        return {
+            type:"minz", id:this.id, color:this.color, legend:this.legend, accum:this.accum,
+            descripcionAgrupador:this.descripcionAgrupador, descripcionFiltros: this.descripcionFiltros,
+            startTime:this.startTime, endTime:this.endTime, temporality: this.temporality,
+            filters:this.filters, fixedFilter:this.fixedFilter, 
+            groupingDimension:this.groupingDimension, timeDescription:this.timeDescription, 
+            zRepoServer:this.zRepoServer.url, variable:this.variable.code
+        }
+    }
+    static deserialize(cfg) {
+        let zRepoServer = window.geoos.zRepoServers.find(s => s.url == cfg.zRepoServer);
+        if (!zRepoServer) throw "ZRepoServer " + cfg.zRepoServer + " not available";
+        let variable = zRepoServer.variables.find(v => v.code == cfg.variable);
+        if (!variable) throw "Variable" + cfg.variable + " not available in ZRepoServer " + cfg.zRepoServer;
+        let q = new MinZQuery(zRepoServer, variable, cfg.groupingDimension, cfg.fixedFilter, cfg.filters, cfg.accum);
+        q.id = cfg.id;
+        q.temporality = cfg.temporality;
+        q.color = cfg.color;
+        q.legend = cfg.legend;
+        return q;
     }
 
     async getHTML() {
@@ -429,14 +497,20 @@ class MinZQuery extends GEOOSQuery {
                 })
             }
         })
-        container.find("#delVar" + this.id).onclick =  _ => {
-            if (listeners.onDelete) listeners.onDelete(this);
+        if (container.find("#delVar" + this.id)) {
+            container.find("#delVar" + this.id).onclick =  _ => {
+                if (listeners.onDelete) listeners.onDelete(this);
+            }
         }
-        container.find("#selLegend" + this.id).onclick = _ => {
-            if (listeners.onLegendChange) listeners.onLegendChange()
+        if (container.find("#selLegend" + this.id)) {
+            container.find("#selLegend" + this.id).onclick = _ => {
+                if (listeners.onLegendChange) listeners.onLegendChange()
+            }
         }
-        container.find("#selColor" + this.id).onclick = _ => {
-            if (listeners.onColorChange) listeners.onColorChange()
+        if (container.find("#selColor" + this.id)) {
+            container.find("#selColor" + this.id).onclick = _ => {
+                if (listeners.onColorChange) listeners.onColorChange()
+            }
         }
     }
 
@@ -497,6 +571,10 @@ class MinZQuery extends GEOOSQuery {
 
     query(args) {
         console.log("minz query", this, args);
+        let fixedFilter = JSON.parse(JSON.stringify(this.fixedFilter));
+        if (args.objectCode && fixedFilter) {
+            if (fixedFilter.valor == "${codigo-objeto}") fixedFilter.valor = args.objectCode;
+        }
         let q;
         if (args.startTime) {
             this.startTime = args.startTime;
@@ -514,6 +592,15 @@ class MinZQuery extends GEOOSQuery {
                 variable:this.variable, 
                 dimensionAgrupado:this.groupingDimension,
                 acumulador:this.accum
+            }
+        } else if (args.format == "time-serie") {
+            q = {
+                tipoQuery:"time-serie", 
+                filtros:this.filters, 
+                filtroFijo:fixedFilter,
+                variable:this.variable, 
+                acumulador:this.accum,
+                temporalidad:this.temporality
             }
         } else throw "Format '" + args.format + "' not handled";
         return this.zRepoServer.client.query(q, this.startTime, this.endTime);

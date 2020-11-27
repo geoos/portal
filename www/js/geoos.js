@@ -6,7 +6,7 @@ class GEOOS {
         moment.locale("es")
         this._time = Date.now();
         this.calculatePortalSize();
-        window.addEventListener("resize", _ => this.triggerResize());
+        window.addEventListener("resize", _ => this.triggerResize());        
     }
 
     async init() {
@@ -15,6 +15,7 @@ class GEOOS {
         await this.buildMetadata();
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
+        this.events.on("map", "click", p => this.unselectObject())
     }
 
     get baseMaps() {return this.config.maps}
@@ -262,7 +263,6 @@ class GEOOS {
             }
         } else if (type == "minz") {            
             let variables = this.getVariablesFiltrablesPorDimension(dimCode);
-            console.log("Busca Capas MinZ", variables);
             for (let v of variables) {
                 v.variable.options = v.variable.options || {};
                 layers.push({
@@ -389,17 +389,21 @@ class GEOOS {
         await this.events.trigger("portal", "selectionChange", {oldSelection:oldSelection, newSelection:this.selection})
     }
 
-    async selectObject(layer, objectId) {
+    async selectObject(object) {
+        this.mapPanel.ignoreNextClick = true;
         if (this.selectedObject) {
-            await this.unselectObject()
+            this.selectedObject = object;
+            await this.events.trigger("map", "selectedObjectReplaced", this.selectedObject);
+        } else {
+            this.selectedObject = object;
+            await this.events.trigger("map", "objectSelected", this.selectedObject);
         }
-        this.selectedObject = {layer, objectId};
-        await this.events.trigger("map", "objectSelected", this.selectedObject);
     }
     async unselectObject() {
+        if (!this.selectedObject) return;
         let selected = this.selectedObject;
         this.selectedObject = null;
-        await this.events.trigger("map", "obectUnselected", selected);
+        await this.events.trigger("map", "objectUnselected", selected);
     }
 
     addStation(code) {
@@ -411,11 +415,30 @@ class GEOOS {
         }
         l.addStation(code);
     }
+    addStations(list) {
+        let g = this.getActiveGroup();
+        let l = g.getStationsLayer();
+        if (!l) {
+            l = g.createStationsLayer();
+            this.events.trigger("portal", "layersAdded", g)
+        }
+        l.addStations(list);
+    }
     removeStation(code) {
         let g = this.getActiveGroup();
         let l = g.getStationsLayer();
         if (!l) throw "No hay capa de estaciones";
         l.removeStation(code);
+        if (!l.hasStations()) {
+            g.removeStationsLayer();
+            this.events.trigger("portal", "layersRemoved", g)
+        }
+    }
+    removeStations(list) {
+        let g = this.getActiveGroup();
+        let l = g.getStationsLayer();
+        if (!l) throw "No hay capa de estaciones";
+        l.removeStations(list);
         if (!l.hasStations()) {
             g.removeStationsLayer();
             this.events.trigger("portal", "layersRemoved", g)

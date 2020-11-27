@@ -1,0 +1,21 @@
+<div id="analysisContainer" class="analysis-panel flex flex-column">
+    <div id="analysisCaption" class="p-2" style="flex: 0 0 34px; display: flex;">
+        <i class="fas fa-lg fa-chart-pie mr-2"></i>
+        <span id="lblObjectName" style="font-weight: 700; font-size: 13px;">Nombre del Objeto</span>
+        <img src="img/icons/info.svg" height="18px" class="ml-auto mr-2"></i>
+        <span id="lblAnalysisName" style="font-weight: 700; font-size: 13px;">Título del Gráfico</span>
+        <i id="cmdUp" class="far fa-2x fa-arrow-alt-circle-up ml-4 analysis-expander" data-z-clickable="true" style="margin-top: -6px;"></i>
+        <i id="cmdDown" class="far fa-2x fa-arrow-alt-circle-down ml-1 analysis-expander" data-z-clickable="true" style="margin-top: -6px;"></i>
+    </div>
+    <div id="analysisContent" class="flex flex-row" style="flex: 1 1 100%;">
+        <div class="flex flex-column px-1" style="flex:0 0 300px; display: flex;">
+            <select id="edAnalysisPanel" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name" style="flex: 0 0;"></select>
+            <div id="analysisPropPanelsContainer" class="my-1 border rounded p-2" style="flex: 1 1 100%; overflow-y: auto;">
+                <div></div>
+            </div>
+        </div>
+        <div class="border rounded mx-1 mb-1" style="flex:1 1 100%; ">
+            <div id="analyzerLoader" data-z-load="common/Empty"></div>
+        </div>
+    </div>
+</div>

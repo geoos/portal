@@ -366,7 +366,6 @@ class MyPanel extends ZCustomController {
                     s = JSON.stringify(s);
                     let b = btoa(s);
                     let url = window.location.href.split('?')[0] + "?group=" + encodeURIComponent(b);
-                    console.log("url", url);
                     const el = document.createElement('textarea');
                     el.value = url;
                     document.body.appendChild(el);

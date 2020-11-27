@@ -11,33 +11,57 @@ class GEOOSStationsLayer extends GEOOSLayer {
     serialize() {
         let l = super.serialize();
         l.type = "stations";
+        l.points = this.points.map(p => {
+            p.station = p.station.code;
+            return p;
+        })
+        l.watchers = this.watchers.reduce((list, w) => [...list, w.serialize()], [])
         return l;
     }
     static deserialize(s, config) {
         let layer = new GEOOSStationsLayer(config);
         layer.id = s.id;
+        layer.points = s.points.map(p => {
+            p.station = window.geoos.estaciones.estaciones[p.station];
+            return p;
+        });
+        layer.watchers = s.watchers?s.watchers.reduce((list, w) => [...list, GEOOSQuery.deserialize(w)], []):[];
+        layer.watchers.forEach(w => {
+            w.layer = layer;
+            layer.watcherResults[w.id] = {aborter:null, results:null}
+        });
+        console.log("layer", layer);
         return layer;
     }
 
     get minZDimension() {return "rie.estacion"}
 
-    addStation(code) {
+    addStation(code, silent) {
         let e = window.geoos.estaciones.estaciones[code];
         if (!e) throw "No se encontró la estación " + code;
         let point = {
             id:e.code, station:e, lat:e.lat, lng:e.lng, watching:[], 
             options:{
-                style:{radius:6, stroke:"black", strokeWidth:1, fill:"red"}
+                style:{radius:8, stroke:"black", strokeWidth:1, fill:"red"}
             }
         }
         this.points.push(point);
+        if (!silent) this.refresh();        
+    }
+    addStations(list) {
+        list.forEach(s => this.addStation(s, true));
         this.refresh();
     }
-    removeStation(code) {
+    removeStation(code, silent) {
         let idx = this.points.findIndex(p => (p.id == code));
         if (idx < 0) throw "No se encontró la estación " + code;
         this.points.splice(idx, 1);
+        if (!silent) this.refresh();
     } 
+    removeStations(list) {
+        list.forEach(s => this.removeStation(s, true));
+        this.refresh();
+    }
     containsStation(code) {return this.points.findIndex(p => (p.id == code)) >= 0}
     hasStations() {return this.points.length?true:false}
     getStations() {
@@ -64,11 +88,12 @@ class GEOOSStationsLayer extends GEOOSLayer {
         this.konvaLeafletLayer.addTo(window.geoos.map);
         
         this.konvaLeafletLayer.addVisualizer("points", new PointsVisualizer({
-            zIndex:1,            
+            zIndex:1,
+            interactions:window.geoos.interactions,
             getPoints: _ => (this.points),
             getWatching: point => {
                 let watching = [];
-                for (let w of this.watchers) {
+                for (let w of this.watchers.filter(w => w.legend)) {
                     let r = this.watcherResults[w.id];
                     let results = r.results;
                     if (!results) {
@@ -90,8 +115,32 @@ class GEOOSStationsLayer extends GEOOSLayer {
             getColorWatch: point => {
                 if (!this.watchColorResults || !this.watchColorResults[point.id]) return null;
                 return this.colorScale.getColor(this.watchColorResults[point.id])
-            }
+            },
+            onmouseover: point => {
+                let station = point.station;
+                if (station.code == this.hoveredCode) return;
+                this.hoveredCode = station.code;
+                let name = station.name, lat = station.lat, lng = station.lng;
+                if (name !== undefined && lat !== undefined && lng !== undefined) {
+                    this.konvaLeafletLayer.getVisualizer("points").setContextLegend(lat, lng, name);                    
+                } else {
+                    this.konvaLeafletLayer.getVisualizer("points").unsetContextLegend();
+                }
+                this.konvaLeafletLayer.getVisualizer("points").redraw();   
+                window.geoos.mapPanel.mapContainer.view.style.cursor = "crosshair";
+            },
+            onmouseout: point => {
+                this.hoveredCode = null;
+                this.konvaLeafletLayer.getVisualizer("points").unsetContextLegend();
+                this.konvaLeafletLayer.getVisualizer("points").redraw();
+                window.geoos.mapPanel.mapContainer.view.style.removeProperty("cursor");
+            },
+            onclick:point => window.geoos.selectObject({
+                type:"station", code:point.station.code, name:point.station.name, layer:this, minZDimension:"rie.estacion",
+                lat:point.station.lat, lng:point.station.lng
+            }),
         }));    
+        this.refreshWatchers();
     }
     async destroy() {  
         window.geoos.events.remove(this.objectSelectedListener);
@@ -110,6 +159,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
     }
 
     repaint() {
+        if (!this.konvaLeafletLayer) return;
         this.konvaLeafletLayer.getVisualizer("points").update();
     }
 
@@ -186,15 +236,15 @@ class GEOOSStationsLayer extends GEOOSLayer {
     resolveMinZWatcher(w, r) {
         // Separar por servidor zrepo de cada estación y paralelizar las consultas.
         // luego unir los resultados
-        let zrepoServers = {};
+        let zRepoServers = {};
         for (let p of this.points) {
-            let zrepoServer = p.station.server;
-            zrepoServers[zrepoServer.url] = zrepoServer;
+            let zRepoServer = p.station.server;
+            zRepoServers[zRepoServer.url] = zRepoServer;
         }
         let promises = [];
         this.startWorking();
-        for (let url in zrepoServers) {
-            let server = zrepoServers[url];
+        for (let url in zRepoServers) {
+            let server = zRepoServers[url];
             let serverWatcher = GEOOSQuery.cloneQuery(w);
             serverWatcher.zRepoServer = server;
             let {promise, controller} = serverWatcher.query({format:"dim-serie"});

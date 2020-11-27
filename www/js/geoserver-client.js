@@ -82,6 +82,14 @@ class GEOServerClient {
         }
     }
 
+    timeSerie(dataSetCode, varCode, startTime, endTime, lat, lng, level) {
+        let controller = new AbortController();
+        return {
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/timeSerie", {startTime, endTime, lat, lng, level}, controller.signal),
+            controller:controller
+        }
+    }
+
     isolines(dataSetCode, varCode, time, n, w, s, e, level, increment, fixedLevels) {
         let controller = new AbortController();
         return {

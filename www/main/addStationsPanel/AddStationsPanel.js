@@ -8,10 +8,11 @@ class AddStationsPanel extends ZCustomController {
         this.stationsInfoPanel.hide();
         this.hide();
         window.geoos.events.on("top", "clickStations", _ => this.toggle())
-        let dataProveedores = Object.keys(window.geoos.estaciones.proveedores).reduce((lista, p) => {
-            lista.push(window.geoos.estaciones.proveedores[p]);
-            return lista;
-        }, []).sort((p1, p2) => (p1.name > p2.name?1:-1));
+        let dataProveedores = Object.keys(window.geoos.estaciones.proveedores)
+            .reduce((lista, p) => [...lista, window.geoos.estaciones.proveedores[p]], [])
+            .map(p => window.geoos.providers
+                .find(gp => gp.code == p.code) || p)
+            .sort((p1, p2) => (p1.name > p2.name?1:-1));
         let dataTipos = Object.keys(window.geoos.estaciones.tipos).reduce((lista, t) => {
             lista.push(window.geoos.estaciones.tipos[t]);
             return lista;
@@ -173,7 +174,6 @@ class AddStationsPanel extends ZCustomController {
         })
         accordion.find(".section-filter-item").click(e => {
             let item = $(e.currentTarget);
-            console.log("item", item);
             let sectionCode = item.data("section");
             let rowCode = item.data("code");            
             let idx = this.filters[sectionCode].indexOf(rowCode);
@@ -218,16 +218,42 @@ class AddStationsPanel extends ZCustomController {
         // Results
         this.filteredStations = this.filterStations(null, this.edStationsNameFilter.value);
         this.lblStationsResume.text = this.filteredStations.length + " estaciones encontradas";
+        let providers = this.filteredStations.reduce((map, s) => {
+            map[s.proveedor] = true;
+            return map;
+        }, {})
+        let providersList = Object.keys(providers).reduce((list, p) => {
+            let geoosProvider = window.geoos.providers.find(gp => (gp.code == p));
+            if (geoosProvider) list.push({code:p, name:geoosProvider.name});
+            else list.push({code:p, name:p});
+            return list;
+        }, []);
+        
         let htmlStations = "";
-        for (let station of this.filteredStations) {
+        for (let provider of providersList) {
+            let {nStationsProvider, nSelected} = this.filteredStations.reduce((map, s) => {
+                if (s.proveedor == provider.code) {
+                    map.nStationsProvider++;
+                    if (window.geoos.isStationAdded(s.code)) map.nSelected++;
+                    return map;
+                }
+            }, {nStationsProvider:0, nSelected:0});
             htmlStations += `
-                <div class="add-panel-variable" data-code="${station.code}">
-                    <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i>
-                    ${station.name}
-                    <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoStationCode==station.code?"-active":""}.svg" />
-                    <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
+                <div class="add-panel-proveedor" data-code="${provider.code}">
+                    <i class="far fa-lg ${nStationsProvider == nSelected?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                    ${provider.name}
                 </div>
             `;
+            for (let station of this.filteredStations.filter(s => s.proveedor == provider.code)) {
+                htmlStations += `
+                    <div class="add-panel-variable ml-4" data-code="${station.code}">
+                        <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                        ${station.name}
+                        <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoStationCode==station.code?"-active":""}.svg" />
+                        <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
+                    </div>
+                `;
+            }
         }
         this.stationsContainer.html = htmlStations;
         if (this.infoOpen && this.filteredStations.findIndex(l => (l.code == this.infoStationCode)) < 0) this.closeInfo();
@@ -256,13 +282,33 @@ class AddStationsPanel extends ZCustomController {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
             let station = this.filteredStations.find(v => v.code == code);
-            console.log("favo-station", station);
             return false;
         });
         $(this.stationsContainer.view).find(".add-panel-variable").click(e => {
             let div = $(e.currentTarget);
             let code = div.data("code");
             window.geoos.toggleStation(code);
+            this.refresh();
+        })
+        $(this.stationsContainer.view).find(".add-panel-proveedor").click(e => {
+            let div = $(e.currentTarget);
+            let code = div.data("code");
+            let provider = providersList.find(p => p.code == code);
+            let {toSelect, toUnselect} = this.filteredStations.reduce((map, s) => {
+                if (s.proveedor == provider.code) {
+                    if (window.geoos.isStationAdded(s.code)) {
+                        map.toUnselect.push(s.code);
+                    } else {
+                        map.toSelect.push(s.code)
+                    }
+                    return map;
+                }
+            }, {toSelect:[], toUnselect:[]});
+            if (!toSelect.length) {
+                window.geoos.removeStations(toUnselect)
+            } else {
+                window.geoos.addStations(toSelect)
+            }            
             this.refresh();
         })
         this.refreshResume();        

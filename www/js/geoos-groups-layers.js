@@ -168,6 +168,7 @@ class GEOOSLayer {
         this.config.opacity = o;
         window.geoos.mapPanel.adjustOpacity(this);
     }
+    get options() {throw "options property not overriten for layer " + this.name}
 
     serialize() {
         return {
@@ -184,8 +185,10 @@ class GEOOSLayer {
             return GEOOSRasterLayer.deserialize(s, config);
         } else if (s.type == "vector") {
             return GEOOSVectorLayer.deserialize(s, config);
+        } else if (s.type == "stations") {
+            return GEOOSStationsLayer.deserialize(s, config);
         }
-        throw "Layer type '" + layerConfig.type + "' not yet handled"
+        throw "Layer type '" + s.type + "' not yet handled"
     }
 
     async create() {console.warn("Abstract create for layer")}

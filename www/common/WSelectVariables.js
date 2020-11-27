@@ -16,7 +16,7 @@ class WSelectVariables extends ZDialog {
             this.edLayerType.setRows([{
                 code:"stations", name:"Medidas por las Estaciones"
             }, {
-                code:"variables", name:"Variables en Centroide"
+                code:"variables", name:"Otras Variables en el mismo Punto"
             }], "raster")
         }
         this.sections = [{

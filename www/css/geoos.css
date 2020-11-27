@@ -360,6 +360,15 @@ a:hover {
 .add-panel-variable:hover {
     text-decoration: underline;
 }
+.add-panel-proveedor {
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.add-panel-proveedor:hover {
+    text-decoration: underline;
+}
 .add-panel-variable-icon {
     cursor: pointer;
     float: right;
@@ -607,4 +616,26 @@ a:hover {
 }
 .selectable-name:hover {
     text-decoration: underline;
+}
+
+/* Analysis Panel */
+.analysis-panel {
+    opacity: 1;
+    background-color: #272626;    
+    color: white;
+    box-shadow: 0px 4px 4px 0px #000000 25%;
+    z-index: 400;
+    border-radius: 5px;
+    border: 2px solid rgba(246,246,246,0.5);
+    position: absolute;
+    left: 20px; right: 20px; bottom: -5px;
+    padding-bottom: 5px;
+    height: 200px;
+}
+.analysis-expander {
+    cursor: pointer;
+}
+.analysis-expander.disabled {
+    color: gray;
+    cursor: default;
 }

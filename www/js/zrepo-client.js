@@ -405,6 +405,7 @@ class ZRepoClient {
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&temporality=" + temporality;
             let controller = new AbortController();
+            console.log("filter", JSON.stringify(filter, null, 4), "temporality", temporality)
             return {promise: this._getJSON(url, controller.signal), controller:controller}
             //let summary = (await (await fetch(url)).json());
             //return summary;
@@ -418,7 +419,6 @@ class ZRepoClient {
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&groupDimension=" + dimensionAgrupado
-            console.log("url", url);
             let controller = new AbortController();
             return {promise: this._getJSON(url, controller.signal), controller:controller}
             //let ret = (await (await fetch(url)).json());
