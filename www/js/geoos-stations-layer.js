@@ -30,7 +30,6 @@ class GEOOSStationsLayer extends GEOOSLayer {
             w.layer = layer;
             layer.watcherResults[w.id] = {aborter:null, results:null}
         });
-        console.log("layer", layer);
         return layer;
     }
 
@@ -91,27 +90,6 @@ class GEOOSStationsLayer extends GEOOSLayer {
             zIndex:1,
             interactions:window.geoos.interactions,
             getPoints: _ => (this.points),
-            getWatching: point => {
-                let watching = [];
-                for (let w of this.watchers.filter(w => w.legend)) {
-                    let r = this.watcherResults[w.id];
-                    let results = r.results;
-                    if (!results) {
-                        //watching.push({label:w.name + ": ???", color:"orange"})
-                    } else {
-                        let v = results.find(r => r._id == point.id);
-                        if (v && v.resultado) {
-                            watching.push({
-                                label:w.name + ":" + window.geoos.formatNumber(v.resultado, w.decimals, w.unit),
-                                color:"white"
-                            })
-                        } else {
-                            //watching.push({label:w.name + ": ??", color:"orange"})
-                        }                        
-                    }
-                }
-                return watching;
-            },
             getColorWatch: point => {
                 if (!this.watchColorResults || !this.watchColorResults[point.id]) return null;
                 return this.colorScale.getColor(this.watchColorResults[point.id])
@@ -122,23 +100,54 @@ class GEOOSStationsLayer extends GEOOSLayer {
                 this.hoveredCode = station.code;
                 let name = station.name, lat = station.lat, lng = station.lng;
                 if (name !== undefined && lat !== undefined && lng !== undefined) {
-                    this.konvaLeafletLayer.getVisualizer("points").setContextLegend(lat, lng, name);                    
+                    this.konvaLeafletLayer.getVisualizer("legends").setContextLegend(lat, lng, name);                    
                 } else {
-                    this.konvaLeafletLayer.getVisualizer("points").unsetContextLegend();
+                    this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 }
-                this.konvaLeafletLayer.getVisualizer("points").redraw();   
                 window.geoos.mapPanel.mapContainer.view.style.cursor = "crosshair";
             },
             onmouseout: point => {
                 this.hoveredCode = null;
-                this.konvaLeafletLayer.getVisualizer("points").unsetContextLegend();
-                this.konvaLeafletLayer.getVisualizer("points").redraw();
+                this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 window.geoos.mapPanel.mapContainer.view.style.removeProperty("cursor");
             },
             onclick:point => window.geoos.selectObject({
                 type:"station", code:point.station.code, name:point.station.name, layer:this, minZDimension:"rie.estacion",
                 lat:point.station.lat, lng:point.station.lng
             }),
+        }));    
+        this.konvaLeafletLayer.addVisualizer("legends", new LegendsVisualizer({
+            zIndex:2,
+            getFlagPoints:_ => {
+                // point: {lat, lng, watching:[{label:string, color:string}, ...]}
+                let pointsMap = this.points.reduce((map, p) => {
+                    map[p.id] = p;
+                    return map;
+                }, {})
+                let pointLegends = {};
+                for (let w of this.watchers.filter(w => w.legend)) {
+                    let r = this.watcherResults[w.id];
+                    let results = r.results;
+                    if (results) {
+                        for (let v of results) {
+                            let point = pointsMap[v._id];
+                            if (point) {
+                                let leg = pointLegends[point.id]
+                                if (!leg) {
+                                    leg = {id:point.id, lat:point.lat, lng:point.lng, watching:[]};
+                                    pointLegends[point.id] = leg;
+                                }
+                                leg.watching.push({
+                                    label:w.name + ":" + window.geoos.formatNumber(v.resultado, w.decimals, w.unit),
+                                    color:"white"
+                                });                                
+                            }
+                        }                        
+                    }
+                }
+                let list = Object.keys(pointLegends).map(id => pointLegends[id]);
+                return list;
+            }
         }));    
         this.refreshWatchers();
     }
@@ -147,6 +156,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
         window.geoos.events.remove(this.objectUnselectedListener);
         window.geoos.events.remove(this.timeChangeListener);
         if (!this.konvaLeafletLayer) return;
+        this.konvaLeafletLayer.removeVisualizer("legends");
         this.konvaLeafletLayer.removeVisualizer("points");
         this.konvaLeafletLayer.removeFrom(window.geoos.map);
         window.geoos.mapPanel.destroyPanelFromLayer(this);
@@ -154,13 +164,15 @@ class GEOOSStationsLayer extends GEOOSLayer {
     }
 
     async refresh() {        
+        this.refreshWatchers();
         this.konvaLeafletLayer.getVisualizer("points").update();
-        this.refreshWatchers();        
+        this.konvaLeafletLayer.getVisualizer("legends").update();
     }
 
     repaint() {
         if (!this.konvaLeafletLayer) return;
         this.konvaLeafletLayer.getVisualizer("points").update();
+        this.konvaLeafletLayer.getVisualizer("legends").update();
     }
 
     reorder() {
@@ -203,7 +215,10 @@ class GEOOSStationsLayer extends GEOOSLayer {
         let w = this.getWatcher(id);
         if (!w) throw "Watcher not found:" + id;
         if (w.type == "minz") {
-            if (r.aborter) r.aborter.abort();
+            if (r.aborter) {
+                r.aborter.abort();
+                r.aborter = null;
+            }
         } else if (w.type == "raster") {
             if (r.queryCount) r.queryCount++;
         } else throw "Invalid watcher type " + w.type;

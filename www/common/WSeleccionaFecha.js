@@ -6,7 +6,7 @@ class WSeleccionaFecha extends ZDialog {
         this.tiempo = this.ajustaTiempo(options.tiempo);
         if (options.titulo) this.title.text = options.titulo;
         this.finPeriodo = options.finPeriodo;
-        if (this.temporalidad == "1Y") {
+        if (this.temporalidad == "1y") {
             this.itemDia.hide();
             this.itemMes.hide();
         } else if (this.temporalidad == "1M") {
@@ -15,7 +15,7 @@ class WSeleccionaFecha extends ZDialog {
         this.refrescaTiempo();
     }
     ajustaTiempo(ms) {
-        let tiempo = TimeUtils.fromUTCMillis(ms);
+        let tiempo = moment.tz(ms, window.timeZone);
         tiempo.hours(0); tiempo.minutes(0); tiempo.seconds(0); tiempo.milliseconds(0);
         if (this.temporalidad == "1M") {
             tiempo.date(1);

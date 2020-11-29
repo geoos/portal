@@ -1,16 +1,35 @@
 class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
-    constructor(o) {
-        super(o, "time-serie");
+    constructor(o, listeners) {
+        super(o, "time-serie", listeners);
         this.data1 = {aborter:null, serie:null}
         this.data2 = {aborter:null, serie:null}
-        this.timeListener = _ => {this.refreshWatcher1(); this.refreshWatcher2()}
+        this.timeListener = _ => {this.callRefresh(true, true)}
+        this.moveListener = id => {
+            if (this.object.type == "user-object" && this.object.code == id) this.callRefresh(true, true)
+        }
         window.geoos.events.on("portal", "timeChange", this.timeListener);
+        window.geoos.events.on("userObject", "moved", this.moveListener);
+
+    }
+
+    callRefresh(w1, w2) {
+        if (this.refreshTimer) clearTimeout(this.refreshTimer);
+        if (w1) this.refreshW1 = true;
+        if (w2) this.refreshW2 = true;
+        this.refreshTimer = setTimeout(_ => {
+            this.refreshTimer = null;
+            if (this.refreshW1) this.refreshWatcher1();
+            if (this.refreshW2) this.refreshWatcher2();
+            this.refreshW1 = false;
+            this.refreshW2 = false;
+        }, 100);
     }
 
     destroy() {
         if (this.data1.aborter) this.data1.aborter.abort()
         if (this.data2.aborter) this.data2.aborter.abort()
-        window.geoos.events.removeListener(this.timeListener);
+        window.geoos.events.remove(this.timeListener);
+        window.geoos.events.remove(this.moveListener);
     }
 
     getPropertyPanels() {
@@ -34,7 +53,8 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
     set watcher1(w) {
         this._watcher1 = w;
         this.config.watcher1 = w?w.serialize():null;
-        this.refreshWatcher1();
+        this.callRefresh(true, false);
+        this.triggerChange();
     }
     get watcher2() {
         if (this._watcher2) return this._watcher2;
@@ -48,27 +68,85 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
     set watcher2(w) {
         this._watcher2 = w;
         this.config.watcher2 = w?w.serialize():null;
-        this.refreshWatcher2();
+        this.callRefresh(false, true);
+        this.triggerChange();
     }
+
+    get timeConfig() {
+        let t = this.config.time;
+        if (!t) {
+            t = {type:"relative", temporality:"1d", from:-5, to:2}
+            this.config.time = t;
+        }
+        return t;
+    }
+    get timeType() {return this.timeConfig.type}
+    set timeType(t) {this.timeConfig.type = t; this.callRefresh(true, true);}
+    get temporality() {return this.timeConfig.temporality}
+    set temporality(t) {this.timeConfig.temporality = t; this.callRefresh(true, true);}
+    get timeFrom() {return this.timeConfig.from}
+    set timeFrom(t) {this.timeConfig.from = t; this.callRefresh(true, true);}
+    get timeTo() {return this.timeConfig.to}
+    set timeTo(t) {this.timeConfig.to = t; this.callRefresh(true, true);}
+    get timeFromDate() {return this.timeConfig.fromDate}
+    set timeFromDate(t) {this.timeConfig.fromDate = t; this.callRefresh(true, true);}
+    get timeToDate() {return this.timeConfig.toDate}
+    set timeToDate(t) {this.timeConfig.toDate = t; this.callRefresh(true, true);}
 
     async initDefaults() {
-        console.log("analyzer", this.code, "initDefaults", this.object);
+        //console.log("analyzer", this.code, "initDefaults", this.object);
     }
     async mainPanelAttached() {
-        this.refreshWatcher1();
-        this.refreshWatcher2();
+        this.callRefresh(true, true);
     }
 
-
+    getPeriod() {
+        let t0, t1;
+        if (this.timeType == "relative") {
+            let tPortal = moment.tz(window.geoos.time, window.timeZone);
+            tPortal.hours(0); tPortal.minutes(0); tPortal.seconds(0); tPortal.milliseconds(0);
+            if (this.temporality == "1d") {
+               t0 = tPortal.clone();
+               t0.date(t0.date() + this.timeFrom);
+               t1 = tPortal.clone();
+               t1.date(t1.date() + this.timeTo + 1); t1.milliseconds(t1.milliseconds() - 1); // Fin del día anterior
+               t0 = t0.valueOf();
+               t1 = t1.valueOf();
+            } else if (this.temporality == "1M") {
+                tPortal.date(1);
+                t0 = tPortal.clone();
+                t0.month(t0.month() + this.timeFrom);
+                t1 = tPortal.clone();
+                t1.month(t1.month() + this.timeTo + 1); t1.milliseconds(t1.milliseconds() - 1); // Fin del día anterior
+                t0 = t0.valueOf();
+                t1 = t1.valueOf();
+            } else if (this.temporality == "1y") {
+                tPortal.date(1); tPortal.month(0);
+                t0 = tPortal.clone();
+                t0.year(t0.year() + this.timeFrom);
+                t1 = tPortal.clone();
+                t1.year(t1.year() + this.timeTo + 1); t1.milliseconds(t1.milliseconds() - 1); // Fin del día anterior
+                t0 = t0.valueOf();
+                t1 = t1.valueOf();
+             } else throw "temporalidad " + this.temporality + " no está manejada en serie de tiempo";            
+        } else {
+            t0 = this.timeFromDate;
+            t1 = this.timeToDate;            
+        }
+        return {startTime:t0, endTime:t1}
+    }
     refreshWatcher1() {
-        console.log("refresh watcher 1");
+        this.startWorking();
         if (this.data1.aborter) this.data1.aborter.abort();
         this.data1.aborter = null;
-        if (!this.watcher1) return;
-        let t1 = moment.tz(window.timeZone).endOf("day");
-        let t0 = t1.clone().startOf("day").subtract(3, "days");
+        if (!this.watcher1) {
+            this.finishWorking();
+            return;
+        }
+        let period = this.getPeriod();
+        let center = this.objectPoint;
         let {promise, controller} = this.watcher1.query({
-            startTime:t0.valueOf(), endTime:t1.valueOf(), format:"time-serie", objectCode:this.object.code, temporality:"5m", lat:this.object.lat, lng:this.object.lng
+            startTime:period.startTime, endTime:period.endTime, format:"time-serie", objectCode:this.object.code, temporality:"5m", lat:center.lat, lng:center.lng
         });
         this.data1.aborter = controller;
         promise
@@ -79,22 +157,25 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
                 } else {
                     this.data1.serie = res.map(r => ({x:r.time, y:r.value}));
                 }
-                console.log("res1", res, "serie1", this.data1.serie);
-                this.refreshMainPanel();
+                this.finishWorking();
             }).catch(err => {
+                this.finishWorking();
                 this.data1.aborter = null;
                 console.error(err)
             })
     }
     refreshWatcher2() {
-        console.log("refresh watcher 2");
+        this.startWorking();
         if (this.data2.aborter) this.data2.aborter.abort();
         this.data2.aborter = null;
-        if (!this.watcher2) return;
-        let t1 = moment.tz(window.timeZone).endOf("day");
-        let t0 = t1.clone().startOf("day").subtract(3, "days");
+        if (!this.watcher2) {
+            this.finishWorking();
+            return;
+        }
+        let period = this.getPeriod();
+        let center = this.objectPoint;;
         let {promise, controller} = this.watcher2.query({
-            startTime:t0.valueOf(), endTime:t1.valueOf(), format:"time-serie", objectCode:this.object.code, temporality:"5m", lat:this.object.lat, lng:this.object.lng
+            startTime:period.startTime, endTime:period.endTime, format:"time-serie", objectCode:this.object.code, temporality:"5m", lat:center.lat, lng:center.lng
         });
         this.data2.aborter = controller;
         promise
@@ -105,9 +186,9 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
                 } else {
                     this.data2.serie = res.map(r => ({x:r.time, y:r.value}));
                 }
-                console.log("res2", res, "serie2", this.data2.serie);
-                this.refreshMainPanel();
+                this.finishWorking();
             }).catch(err => {
+                this.finishWorking();
                 this.data2.aborter = null;
                 console.error(err)
             })
@@ -115,8 +196,8 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
 }
 
 GEOOSAnalyzer.register("time-serie", "Serie de Tiempo", 
-    o => (o.type == "station" || o.type == "vector-object"), 
-    o => (new GEOOSAnalyzerTimeSerie(o)),
+    o => (o.type == "station" || o.type == "vector-object" || o.type == "user-object"), 
+    (o, listeners) => (new GEOOSAnalyzerTimeSerie(o, listeners)),
     350
 )
 

@@ -150,22 +150,52 @@ class GEOOSVectorLayer extends GEOOSLayer {
                     lat = f.tags.centerLat, lng = f.tags.centerLng;
                 }
                 if (name !== undefined && lat !== undefined && lng !== undefined) {
-                    this.konvaLeafletLayer.getVisualizer("geoJsonTiles").setContextLegend(lat, lng, name);                    
+                    this.konvaLeafletLayer.getVisualizer("legends").setContextLegend(lat, lng, name);
                 } else {
-                    this.konvaLeafletLayer.getVisualizer("geoJsonTiles").unsetContextLegend();
+                    this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 }
-                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
             },
             onmouseout: f => {
                 this.hoveredId = null;
-                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").unsetContextLegend();
-                this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
+                this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
+                //this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
             },
             onclick:f => window.geoos.selectObject({
                 type:"vector-object", code:f.tags.id, name:f.tags.name, layer:this, minZDimension:this.minZDimension,
                 lat:f.tags.centroidLat || f.tags.centerLat, lng:f.tags.centroidLng || f.tags.centerLng
-            }),
-            getExtraElements:_ => (this.paintLegends())
+            })
+        }));
+
+        this.konvaLeafletLayer.addVisualizer("legends", new LegendsVisualizer({
+            getLegendObjects:_ => {
+                // // o: {lat, lng, legends:[{valor, decimales, unidad}, ...]}
+                let objectLegends = {};
+                for (let w of this.watchers.filter(w => w.legend)) {
+                    let r = this.watcherResults[w.id];
+                    let results = r.results;
+                    if (results) {
+                        for (let v of results) {
+                            let o = this.metadataMap[v._id];
+                            if (o) {
+                                let leg = objectLegends[o.id]
+                                if (!leg) {
+                                    if (o.centroid) {
+                                        leg = {id:o.id, lat:o.centroid.lat, lng:o.centroid.lng, legends:[]};
+                                    } else if(o.center) {
+                                        leg = {id:o.id, lat:o.center.lat, lng:o.center.lng, legends:[]};
+                                    }
+                                    objectLegends[o.id] = leg;
+                                }
+                                leg.legends.push({
+                                    name:w.name, valor:v.resultado, decimales:w.decimals, unidad:w.unit
+                                });                                
+                            }
+                        }                        
+                    }
+                }
+                let list = Object.keys(objectLegends).map(id => objectLegends[id]);
+                return list;
+            }
         }));
         this.refreshWatchers();
     }
@@ -175,6 +205,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         window.geoos.events.remove(this.objectUnselectedListener);
         window.geoos.events.remove(this.timeChangeListener);
         if (!this.konvaLeafletLayer) return;
+        this.konvaLeafletLayer.removeVisualizer("legends");
         this.konvaLeafletLayer.removeVisualizer("geoJsonTiles");
         this.konvaLeafletLayer.removeFrom(window.geoos.map);
         window.geoos.mapPanel.destroyPanelFromLayer(this);
@@ -200,11 +231,13 @@ class GEOOSVectorLayer extends GEOOSLayer {
             await this.loadMetadata();
         }
         this.konvaLeafletLayer.getVisualizer("geoJsonTiles").reset();
+        this.konvaLeafletLayer.getVisualizer("legends").update();
         this.refreshWatchers();
     }
 
     repaint() {
         this.konvaLeafletLayer.getVisualizer("geoJsonTiles").update();
+        this.konvaLeafletLayer.getVisualizer("legends").update();
     }
 
     reorder() {
@@ -365,126 +398,5 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.colorScale = window.geoos.scalesFactory.createScale(scaleDef, this.colorScale.config);
         if (this.getColorWatcher()) this.colorScale.unit = this.getColorWatcher().unit;
         this.repaint();
-    }
-
-    paintLegends() {
-        let elements = [];
-        let leyendasPorObjeto = {}
-        this.watchers.filter(w => w.legend).forEach(w => {
-            let r = this.watcherResults[w.id];
-            if (r && r.results) {
-                r.results.forEach(r => {
-                    let leyendas = leyendasPorObjeto[r.dim.code];
-                    if (!leyendas) {
-                        leyendas = {objeto:r.dim, leyendas:[]};
-                        leyendasPorObjeto[r.dim.code] = leyendas;
-                    }
-                    let v = r.resultado;
-                    leyendas.leyendas.push({label:r.dim.name, decimales:w.decimals, unidad:w.unit, valor:(v !== null && v !== undefined)?v:"S/D"}); 
-                })
-            }
-        });
-
-        let centrosLeyenda = [], visualizer = this.konvaLeafletLayer.getVisualizer("geoJsonTiles");
-        Object.keys(leyendasPorObjeto).forEach(id => {
-            let o = this.metadataMap[id];
-            if (o) {
-                let point = visualizer.toCanvas({lat:o.centroid.lat, lng:o.centroid.lng});
-                let x = point.x, y = point.y, path, hPos = "izquierda", vPos = "arriba";
-                let dx = 100, dy = 60;
-                if (hPos == "centro") {
-                    if (vPos == "arriba") {
-                        path = [x, y, x, y - dy];
-                        y -= dy;
-                    } else if (vPos == "abajo") {
-                        path = [x, y, x, y + dy];
-                        y += dy;
-                    }
-                } else if (hPos == "izquierda") {
-                    if (vPos == "centro") {
-                        path = [x, y, x - dx, y];
-                        x -= dx;
-                    } else if (vPos == "arriba") {
-                        path = [x, y, x - dx/2, y, x - dx, y - dy];
-                        x -= dx; y -= dy;
-                    } else if (vPos == "abajo") {
-                        path = [x, y, x - dx/2, y, x - dx, y + dy];
-                        x -= dx; y += dy;
-                    }
-                } else if (hPos == "derecha") {
-                    if (vPos == "centro") {
-                        path = [x, y, x + dx, y];
-                        x += dx;
-                    } else if (vPos == "arriba") {
-                        path = [x, y, x + dx/2, y, x + dx, y - dy];
-                        x += dx; y -= dy;
-                    } else if (vPos == "abajo") {
-                        path = [x, y, x + dx/2, y, x + dx, y + dy];
-                        x += dx; y += dy;
-                    }
-                }
-                elements.push(new Konva.Line({
-                    points:path,
-                    stroke:"white", strokeWidth:5,
-                    lineCap: 'round', lineJoin: 'round',
-                    dash: [10, 7, 0.001, 7]
-                }));
-                elements.push(new Konva.Line({
-                    points:path,
-                    stroke:"black", strokeWidth:3,
-                    lineCap: 'round', lineJoin: 'round',
-                    dash: [10, 7, 0.001, 7]
-                }));
-                centrosLeyenda.push({x:x, y:y});
-            }
-        });
-        Object.keys(leyendasPorObjeto).forEach((id, i) => {
-            let leyendas = leyendasPorObjeto[id];
-            let x = centrosLeyenda[i].x, y = centrosLeyenda[i].y;;
-            let width, height = 0;
-            let kTexts = leyendas.leyendas.reduce((lista, l) => {
-                //let txt = l.label + ": ";
-                let txt = "";
-                if (!isNaN(l.valor)) {
-                    txt += window.geoos.formatNumber(l.valor, l.decimales, l.unidad);
-                } else {
-                    txt += l.valor + " [" + l.unidad + "]";
-                }
-                let kText = new Konva.Text({
-                    x:x, y:y,
-                    text:txt,
-                    fontSize:12,
-                    fontFamily:"Calibri",
-                    fill:"#000000",
-                    opacity:1
-                });
-                let txtWidth = kText.width();
-                let txtHeight = kText.height();
-                height += txtHeight;
-                if (width === undefined || txtWidth > width) width = txtWidth;
-                lista.push(kText);
-                return lista;
-            }, []);
-            let roundedRect = new Konva.Rect({
-                x:x - width / 2 - 5, y:y - height / 2 - 6, width:width + 10, height:height + 8,
-                fill: 'rgba(255,255,255,255)',
-                stroke: '#000000',
-                strokeWidth: 1,
-                shadowColor: 'black',
-                shadowBlur: 10,
-                shadowOffset: { x: 4, y: 4 },
-                shadowOpacity: 0.5,
-                cornerRadius:3,
-                opacity:1
-            });
-            elements.push(roundedRect);
-            let yText = y - height / 2 - 1;
-            kTexts.forEach(kText => {
-                kText.absolutePosition({x:x - width / 2, y:yText});
-                yText += height / kTexts.length;
-                elements.push(kText);
-            });
-        });                
-        return elements;
     }
 }

@@ -23,6 +23,7 @@ class GEOOSQuery {
     get unit() {return "??"}
     get decimals() {return 2}
     get colorScale() {return {name:"SAGA - 01", clipOutOfRange:false, auto:true, unit:this.unit}}
+    get minZTemporality() {throw "minZTemporality not overwritten"}
 
     redondea(value, includeUnit) {
         let pow = Math.pow(10, this.decimals);
@@ -132,6 +133,15 @@ class RasterQuery extends GEOOSQuery {
 
     get unit() {return this.variable && this.variable.unit?this.variable.unit:super.unit}
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
+
+    get minZTemporality() {
+        let t = this.dataSet.temporality;
+        if (t == "none") return "1y";
+        if (t.unit == "hours") return "1d";
+        if (t.unit == "days") return "1M";
+        if (t.unit == "months") return "1y";
+        return "1y"
+    }
 
     serialize() {
         return {
@@ -301,6 +311,7 @@ class MinZQuery extends GEOOSQuery {
 
     get unit() {return this.variable && this.variable.options && this.variable.options.unit?this.variable.options.unit:super.unit}
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
+    get minZTemporality() {return this.temporality}
 
     get colorScale() {
         if (this.variable.options && this.variable.options.colorScale) return this.variable.options.colorScale;
@@ -570,7 +581,6 @@ class MinZQuery extends GEOOSQuery {
     }
 
     query(args) {
-        console.log("minz query", this, args);
         let fixedFilter = JSON.parse(JSON.stringify(this.fixedFilter));
         if (args.objectCode && fixedFilter) {
             if (fixedFilter.valor == "${codigo-objeto}") fixedFilter.valor = args.objectCode;

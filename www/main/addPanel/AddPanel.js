@@ -36,7 +36,7 @@ class AddPanel extends ZCustomController {
         let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
         let height = size.height - (topMenuRect.top + topMenuRect.height);
         let width = size.width - 28;
-        this.addPanelContainer.view.style.left = "30px";
+        this.addPanelContainer.view.style.left = "-2px";
         this.addPanelContainer.view.style.top = (size.height - height - 5) + "px";
         this.addPanelContainer.view.style.width = width + "px";
         this.addPanelContainer.view.style.height = height + "px";
@@ -48,7 +48,7 @@ class AddPanel extends ZCustomController {
         this.applySize();
         if (this.open) {
             this.addPanelContainer.view.style["margin-left"] = "0";
-            $(this.addPanelContainer.view).animate({"margin-left": (window.geoos.size.width - 30)}, 300, _ => {
+            $(this.addPanelContainer.view).animate({"margin-left": (- window.geoos.size.width + 30)}, 300, _ => {
                 this.hide();
                 this.open = false;
                 window.geoos.topPanel.deactivateOption("opAddVariables");
@@ -56,7 +56,7 @@ class AddPanel extends ZCustomController {
         } else {
             window.geoos.closeFloatingPanels();
             this.show();
-            this.addPanelContainer.view.style["margin-left"] = (window.geoos.size.width - 30) + "px";
+            this.addPanelContainer.view.style["margin-left"] = (- window.geoos.size.width + 30) + "px";
             $(this.addPanelContainer.view).animate({"margin-left": 0}, 300, _ => {
                 this.addPanelContent.show();
                 this.refreshLayerType();

@@ -26,7 +26,7 @@ class SelectorFecha extends ZCustomController {
         return this.fecha.valueOf();
     }
     set value(ms) {
-        this.fecha = TimeUtils.fromUTCMillis(ms);
+        this.fecha = moment.tz(ms, window.timeZone);
         this.refresca();
     }
     get temporalidad() {return this._temporalidad}
@@ -49,8 +49,8 @@ class SelectorFecha extends ZCustomController {
     }
 
     refresca() {
-        let fmt = "DD/MMMM/YYYY";
-        if (this.temporalidad == "1M") fmt = "MMMM/YYYY";
+        let fmt = "DD/MMM/YYYY";
+        if (this.temporalidad == "1M") fmt = "MMM/YYYY";
         else if (this.temporalidad == "1y") fmt = "YYYY";
         this.ed.value = this.fecha.format(fmt);
     }

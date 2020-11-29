@@ -61,7 +61,7 @@ class GEOOSGroup {
 
     async addLayer(layer) {
         layer.group = this; 
-        this.layers.push(layer)
+        this.layers.splice(0,0, layer)
         if (this.active) await layer.create();
         this.adjustOrder();
     }
@@ -103,6 +103,18 @@ class GEOOSGroup {
     }
     removeStationsLayer() {
         this.removeLayer("stations");
+    }
+
+    getUserObjectsLayer() {
+        return this.layers.find(l => (l.id == "user-objects"));
+    }
+    createUserObjectsLayer() {
+        let l = new GEOOSUserObjectsLayer({name:"Objetos de Usuario", opacity:100});
+        this.addLayer(l)
+        return l;
+    }
+    removeUserObjectsLayer() {
+        this.removeLayer("user-objects");
     }
 
     containsLayer(layerConfig) {

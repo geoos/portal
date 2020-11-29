@@ -11,11 +11,10 @@ class GEOOS {
 
     async init() {
         this.config = await zPost("getPortalConfig.geoos");
-        console.log("config", this.config);
         await this.buildMetadata();
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
-        this.events.on("map", "click", p => this.unselectObject())
+        this.events.on("map", "click", async p => await this.unselectObject())
     }
 
     get baseMaps() {return this.config.maps}
@@ -73,6 +72,7 @@ class GEOOS {
         if (this.myPanel.open) this.myPanel.toggle();
         if (this.addPanel.open) this.addPanel.toggle();
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
+        if (this.addObjectPanel.open) this.addObjectPanel.toggle();
     }
     openMyPanel() {
         if (!this.myPanel.open) this.myPanel.toggle();
@@ -215,7 +215,6 @@ class GEOOS {
                 }
             }
         }
-        console.log("Estaciones", this.estaciones);
     }
 
     async getAvailableLayers(type, dimCode) {
@@ -277,7 +276,6 @@ class GEOOS {
             }
         } else if (type == "stations") {
             let stations = this.getAddedStations();
-            console.log("stations", stations);
             let added = {};
             for (let station of stations) {
                 for (let varCode of station.variables) {
@@ -458,6 +456,36 @@ class GEOOS {
         let l = this.getActiveGroup().getStationsLayer();
         if (!l) return [];
         return l.getStations();
+    }
+
+    getUserObjects() {
+        let g = this.getActiveGroup();
+        let l = g.getUserObjectsLayer();
+        if (!l) return [];
+        return l.getUserObjects();
+    }
+    getUserObject(id) {
+        let g = this.getActiveGroup();
+        let l = g.getUserObjectsLayer();
+        if (!l) return null;
+        return l.getUserObjects().find(o => (o.id == id));
+    }
+    addUserObject(o) {        
+        let g = this.getActiveGroup();
+        let l = g.getUserObjectsLayer();
+        if (!l) {
+            l = g.createUserObjectsLayer();
+            this.events.trigger("portal", "layersAdded", g)
+        }
+        l.addUserObject(o);
+        this.events.trigger("layer", "layerItemsChanged", l);
+    }
+    removeUserObject(id) {
+        let g = this.getActiveGroup();
+        let l = g.getUserObjectsLayer();
+        if (!l) throw "No User Objects Layer in Active Group";
+        l.removeUserObject(id);
+        this.events.trigger("layer", "layerItemsChanged", l);
     }
 }
 

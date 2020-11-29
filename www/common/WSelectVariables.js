@@ -6,18 +6,24 @@ class WSelectVariables extends ZDialog {
         this.infoVarCode = null;
         this.infoContent.hide();
         this.infoPanel.hide();
-        if (this.dimCode != "rie.estacion") {
-            this.edLayerType.setRows([{
-                code:"variables", name:"Variables en Centroide"
-            }, {
-                code:"minz", name:"Asociadas a " + this.layerName
-            }], "raster")
+        if (this.dimCode) {
+            if (this.dimCode != "rie.estacion") {
+                this.edLayerType.setRows([{
+                    code:"variables", name:"Variables en Centro"
+                }, {
+                    code:"minz", name:"Asociadas a " + this.layerName
+                }], "variables")
+            } else {
+                this.edLayerType.setRows([{
+                    code:"stations", name:"Medidas por las Estaciones"
+                }, {
+                    code:"variables", name:"Otras Variables en el mismo Punto"
+                }], "stations")
+            }
         } else {
             this.edLayerType.setRows([{
-                code:"stations", name:"Medidas por las Estaciones"
-            }, {
-                code:"variables", name:"Otras Variables en el mismo Punto"
-            }], "raster")
+                code:"variables", name:"Variables en Centro"
+            }], "variables")
         }
         this.sections = [{
             code:"subjects", name:"Filtrar por Tema", data:window.geoos.subjects

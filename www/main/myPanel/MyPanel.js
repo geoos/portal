@@ -11,9 +11,11 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("portal", "layersRemoved", _ => this.refresh())
         window.geoos.events.on("layer", "startWorking", layer => this.layerStartWorking(layer))
         window.geoos.events.on("layer", "finishWorking", layer => this.layerFinishWorking(layer))
+        window.geoos.events.on("layer", "layerItemsChanged", layer => this.refresh())
         window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.refreshSelection(oldSelection, newSelection))
         window.geoos.events.on("group", "rename", group => this.groupRename(group))
         window.geoos.events.on("layer", "rename", layer => this.layerRename(layer))
+        window.geoos.events.on("userObject", "rename", userObject => this.userObjectRename(userObject))
     }
 
     doResize(size) {
@@ -71,6 +73,7 @@ class MyPanel extends ZCustomController {
     }
 
     refresh() {
+        if (!this.open) return;
         let selection = window.geoos.selection;
         let html = ``;
         for (let group of window.geoos.groups) {
@@ -100,12 +103,18 @@ class MyPanel extends ZCustomController {
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
                 if (layerItems) {
-                    html += `<div class="my-panel-layer-items" ${layer.expanded?"":" style='display:none; '"} data-layer-id="${layer.id}" data-group-id="${group.id}">`;
+                    html += `<div class="my-panel-layer-items" ${layer.expanded?" style='display:grid; '":" style='display:none; '"} data-layer-id="${layer.id}" data-group-id="${group.id}">`;
                     for (let layerItem of layerItems) {
                         if (layerItem.type == "visualizer") {
                             html += `<div class="my-panel-visualizer" data-code="${layerItem.code}">`;
                             html += `  <img class="visualizer-activator" src="/img/icons/switch${layerItem.active?"-active":""}.svg" />`;
                             html += `  <div class="visualizer-name">${layerItem.name}</div>`;
+                            html += `</div>`;
+                        } else if (layerItem.type == "user-object") {
+                            let objectSelected = selection.type == "user-object" && selection.element.id == layerItem.code;
+                            html += `<div class="my-panel-user-object" data-code="${layerItem.code}">`;
+                            html += `  <img class="user-object-icon" src="${layerItem.icon}" style="filter:invert(1);" />`;
+                            html += `  <div class="user-object-name"><span ${objectSelected?" class='my-panel-selected-name'":""}>${layerItem.name}</span></div>`;
                             html += `</div>`;
                         }
                     }
@@ -126,6 +135,7 @@ class MyPanel extends ZCustomController {
         $myContainer.find(".layer-activator").click(e => this.layerActivator_click(e))
         $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e))
         $myContainer.find(".visualizer-name").click(e => this.visualizerName_click(e))
+        $myContainer.find(".user-object-name").click(e => this.userObjectName_click(e))
         $myContainer.find(".group-context").click(e => this.groupContext_click(e))
         $myContainer.find(".layer-context").click(e => this.layerContext_click(e))
         $myContainer.find(".group-name").click(e => this.groupName_click(e))
@@ -296,6 +306,17 @@ class MyPanel extends ZCustomController {
         if (!visualizer.active) await this.toggleVisualizer(visualizer);
         await window.geoos.selectElement("visualizer", visualizer);
     }
+    async userObjectName_click(e) {
+        let uoNameDiv = $(e.currentTarget);
+        let uoDiv = uoNameDiv.parent();
+        let uoCode = uoDiv.data("code");
+        let uo = window.geoos.getUserObject(uoCode);
+        if (uo) {
+            let opener = $(e.currentTarget);
+            opener.find("span").addClass("my-panel-selected-name")
+            await window.geoos.selectElement("user-object", uo);
+        }
+    }
     async toggleVisualizer(visualizer) {
         let query = ".my-panel-layer-items[data-group-id='" + visualizer.layer.group.id + "'][data-layer-id='" + visualizer.layer.id + "'] .my-panel-visualizer[data-code='" + visualizer.code + "'] img";
         let activator = $(this.myContainer.view).find(query)
@@ -454,6 +475,7 @@ class MyPanel extends ZCustomController {
         let $myContainer = $(this.myContainer.view);
         $myContainer.find(".group-name span").removeClass("my-panel-selected-name");
         $myContainer.find(".layer-name span").removeClass("my-panel-selected-name");
+        $myContainer.find(".user-object-name span").removeClass("my-panel-selected-name");
     }
     async refreshSelection(oldSelection, newSelection) {
         this.clearSelection();
@@ -463,6 +485,8 @@ class MyPanel extends ZCustomController {
                 $myContainer.find(".my-panel-group[data-group-id='" + newSelection.element.id + "'] .group-name span").addClass("my-panel-selected-name");
             } else if (newSelection.type == "layer") {
                 $myContainer.find(".my-panel-layer[data-group-id='" + newSelection.element.group.id + "'][data-layer-id='" + newSelection.element.id + "'] .layer-name span").addClass("my-panel-selected-name");
+            } else if (newSelection.type == "user-object") {
+                $myContainer.find(".my-panel-user-object[data-code='" + newSelection.element.id + "'] .user-object-name span").addClass("my-panel-selected-name");
             }    
             if (!window.geoos.configPanel.open) {
                 await window.geoos.configPanel.toggle();
@@ -480,6 +504,9 @@ class MyPanel extends ZCustomController {
             layerName += " [" + layer.variable.levels[layer.level] + "]";
         }
         $(this.myContainer.view).find(".my-panel-layer[data-group-id='" + layer.group.id + "'][data-layer-id='" + layer.id + "'] .layer-name span").text(layerName);
+    }
+    userObjectRename(userObject) {
+        $(this.myContainer.view).find(".my-panel-user-object[data-code='" + userObject.id + "'] .user-object-name span").text(userObject.name);
     }
 }
 ZVC.export(MyPanel);

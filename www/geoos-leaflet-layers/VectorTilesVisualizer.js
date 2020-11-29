@@ -153,6 +153,7 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
             if (this.options.getSelectedFeatureStyle) {
                 selectedStyle = this.options.getSelectedFeatureStyle(feature) || selectedStyle;
             }
+            style.listening = false;
             feature.geometry.forEach(geom => {
                 let object = null;
                 if (type == 1) {
@@ -180,6 +181,7 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
                 }
                 if (this.interactions) {
                     let interObject = object.clone();
+                    interObject.setListening(true);
                     this.interactions.addObservableShape(this.uniqueId, interObject);
                     if (this.options.onmouseover) {
                         interObject.on("mouseover", e => this.options.onmouseover(feature))

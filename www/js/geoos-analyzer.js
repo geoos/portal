@@ -11,20 +11,43 @@ class GEOOSAnalyzer {
         return GEOOSAnalyzer.analyzers.find(p => p.code == code);
     }
 
-    constructor(o, code) {
+    constructor(o, code, listeners) {
         this.object = o;
         this.code = code;
+        this.listeners = listeners;
         this.mainPanel = null;
+        this.nWorking = 0;
     }
     destroy() {}
     get layer() {return this.object.layer}
+    get userObject() {
+        if (this._userObject) return this._userObject;
+        this._userObject = window.geoos.getUserObject(this.object.code);
+        return this._userObject;
+    }
     get config() {
-        let ac = this.layer.analysisConfig[this.code];
-        if (!ac) {
-            ac = {};
-            this.layer.analysisConfig[this.code] = ac;
+        if (this.object.type == "user-object") {
+            let ac = this.userObject.analysisConfig[this.code];
+            if (!ac) {
+                ac = {};
+                this.userObject.analysisConfig[this.code] = ac;
+            }
+            return ac;
+        } else {
+            let ac = this.layer.analysisConfig[this.code];
+            if (!ac) {
+                ac = {};
+                this.layer.analysisConfig[this.code] = ac;
+            }
+            return ac;
         }
-        return ac;
+    }
+    get objectPoint() {
+        if (this.object.type == "user-object") {
+            return this.userObject.getCenter();
+        } else {
+            return {lat:this.object.lat, lng:this.object.lng}
+        }
     }
 
     getPropertyPanels() {return []}
@@ -39,5 +62,17 @@ class GEOOSAnalyzer {
         if (this.mainPanel && this.mainPanel.refresh) {
             await this.mainPanel.refresh();
         }
+    }
+
+    async triggerChange() {
+        if (this.listeners.onChange) await this.listeners.onChange();
+    }
+    async startWorking() {
+        this.nWorking++;
+        if (this.nWorking == 1 && this.listeners.onStartWorking) await this.listeners.onStartWorking(); 
+    }
+    async finishWorking() {
+        this.nWorking--;
+        if (!this.nWorking && this.listeners.onFinishWorking) await this.listeners.onFinishWorking();
     }
 }

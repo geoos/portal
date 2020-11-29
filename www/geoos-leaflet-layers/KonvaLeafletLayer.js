@@ -149,4 +149,10 @@ class KonvaLeafletVisualizer {
     update() {
         this.stageLayer.visualizerUpdated();
     }
+    pointVisible(x, y) {
+        return x >= 0 && x <= this.width && y >= 0 && y <= this.height;
+    }
+    rectVisible(x, y, w, h) {
+        return x + w >= 0 && x <= this.width && y + h >= 0 && y <= this.height; 
+    }
 }

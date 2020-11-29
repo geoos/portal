@@ -9,12 +9,12 @@ class TimeSerieMain extends ZCustomController {
     get watcher2() {return this.analyzer.watcher2}
 
     doResize() {
-        let size = this.size;        
+        let size = this.size;   
         this.chartContainer.size = size;
         if (this.chart) this.chart.setSize(size.width, size.height);
     }
 
-    refresh() {this.refreshChart()}
+    refresh() {this.refreshChart(true)}
 
     refreshChart(recreate) {
         if (this.chart && recreate) {
@@ -31,7 +31,7 @@ class TimeSerieMain extends ZCustomController {
                 title = this.watcher1.name;
                 //if (variable.niveles && variable.niveles.length > 1) title += " [" + variable.niveles[variable.nivel].descripcion + "]";
                 series.push({
-                    type:"area",
+                    type:"spline",
                     name:title,
                     data:this.analyzer.data1.serie,
                     turboThreshold: 0
@@ -63,7 +63,7 @@ class TimeSerieMain extends ZCustomController {
                     yAxis:useSecondaryAxes?"secondary":"primary"
                 })
             }
-            if (!this.chart) {
+            if (!this.chart && series.length) {
                 let self = this;
                 let options = {
                     title:{text:this.analyzer.object.name + ": " + title},
@@ -151,7 +151,6 @@ class TimeSerieMain extends ZCustomController {
                     */                                   
                 }
                 this.chart = Highcharts.chart(this.chartContainer.view, options);  
-                console.log("chart", this.chart);
                 this.doResize();
             } else {
                 series.forEach((serie, i) => this.chart.series[i].setData(serie.data));

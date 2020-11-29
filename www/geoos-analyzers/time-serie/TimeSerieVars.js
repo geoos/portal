@@ -1,7 +1,5 @@
 class TimeSerieVars extends ZCustomController {
     async onThis_init(options) {
-        console.log("timeSeriesVars", options);
-        this.listeners = options.listeners;
         this.analyzer = options.analyzer;
         await this.refresh();
     }
@@ -19,7 +17,6 @@ class TimeSerieVars extends ZCustomController {
                     }
                     this.analyzer.watcher1 = q;
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 }
             });
         } else {
@@ -28,12 +25,10 @@ class TimeSerieVars extends ZCustomController {
                 onChange:_ => {
                     this.analyzer.watcher1 = this.analyzer.watcher1; // update serialized config
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 },
                 onDelete:w => {
                     this.analyzer.watcher1 = null;
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 }
             })
         }
@@ -50,7 +45,6 @@ class TimeSerieVars extends ZCustomController {
                     }
                     this.analyzer.watcher2 = q;
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 }
             });
         } else {
@@ -59,12 +53,10 @@ class TimeSerieVars extends ZCustomController {
                 onChange:_ => {
                     this.analyzer.watcher2 = this.analyzer.watcher2; // update serialized config
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 },
                 onDelete:w => {
                     this.analyzer.watcher2 = null;
                     this.refresh();
-                    if (this.listeners.onChange) this.listeners.onChange();
                 }
             })
         }

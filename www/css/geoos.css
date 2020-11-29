@@ -75,6 +75,11 @@ a:hover {
     color: white
 }
 
+.input-group-text {
+    color: white;
+    background-color: #444343;
+}
+
 /* Modals */
 .modal {z-index: 6000;}
 .modal-content {
@@ -476,6 +481,18 @@ a:hover {
 .my-panel-visualizer .visualizer-name:hover {
     text-decoration: underline;
 }
+.my-panel-user-object .user-object-name {
+    cursor: pointer;
+}
+.my-panel-user-object .user-object-name:hover {
+    text-decoration: underline;
+}
+.my-panel-user-object .user-object-icon {
+    height: 14px;
+    float: left;
+    margin-top: 3px;
+    margin-right: 8px;
+}
 
 .group-name span {
     padding: 5px;
@@ -638,4 +655,16 @@ a:hover {
 .analysis-expander.disabled {
     color: gray;
     cursor: default;
+}
+
+/* Add Object */
+.add-object-title {
+    font-size: 16px;
+    border-bottom: 5px solid transparent;
+}
+.add-object-title:hover {
+    text-decoration: underline;
+}
+.add-object-title.active {
+    border-bottom: 5px solid rgb(0,160,249);
 }

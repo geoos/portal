@@ -12,11 +12,46 @@ class AnalysisPanel extends ZCustomController {
         this.doResize();
     }
 
-    get selectedObject() {return this._selectedObject}
+    async initAnalysisConfig() {
+        if (!this.selectedObject) return;
+        if (this.selectedObject.type != "user-object") {
+            if (!this.selectedLayer.analysisConfig) this.selectedLayer.analysisConfig = {};
+            if (!this.selectedLayer.analysisConfig.analizerCode) {
+                let initialAnalyzerCode = this.analyzers[0].code, initialAnalyzerConfig = {};
+                if (this.selectedLayer.minZDimension == "rie.estacion") {
+                    let estacion = this.selectedLayer.points.find(p => p.id == this.selectedObject.code).station;
+                    initialAnalyzerCode = "time-serie";
+                    let v0 = estacion.server.variables.find(v => v.code == estacion.variables[0]);
+                    let accum = v0.options && v0.options.defaults && v0.options.defaults.accum?v0.options.defaults && v0.options.defaults.accum:"avg";
+                    let q = new MinZQuery(estacion.server, v0, null, {ruta:"estacion", valor:"${codigo-objeto}"}, [], accum);
+                    await q.construyeDescripcionFiltros();
+                    initialAnalyzerConfig = {watcher1:q.serialize()}
+                } else {
+                    if (this.selectedLayer.options && this.selectedLayer.options.defaults && this.selectedLayer.options.defaults.analyzerCode) {
+                        initialAnalyzerCode = this.selectedLayer.options.defaults.analyzerCode;
+                        if (this.selectedLayer.options.defaults.analyzers) {
+                            initialAnalyzerConfig = this.selectedLayer.options.defaults.analyzers.find(c => c.code == initialAnalyzerCode) || {}
+                        }
+                    }
+                }
+                this.selectedLayer.analysisConfig.analyzerCode = initialAnalyzerCode;
+                this.selectedLayer.analysisConfig[initialAnalyzerCode] = initialAnalyzerConfig;
+            }
+        }
+    }
+    get selectedObject() {return this._selectedObject}    
     get selectedLayer() {return this.selectedObject?this.selectedObject.layer:null}
+    get selectedUserObject() {
+        if (this.selectedObject.type != "user-object") return null;        
+        return window.geoos.getUserObject(this.selectedObject.code);
+    }
+
+    get analysisConfig() {
+        if (this.selectedObject.type == "user-object") return this.selectedUserObject.analysisConfig;
+        return this.selectedLayer.analysisConfig;
+    }
     get selectedAnalyzerCode() {
-        if (!this.selectedLayer || !this.selectedLayer.analysisConfig) return null;
-        return this.selectedLayer.analysisConfig.analyzerCode;
+        return this.analysisConfig.analyzerCode;
     }
     get selectedAnalyzerDefinition() {
         let code = this.selectedAnalyzerCode;
@@ -24,10 +59,10 @@ class AnalysisPanel extends ZCustomController {
         return GEOOSAnalyzer.getAnalyzerConfig(code);
     }
     get analyzerConfig() {
-        let cfg = this.selectedLayer.analysisConfig[this.selectedAnalyzerCode];
+        let cfg = this.analysisConfig[this.selectedAnalyzerCode];
         if (!cfg) {
-            cfg = {};
-            this.selectedLayer.analysisConfig[this.selectedAnalyzerCode] = cfg;
+            cfg = {}
+            this.analysisConfig[this.selectedAnalyzerCode] = cfg;
         }
         return cfg;
     }
@@ -35,7 +70,7 @@ class AnalysisPanel extends ZCustomController {
     getPanelHeight() {
         if (!this.open) return 0;
         if (this.status == "min") return 36;
-        if (!this.selectedLayer || !this.selectedLayer.analysisConfig || !this.selectedLayer.analysisConfig.analyzerCode) return 0;
+        if (!this.selectedObject) return 0;
         let aDef = this.selectedAnalyzerDefinition;
         return aDef?aDef.height:0;
     }    
@@ -58,46 +93,27 @@ class AnalysisPanel extends ZCustomController {
         this.analysisContainer.show("flex");
         if (this.status != "min") {
             this.analysisPropPanelsContainer.view.style["max-height"] = ($(this.analysisContainer.view).height() -77) + "px";
+            this.mainArea.view.style.width = ($(this.analysisContainer.view).width() - 350) + "px";
+            this.analyzerLoader.view.style.height = ($(this.analysisContainer.view).height() - 45) + "px";
+            if (this.mainPanel && this.mainPanel.doResize) this.mainPanel.doResize();
         }
         if (this.mainPanel && this.mainPanel.doResize) this.mainPanel.doResize()
     }
 
     async objectSelected(o) {
+        console.log("analysis objectSelected", o);
         this.analyzers = GEOOSAnalyzer.getAnalyzersForObject(o);
         if (!this.analyzers.length) return this.objectUnselected();
         this._selectedObject = o;
         this.lblObjectName.text = o.layer.name + " / " + o.name;
-        let oldHeight = 0, newHeight;
+        await this.initAnalysisConfig();
+        let oldHeight = 0, newHeight = this.getPanelHeight();
         if (this.open) {
             oldHeight = $(this.analysisContainer.view).height();
         } else {
             window.geoos.closeFloatingPanels();
-        }        
-        if (!this.selectedLayer.analysisConfig) this.selectedLayer.analysisConfig = {};
-        if (!this.selectedLayer.analysisConfig.analizerCode) {
-            let initialAnalyzerCode = this.analyzers[0].code, initialAnalyzerConfig = {};
-            if (this.selectedLayer.minZDimension == "rie.estacion") {
-                let estacion = this.selectedLayer.points.find(p => p.id == this.selectedObject.code).station;
-                initialAnalyzerCode = "time-serie";
-                let v0 = estacion.server.variables.find(v => v.code == estacion.variables[0]);
-                let accum = v0.options && v0.options.defaults && v0.options.defaults.accum?v0.options.defaults && v0.options.defaults.accum:"avg";
-                let q = new MinZQuery(estacion.server, v0, null, {ruta:"estacion", valor:"${codigo-objeto}"}, [], accum);
-                await q.construyeDescripcionFiltros();
-                initialAnalyzerConfig = {watcher1:q.serialize()}
-            } else {
-                if (this.selectedLayer.options && this.selectedLayer.options.defaults && this.selectedLayer.options.defaults.analyzerCode) {
-                    initialAnalyzerCode = this.selectedLayer.options.defaults.analyzerCode;
-                    if (this.selectedLayer.options.defaults.analyzers) {
-                        initialAnalyzerConfig = this.selectedLayer.options.defaults.analyzers.find(c => c.code == initialAnalyzerCode) || {}
-                    }
-                }
-            }
-            this.selectedLayer.analysisConfig.analizerCode = initialAnalyzerCode;
-            this.selectedLayer.analysisConfig[initialAnalyzerCode] = initialAnalyzerConfig;
-            newHeight = this.analyzers.find(a => a.code == initialAnalyzerCode).height;
-        } else {
-            newHeight = GEOOSAnalyzer.getAnalyzerConfig(this.selectedLayer.analysisConfig.analyzerCode).height;
         }
+
         if (this.status == "max") {
             let size = window.geoos.size;
             let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
@@ -118,6 +134,10 @@ class AnalysisPanel extends ZCustomController {
         if (this.analyzer) this.analyzer.destroy();
         this.analyzer = null;
         this._selectedObject = null;
+        if (this.mainPanel) {
+            this.mainPanel = null;
+            await this.analyzerLoader.load("common/Empty");
+        }
         if (!this.open) return;
         let oldHeight = $(this.analysisContainer.view).height(), newHeight = 0;
         this.open = false;
@@ -188,15 +208,24 @@ class AnalysisPanel extends ZCustomController {
     }
     async refreshAnalyzer() {
         let code = this.edAnalysisPanel.value;
-        this.selectedLayer.analysisConfig.analyzerCode = code;
-        if (!this.selectedLayer.analysisConfig[code]) this.selectedLayer.analysisConfig[code] = {};
+        this.analysisConfig.analyzerCode = code;
         if (this.analyzer) this.analyzer.destroy();
-        this.analyzer = this.selectedAnalyzerDefinition.factory(this.selectedObject);
+        this.analyzer = this.selectedAnalyzerDefinition.factory(this.selectedObject, {
+            onChange:           async _ => await this.updatePropertyPanels(),
+            onStartWorking:     async _ => await this.startWorking(),
+            onFinishWorking:    async _ => await this.finishWorking()
+        });
         await this.analyzer.initDefaults();
         await this.refreshPropertyPanels();
         await this.refreshMainPanel();
     }
 
+    async updatePropertyPanels() {
+        if (!this.panels || !this.panels.length) return;
+        for (let panel of this.panels) {
+            await panel.refresh();
+        }
+    }
     async refreshPropertyPanels() {
         for (let panel of this.panels || []) {
             await panel.deactivate();
@@ -227,9 +256,7 @@ class AnalysisPanel extends ZCustomController {
             let panel = await ZVC.loadComponent(domPanel, this, panelDef.path);
             panel.panelCode = panelDef.code;
             this.panels.push(panel);
-            await panel.init({analyzer:this.analyzer, listeners:{
-                onChange:_ => {console.log("nalyzer change")}
-            }});
+            await panel.init({analyzer:this.analyzer});
             await panel.activate();
             
             let panelConfig = config[panelDef.code];
@@ -272,6 +299,14 @@ class AnalysisPanel extends ZCustomController {
         }
         this.mainPanel = await this.analyzerLoader.load(this.analyzer.getMainPanel(), {analyzer:this.analyzer})
         await this.analyzer.attachMainPanel(this.mainPanel)
+    }
+
+    async startWorking() {
+        console.log("start working");
+    }
+    async finishWorking() {
+        console.log("finish working");
+        if (this.mainPanel) this.mainPanel.refresh()
     }
 }
 ZVC.export(AnalysisPanel);
