@@ -235,8 +235,8 @@ class AddStationsPanel extends ZCustomController {
                 if (s.proveedor == provider.code) {
                     map.nStationsProvider++;
                     if (window.geoos.isStationAdded(s.code)) map.nSelected++;
-                    return map;
                 }
+                return map;
             }, {nStationsProvider:0, nSelected:0});
             htmlStations += `
                 <div class="add-panel-proveedor" data-code="${provider.code}">
@@ -301,8 +301,8 @@ class AddStationsPanel extends ZCustomController {
                     } else {
                         map.toSelect.push(s.code)
                     }
-                    return map;
                 }
+                return map;
             }, {toSelect:[], toUnselect:[]});
             if (!toSelect.length) {
                 window.geoos.removeStations(toUnselect)
