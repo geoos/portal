@@ -16,7 +16,7 @@ class AnalysisPanel extends ZCustomController {
         if (!this.selectedObject) return;
         if (this.selectedObject.type != "user-object") {
             if (!this.selectedLayer.analysisConfig) this.selectedLayer.analysisConfig = {};
-            if (!this.selectedLayer.analysisConfig.analizerCode) {
+            if (!this.selectedLayer.analysisConfig.analyzerCode) {
                 let initialAnalyzerCode = this.analyzers[0].code, initialAnalyzerConfig = {};
                 if (this.selectedLayer.minZDimension == "rie.estacion") {
                     let estacion = this.selectedLayer.points.find(p => p.id == this.selectedObject.code).station;
@@ -101,7 +101,6 @@ class AnalysisPanel extends ZCustomController {
     }
 
     async objectSelected(o) {
-        console.log("analysis objectSelected", o);
         this.analyzers = GEOOSAnalyzer.getAnalyzersForObject(o);
         if (!this.analyzers.length) return this.objectUnselected();
         this._selectedObject = o;
@@ -307,6 +306,9 @@ class AnalysisPanel extends ZCustomController {
     async finishWorking() {
         console.log("finish working");
         if (this.mainPanel) this.mainPanel.refresh()
+    }
+    onAnalyzerLoader_setCaption(caption) {
+        this.find("#lblAnalysisName").textContent = caption;        
     }
 }
 ZVC.export(AnalysisPanel);

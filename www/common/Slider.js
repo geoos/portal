@@ -14,13 +14,23 @@ class Slider extends ZCustomController {
                 this.triggerEvent("change", this.value)
             }
         })
-        $(this.view).click(e => {
-            let x = e.clientX - 20 - this.x0 - 10;
-            if (x < this.x0) x = this.x0;
-            if (x > this.x1) x = this.x1;
-            this.value = this.min + (x - this.x0) / this.pixelsRange * (this.max - this.min);
-            this.triggerEvent("change", this.value)
+        this.sliderBar = $($(this.view).find(".slider-bar"));
+        this.sliderBar.click(e => {
+            if (e.target.classList.contains("slider-bar")) {
+                let x = e.offsetX;
+                if (this.hasSigns) {
+                    if (x <12) x = 12;
+                    if (x > this.sliderBar.width() - 12) x = this.sliderBar.width() - 12;
+                    this.$handler.css({left:(36 + x - 12)});
+                } else {
+                    if (x <11) x = 11;
+                    if (x > this.sliderBar.width() - 11) x = this.sliderBar.width() - 11;
+                    this.$handler.css({left:(21 + x - 11)});
+                }
+                this.triggerEvent("change", this.value);
+            }
         })
+        this.hasSigns = true;        
     }
 
     setRange(min, max, step) {
@@ -31,6 +41,7 @@ class Slider extends ZCustomController {
     hideSigns() {
         $(this.view).find(".fa-minus").hide()
         $(this.view).find(".fa-plus").hide()
+        this.hasSigns = false;
     }
     setBgLight() {
         $(this.view).find(".slider-bar").css({"background-color":"#E5E1E1"})
@@ -44,22 +55,43 @@ class Slider extends ZCustomController {
     get x1() {return $(this.view).find(".slider-bar").width() - 3}
     get pixelsRange() {return this.x1 - this.x0}
 
-
     get value() {
-        let drag = $(this.find("#handler"));
-        let x = drag.position().left - 21; //drag.position().left - 36;
-        let r = x / this.barWidth;        
+        let x, w;
+        if (this.hasSigns) {
+            x = this.$handler.position().left - 36, w = this.sliderBar.width() - 24;
+        } else {
+            x = this.$handler.position().left - 21, w = this.sliderBar.width() - 22;
+        }
+        let r = x / w;
         let v1 = this.min + r * (this.max - this.min)
         let v = parseInt((v1 + this.step / 2) / this.step) * this.step;
         if (v < this.min) v = this.min;
         if (v > this.max) v = this.max;
-        return v;
+        return v
     }
 
     set value(v) {
+        if (v < this.min) v = this.min;
+        if (v > this.max) v = this.max;
         let r = (v - this.min) / (this.max - this.min);
-        let x = 21 + r * this.barWidth;
-        this.handler.view.style.left = x + "px";
+        if (this.hasSigns) {
+            let w = this.sliderBar.width() - 24;
+            let x = 36 + r * w;
+            this.handler.view.style.left = x + "px";
+        } else {
+            let w = this.sliderBar.width() - 22;
+            let x = 21 + r * w;
+            this.handler.view.style.left = x + "px";
+        }            
+    }
+
+    onStepDec_click() {
+        this.value -= this.step;
+        this.triggerEvent("change", this.value);
+    }
+    onStepInc_click() {
+        this.value += this.step;
+        this.triggerEvent("change", this.value);
     }
 }
 ZVC.export(Slider)

@@ -17,6 +17,13 @@ class Map extends ZCustomController {
             let point = this.map.latLngToContainerPoint([lat, lng]);
             window.geoos.events.trigger("map", "click", {lat:lat, lng:lng, x:point.x, y:point.y});
         });
+        this.map.on("mousemove", e => {
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            let point = this.map.latLngToContainerPoint([lat, lng]);
+            this.currentPoint = {lat:lat, lng:lng, x:point.x, y:point.y};
+            window.geoos.events.trigger("map", "move", this.currentPoint);
+        });
 
         let baseMap = window.geoos.baseMaps[0];
 

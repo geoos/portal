@@ -45,7 +45,6 @@ class GEOOSQuery {
     static cloneQuery(q) {
         if (q.type == "raster") return RasterQuery.cloneQuery(q)
         else if (q.type == "minz") return MinZQuery.cloneQuery(q);
-        console.error("Query", q);
         throw "Query no cloneable"        
     }
 
@@ -113,7 +112,7 @@ class RasterQuery extends GEOOSQuery {
         return new RasterQuery(item.geoServer, item.dataSet, item.variable, item.format);
     }
 
-    constructor(geoServer, dataSet, variable, format) {
+    constructor(geoServer, dataSet, variable, format, level) {
         super({
             type:"raster", name:variable.name, code:variable.code, icon:"img/icons/point.svg"
         });
@@ -122,17 +121,20 @@ class RasterQuery extends GEOOSQuery {
         this.geoServer = geoServer;
         this.dataSet = dataSet;
         this.temporality = variable.temporality;
+        this.level = level;
+        if (this.variable.levels && this.level === undefined) this.level = this.variable.options && this.variable.options.defaultLevel !== undefined?this.variable.options.defaultLevel:0;
         //this.accum = "sum";        
         this.progress = 100;
     }
 
     static cloneQuery(q) {
-        let c = new RasterQuery(q.geoServer, q.dataSet, q.variable, q.format);
+        let c = new RasterQuery(q.geoServer, q.dataSet, q.variable, q.format, q.level);
         return c;
     }
 
     get unit() {return this.variable && this.variable.unit?this.variable.unit:super.unit}
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
+    get levelName() {return this.variable.levels?this.variable.levels[this.level]:null}
 
     get minZTemporality() {
         let t = this.dataSet.temporality;
@@ -146,7 +148,8 @@ class RasterQuery extends GEOOSQuery {
     serialize() {
         return {
             type:"raster", id:this.id, color:this.color, legend:this.legend, format:this.format,
-            geoServer:this.geoServer.code, dataSet:this.dataSet.code, variable:this.variable.code
+            geoServer:this.geoServer.code, dataSet:this.dataSet.code, variable:this.variable.code, 
+            level:this.level
         }
     }
     static deserialize(cfg) {
@@ -156,7 +159,7 @@ class RasterQuery extends GEOOSQuery {
         if (!dataSet) throw "DataSet " + cfg.dataSet + " not available in GeoServer " + cfg.geoServer;
         let variable = dataSet.variables.find(v => v.code == cfg.variable);
         if (!variable) throw "Variable" + cfg.variable + " not available in dataSet " + cfg.dataSet + " GeoServer " + cfg.geoServer;
-        let q = new RasterQuery(geoServer, dataSet, variable, cfg.format);
+        let q = new RasterQuery(geoServer, dataSet, variable, cfg.format, cfg.level);
         q.id = cfg.id;
         q.color = cfg.color;
         q.legend = cfg.legend;
@@ -164,6 +167,7 @@ class RasterQuery extends GEOOSQuery {
     }
     query(args) {
         if (args.format) this.format = args.format;
+        if (this.level !== undefined && args.level === undefined) args.level=this.level;
         if (this.format == "isolines") {
             if (!args.time) args.time = window.geoos.time;
             if (!args.n) {
@@ -222,19 +226,18 @@ class RasterQuery extends GEOOSQuery {
             </div>
         `
         if (this.variable.levels && this.variable.levels.length) {
+            if (this.level === undefined) this.level = this.variable.options && this.variable.options.defaultLevel !== undefined?this.variable.options.defaultLevel:0;
+            let options = this.variable.levels.reduce((html, l, idx) => {
+                html += "<option value='" + idx + "'";
+                if (idx == this.level) html += " selected";
+                html += ">" + l + "</option>";
+                return html;
+            },"")
             html += `
             <div class="ml-4">
                 <div class="row mt-1">
-                    <div class="col-4">
-                        <label class="etiqueta-subpanel-propiedades mb-0">Nivel</label>
-                    </div>
-                    <div class="col-8">
-                        <div id="edNivel${this.id}"></div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col">
-                        <label id="lblNivel${this.id}" class="etiqueta-subpanel-propiedades mb-0">...</label>
+                        <select id="edNivel${this.id}" class="custom-select custom-select-sm">${options}</select>
                     </div>
                 </div>
             </div>
@@ -281,6 +284,13 @@ class RasterQuery extends GEOOSQuery {
         if (container.find("#selColor" + this.id)) {
             container.find("#selColor" + this.id).onclick = _ => {
                 if (listeners.onColorChange) listeners.onColorChange()
+            }
+        }
+        if (container.find("#edNivel" + this.id)) {
+            container.find("#edNivel" + this.id).onchange = _ => {
+                let l = container.find("#edNivel" + this.id).value;
+                this.level = parseInt(l);
+                if (listeners.onChange) listeners.onChange(this);
             }
         }
     }
@@ -592,7 +602,8 @@ class MinZQuery extends GEOOSQuery {
             this.timeDescription = "custom";
         } else {
             let time = args.time || window.geoos.time;
-            let {t0, t1, desc} = this.zRepoServer.client.normalizaTiempo(this.variable.temporality, time);
+            let temporality = args.temporality || this.variable.temporality;
+            let {t0, t1, desc} = this.zRepoServer.client.normalizaTiempo(temporality, time);
             this.startTime = t0; this.endTime = t1; this.timeDescription = desc;
         }
         if (args.format == "dim-serie") {
@@ -601,7 +612,8 @@ class MinZQuery extends GEOOSQuery {
                 filtros:this.filters, 
                 variable:this.variable, 
                 dimensionAgrupado:this.groupingDimension,
-                acumulador:this.accum
+                acumulador:this.accum,
+                temporality:this.temporality
             }
         } else if (args.format == "time-serie") {
             q = {

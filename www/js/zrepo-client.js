@@ -420,6 +420,7 @@ class ZRepoClient {
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&groupDimension=" + dimensionAgrupado
             let controller = new AbortController();
+            console.log("zrepo query url", url)
             return {promise: this._getJSON(url, controller.signal), controller:controller}
             //let ret = (await (await fetch(url)).json());
             //return ret;

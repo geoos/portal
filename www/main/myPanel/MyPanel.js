@@ -112,7 +112,7 @@ class MyPanel extends ZCustomController {
                             html += `</div>`;
                         } else if (layerItem.type == "user-object") {
                             let objectSelected = selection.type == "user-object" && selection.element.id == layerItem.code;
-                            html += `<div class="my-panel-user-object" data-code="${layerItem.code}">`;
+                            html += `<div class="my-panel-user-object" data-code="${layerItem.code}" style="padding-left:${(20 * layerItem.level)}px;">`;
                             html += `  <img class="user-object-icon" src="${layerItem.icon}" style="filter:invert(1);" />`;
                             html += `  <div class="user-object-name"><span ${objectSelected?" class='my-panel-selected-name'":""}>${layerItem.name}</span></div>`;
                             html += `</div>`;

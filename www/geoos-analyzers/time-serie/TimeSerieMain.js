@@ -82,7 +82,7 @@ class TimeSerieMain extends ZCustomController {
                             },
                             marker: {radius: 2},
                             lineWidth: 1,
-                             states: {hover: {lineWidth: 1}},
+                            states: {hover: {lineWidth: 1}},
                             threshold: null
                         }
                     },
@@ -90,6 +90,11 @@ class TimeSerieMain extends ZCustomController {
                     credits: {
                         enabled: false
                     },   
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle'
+                    },
                     /*
                     tooltip:{
                         useHTML:true,
@@ -157,6 +162,7 @@ class TimeSerieMain extends ZCustomController {
                 if (title) this.chart.setTitle({text:title});
                 if (subtitle) this.chart.setSubtitle({text:subtitle});
             }
+            this.triggerEvent("setCaption", "Serie de Tiempo" + (title?" / " + title + (subtitle?(" " + subtitle):""):""));
         } catch(error) {
             console.trace(error);
         }

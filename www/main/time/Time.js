@@ -14,6 +14,10 @@ class Time extends ZCustomController {
         this.updateLabels();
         this.updatePickers();
         this.doResize();
+        window.geoos.events.on("portal", "timeChange", _ => {
+            this.doResize();
+            this.slider.value = (window.geoos.time - this.t0.valueOf()) * pixelsPerHour / (60*60*1000);
+        });
     }
 
     onSlider_changing(v) {
@@ -33,7 +37,7 @@ class Time extends ZCustomController {
             if (labels) this.updateLabels();
             if (datePicker) this.updateDatePicker();
             if (timePicker) this.updateTimePicker();
-        }, 200);
+        }, 150);
     }
 
     get t1() {return this.t0?this.t0.clone().add(this.slider.pixelsRange / pixelsPerHour, "hours").startOf("day"):null}
@@ -74,7 +78,7 @@ class Time extends ZCustomController {
         this.repaint();
     }
     repaint() {
-        let html = ""; //, x = this.slider.x0 + 10;
+        let html = ""; 
         for (let t=this.t0.clone(); t.isBefore(this.t1); t.add(1, "day")) {
             let firstDay = !html;
             let tNext = t.clone().add(1, "day")            

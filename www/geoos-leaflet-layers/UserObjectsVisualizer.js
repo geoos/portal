@@ -24,19 +24,19 @@ class UserObjectsVisualizer extends KonvaLeafletVisualizer {
             if (interactionElements && this.interactions) interactionElements.forEach(interObject => {
                 this.interactions.addObservableShape(this.uniqueId, interObject);
                 if (this.options.onmouseover) {
-                    interObject.on("mouseover", e => {
-                        this.options.onmouseover(o)
+                    interObject.on("mouseover", e => {                        
+                        this.options.onmouseover(o, o.getInteractionObjectInfo(interObject))
                         this.stageLayer.map.dragging.disable();
                     })
                 }
                 if (this.options.onmouseout) {
                     interObject.on("mouseout", e => {
-                        this.options.onmouseout(o)
+                        this.options.onmouseout(o, o.getInteractionObjectInfo(interObject))
                         this.stageLayer.map.dragging.enable();
                     })                    
                 }
                 if (this.options.onclick) {
-                    interObject.on("click", e => this.options.onclick(o))
+                    interObject.on("click", e => this.options.onclick(o.getFinalObject(interObject)))
                 }
                 if (this.options.onmove && interObject.draggable) {
                     interObject.on("dragstart", e => {
@@ -44,10 +44,8 @@ class UserObjectsVisualizer extends KonvaLeafletVisualizer {
                     })
                     interObject.on("dragend", e => {
                         interObject.setOpacity(0);
-                        let mapPoint = this.toMap({x:interObject.x(), y:interObject.y()})
-                        o.lat = mapPoint.lat;
-                        o.lng = mapPoint.lng;
-                        this.options.onmove(o);
+                        o.getFinalObject(interObject).moved(this, interObject);                        
+                        this.options.onmove(o.getFinalObject(interObject));
                     })
                 }
             }); 

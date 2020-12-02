@@ -199,6 +199,8 @@ class GEOOSLayer {
             return GEOOSVectorLayer.deserialize(s, config);
         } else if (s.type == "stations") {
             return GEOOSStationsLayer.deserialize(s, config);
+        } else if (s.type == "user-objects") {
+            return GEOOSUserObjectsLayer.deserialize(s, config);
         }
         throw "Layer type '" + s.type + "' not yet handled"
     }

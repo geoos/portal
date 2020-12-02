@@ -331,25 +331,25 @@ class AddStationsPanel extends ZCustomController {
 
     openInfo() {
         return new Promise(resolve => {
-            this.infoContent.hide();
-            this.infoPanel.view.style.height = "0";
-            this.infoPanel.show();
-            $(this.infoPanel.view).animate({height:200}, 300, _ => {
+            this.stationsInfoContent.hide();
+            this.stationsInfoPanel.view.style.height = "0";
+            this.stationsInfoPanel.show();
+            $(this.stationsInfoPanel.view).animate({height:200}, 300, _ => {
                 this.infoOpen = true;
-                this.addPanelTabContent.view.style.height = "150px";
-                this.infoContent.show();
+                this.addStationsPanelTabContent.view.style.height = "150px";
+                this.stationsInfoContent.show();
                 resolve();
             });
         })
     }
     closeInfo() {
         return new Promise(resolve => {
-            this.infoContent.hide();
-            this.infoPanel.view.style.height = "200px";
-            $(this.infoPanel.view).animate({height:0}, 300, _ => {
+            this.stationsInfoContent.hide();
+            this.stationsInfoPanel.view.style.height = "200px";
+            $(this.stationsInfoPanel.view).animate({height:0}, 300, _ => {
                 this.infoOpen = false;
                 this.infoVarCode = null;
-                this.infoPanel.hide();
+                this.stationsInfoPanel.hide();
                 resolve()
             })
         })
@@ -363,11 +363,11 @@ class AddStationsPanel extends ZCustomController {
     refreshInfo(layer) {
         console.log("variable", layer);
         this.infoVarCode = layer.code;
-        this.lblVarName.text = layer.name;
+        this.lblStationName.text = layer.name;
         let provider = window.geoos.providers.find(p => p.code == layer.providers[0]);
-        this.logoProvider.view.src = provider.logo;
-        this.providerUrl.view.setAttribute("href", provider.url);
-        this.providerUrl.text = provider.name;
+        this.stationsLogoProvider.view.src = provider.logo;
+        this.stationsProviderUrl.view.setAttribute("href", provider.url);
+        this.stationsProviderUrl.text = provider.name;
         if (layer.type == "raster") {
             this.layerDescription.html = layer.variable.options.description || "<p>No hay descripción de la Capa</p>";
             this.layerDetails.html = layer.variable.options.details || "<p>No hay detalles de la Capa</p>";
