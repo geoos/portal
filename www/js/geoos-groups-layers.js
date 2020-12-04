@@ -13,6 +13,7 @@ class GEOOSGroup {
         this.id = generateId();
         this.config = config;
         this.layers = [];
+        this.tools = [];
         this.active = false;
         this.expanded = true;
     }
@@ -133,6 +134,10 @@ class GEOOSGroup {
         return [{
             code:"group-properties", name:"Propiedades del Grupo", path:"./groups/GroupProperties"
         }]
+    }
+
+    addTool(tool) {
+        this.tools.push(tool);
     }
 }
 

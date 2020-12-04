@@ -182,7 +182,6 @@ class GEOOSUserObject {
         this.level = parentObject?parentObject.level+1:0;
     }
     static deserialize(s, parentObject) {
-        console.log("deserialize object", s);
         let o;
         if (s.type == "point") o = GEOOSUserObjectPoint.deserialize(s, parentObject);
         else if (s.type == "area") o = GEOOSUserObjectArea.deserialize(s, parentObject);

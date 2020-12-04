@@ -175,10 +175,14 @@ class ZController {
         }
     }
     async activate() {
+        if (this._zActive) return;
         await this.processEvent(this, "activated", []);
+        this._zActive = true;
     }
     async deactivate() {
+        if (!this._zActive) return;
         await this.processEvent(this, "deactivated", []);
+        this._zActive = false;
     }
     find(query) {
         return this.view.querySelector(query);
@@ -453,7 +457,7 @@ class ZLoader extends ZController {
         await super.deactivate();
     }
     async load(path, options) {
-        if (this.content) await this.content.deactivate();
+        if (this.content) await this.content.deactivate();        
         this.content = await ZVC.loadComponent(this.view, this, path);
         await this.content.init(options);
         await this.content.activate();

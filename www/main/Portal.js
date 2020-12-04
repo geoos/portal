@@ -8,6 +8,7 @@ class Portal extends ZCustomController {
             this.map.doResize(size);
             this.analysisPanel.doResize(size);
             this.time.doResize(size);
+            this.toolsPanel.doResize(size);
         });
     }
 }

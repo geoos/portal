@@ -35,7 +35,7 @@ class AddPanel extends ZCustomController {
         let size = window.geoos.size;
         let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
         let height = size.height - (topMenuRect.top + topMenuRect.height);
-        let width = size.width - 28;
+        let width = size.width - 38;
         this.addPanelContainer.view.style.left = "-2px";
         this.addPanelContainer.view.style.top = (size.height - height - 5) + "px";
         this.addPanelContainer.view.style.width = width + "px";

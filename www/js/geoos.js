@@ -29,6 +29,8 @@ class GEOOS {
         this._time = t;
         this.events.trigger("portal", "timeChange");
     }
+    get moment() {return moment.tz(this.time, window.timeZone)}
+    set moment(m) {this.time = m.valueOf()}
     get bounds() {
         let b = this.map.getBounds();
         return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
@@ -73,6 +75,7 @@ class GEOOS {
         if (this.addPanel.open) this.addPanel.toggle();
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
+        this.toolsPanel.toggle("min");
     }
     openMyPanel() {
         if (!this.myPanel.open) this.myPanel.toggle();
@@ -479,6 +482,7 @@ class GEOOS {
         }
         l.addUserObject(o);
         this.events.trigger("layer", "layerItemsChanged", l);
+        this.events.trigger("userObject", "added", o);
     }
     removeUserObject(id) {
         let g = this.getActiveGroup();
@@ -487,6 +491,12 @@ class GEOOS {
         l.removeUserObject(id);
         this.events.trigger("layer", "layerItemsChanged", l);
     }
+
+    addTool(tool) {
+        let g = this.getActiveGroup();
+        g.addTool(tool);
+        this.events.trigger("tools", "toolAdded", tool);
+    }    
 }
 
 window.geoos = new GEOOS();

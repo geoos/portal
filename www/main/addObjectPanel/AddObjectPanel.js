@@ -25,11 +25,18 @@ class AddObjectPanel extends ZCustomController {
         this.addObjectPanelContainer.view.style.height = height + "px";
     }
 
+    addRequest(type) {
+        this.requestType = type;
+        this.selectOption(type, true);
+        if (!this.open) this.toggle();
+    }
+
     toggle() {
         this.addObjectPanelContent.hide();
         this.applySize();
-        if (this.open) {
+        if (this.open) {            
             this.stopAdding();
+            this.enableAllOptions();
             this.addObjectPanelContainer.view.style["margin-left"] = "-2";
             $(this.addObjectPanelContainer.view).animate({"margin-left": "-352px"}, 300, _ => {
                 this.hide();
@@ -54,25 +61,54 @@ class AddObjectPanel extends ZCustomController {
     onOpArea_click() {this.selectOption("area")}
     onOpPoint_click() {this.selectOption("point")}
 
-    selectOption(op) {
+    selectOption(op, exclusive) {
         this.findAll(".add-object-title").forEach(d => d.classList.remove("active"))
         this.find(".add-object-title[data-option='" + op + "']").classList.add("active");
         this.activeOption = op;
         this.stopAdding(); this.startAdding();
+        if (exclusive) {
+            this.disableOption(this.opPoint)
+            this.disableOption(this.opArea)
+            if (this.requestType == "point") this.enableOption(this.opPoint);
+            else if (this.requestType == "area") this.enableOption(this.opArea);
+        } else {
+            this.enableOption(this.opPoint);
+            this.enableOption(this.opArea);
+        }
+    }
+
+    enableOption(opPanel) {
+        opPanel.view.style.cursor = "pointer";
+        opPanel.view.style["pointer-events"] = "auto";
+        opPanel.view.style.opacity = "1";
+    }
+    disableOption(opPanel) {
+        opPanel.view.style.cursor = "default";
+        opPanel.view.style["pointer-events"] = "none";
+        opPanel.view.style.opacity = "0.5";
+    }
+    enableAllOptions() {
+        this.enableOption(this.opPoint);
+        this.enableOption(this.opArea);
     }
 
     startAdding() {
+        if (this.listenning) return;
         this.listenning = true;
         window.geoos.mapPanel.mapContainer.view.style.cursor = "crosshair";
+        this.points = [];
+        this.interactionElements = {}
+        this.creatingState = {}
     }
     stopAdding() {
+        if (!this.listenning) return;
         this.listenning = false;
         window.geoos.mapPanel.mapContainer.view.style.removeProperty("cursor");
         this.points = [];
         window.geoos.interactions.clearShapes("add-panel");
         this.interactionElements = {}
         this.creatingState = {}
-        window.geoos.interactions.redraw();
+        window.geoos.interactions.redraw();        
     }
     handleMapClick(p) {
         if (!this.listenning) return;
@@ -102,9 +138,6 @@ class AddObjectPanel extends ZCustomController {
         if (!this.listenning) return;
         if (this.activeOption == "area") {
             if (this.creatingState.p0) {
-                //console.log("points", this.creatingState.poly.points());
-                //let points = this.creatingState.poly.points();
-                //let [x0,y0, x1, y1, x2, y2, x3, y3] = points;
                 let p0 = this.creatingState.p0, p1 = p;
                 let points = [p0.x,p0.y, p1.x,p0.y, p1.x,p1.y, p0.x, p1.y];
                 this.creatingState.poly.points(points);

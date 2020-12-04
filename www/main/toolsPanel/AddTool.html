@@ -1,0 +1,35 @@
+<div id="addContainer" >
+    <div id="toolAddHeader" class="container-fluid" style="height: 145px; position:absolute;">
+        <div class="row mt-2">
+            <div class="col-8 pl-0">
+                <div><h4>Crear Nuevo Análisis</h4></div>
+                <label>Seleccione el Tipo de Análisis</label>
+                <select id="edToolType" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name"></select>
+                <div class="row mt-2">
+                    <div class="col-6 pr-0">
+                        <label class="mt-2" >Nombre del Nuevo Análisis</label>
+                    </div>
+                    <div class="col-6">
+                        <input id="edNewToolName" class="form-control form-control-sm" maxlength="22" placeholder="Nombre del Análisis" data-z-autochange-delay="300"/>
+                    </div>
+                </div>                
+            </div>
+            <div class="col-4 pr-0" style="border-left: 1px solid gray;">
+                <img id="iconTool" class="float-right border rounded" height="130px" />
+            </div>
+        </div>
+    </div>
+    <div id="toolAddLoader" style="top:170px; position:absolute; overflow-y: auto; overflow-x:hidden; border-top: 1px solid white; border-bottom: 1px solid white" data-z-load="common/Empty"></div>
+    <div id="toolAddFooter" class="container-fluid" style="height: 40px; bottom: 0; position:absolute;">
+        <div class="row">
+            <div class="col pr-0">
+                <button id="cmdCancelAddTool" type="button" class="btn btn-sm btn-danger float-right ml-2">
+                    Cancelar
+                </button>
+                <button id="cmdGenerateTool" type="button" class="btn btn-sm btn-primary float-right">
+                    Generar Análisis
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

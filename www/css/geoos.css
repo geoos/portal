@@ -645,7 +645,7 @@ a:hover {
     border-radius: 5px;
     border: 2px solid rgba(246,246,246,0.5);
     position: absolute;
-    left: 20px; right: 20px; bottom: -5px;
+    left: 20px; right: 40px; bottom: -5px;
     padding-bottom: 5px;
     height: 200px;
 }
@@ -667,4 +667,15 @@ a:hover {
 }
 .add-object-title.active {
     border-bottom: 5px solid rgb(0,160,249);
+}
+
+/* Tools */
+.tools-expander.disabled {
+    color: gray;
+    cursor: default;
+}
+.tool-selector {
+    white-space: nowrap;
+    font-size: 15px;
+    height: 40px;
 }

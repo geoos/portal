@@ -15,8 +15,11 @@ class Time extends ZCustomController {
         this.updatePickers();
         this.doResize();
         window.geoos.events.on("portal", "timeChange", _ => {
+            /*
             this.doResize();
             this.slider.value = (window.geoos.time - this.t0.valueOf()) * pixelsPerHour / (60*60*1000);
+            */
+            this.refreshTime();
         });
     }
 
@@ -27,6 +30,15 @@ class Time extends ZCustomController {
     onSlider_change(v) {
         let t = moment.tz(this.t0.valueOf() + v / pixelsPerHour * 60 * 60 * 1000, window.timeZone);
         this.callSetTime(t.valueOf());
+    }
+
+    refreshTime() {
+        this.doResize();
+        this.slider.value = (window.geoos.time - this.t0.valueOf()) * pixelsPerHour / (60*60*1000);
+        this.updateLabels();
+        this.updateDatePicker();
+        this.updateTimePicker();
+        this.repaint();
     }
 
     callSetTime(t, labels=true, datePicker=true, timePicker=true) {
@@ -141,5 +153,10 @@ class Time extends ZCustomController {
     }
     onLblTime_click() {this.toggleTime()}
     onCmdCclock_click() {this.toggleTime()}
+
+    onCmdNextDay_click() {window.geoos.moment = window.geoos.moment.add(1, "day")}
+    onCmdPrevDay_click() {window.geoos.moment = window.geoos.moment.subtract(1, "day")}
+    onCmdNextTime_click() {window.geoos.moment = window.geoos.moment.add(15, "minutes")}
+    onCmdPrevTime_click() {window.geoos.moment = window.geoos.moment.subtract(15, "minutes")}
 }
 ZVC.export(Time)
