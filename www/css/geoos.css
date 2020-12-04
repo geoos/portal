@@ -677,5 +677,15 @@ a:hover {
 .tool-selector {
     white-space: nowrap;
     font-size: 15px;
-    height: 40px;
+    height: 38px;
+    background-color: rgb(70,70,70);
+}
+.tool-selector.selected {
+    background-color: rgb(40,40,40);
+}
+.configure-selected {
+    background-color: rgb(40,40,40);
+}
+.configure-selected:focus {
+    background-color: rgb(40,40,40);
 }

@@ -25,6 +25,8 @@ class ToolsPanel extends ZCustomController {
         this.toolsPanelContainer.view.style.top = top + "px";
         this.toolsPanelContainer.view.style.width = (this.width + 2) + "px";
         this.toolsPanelContainer.view.style.bottom = "0";
+
+        this.toolsMain.view.style.width = (this.width - 30) + "px";
         this.toolsMainLoader.view.style.height = (window.geoos.size.height - top - 30) + "px";
         if (this.toolsMainLoader.content.doResize) this.toolsMainLoader.content.doResize();
     }
@@ -54,7 +56,7 @@ class ToolsPanel extends ZCustomController {
             this.ignoreNextToggle = false;
             return;
         }      
-        if (newStatus == this.status) return;
+        if (newStatus == this.status) return;        
         this.status = newStatus;
         this.toolsMain.hide();
         return new Promise(resolve => {
@@ -63,8 +65,14 @@ class ToolsPanel extends ZCustomController {
                     this.toolsMain.show();
                 }
                 this.checkEnabled();
-                this.doResize();                
-                resolve();
+                this.doResize();
+                console.log("toggleTools", this.status, this.contenType, this.toolsMainLoader.content.showingProperties)
+                if (this.status == "normal" && this.contenType == "view" && this.toolsMainLoader.content.showingProperties) {
+                    console.log("calling toggle toolProps")
+                    this.toolsMainLoader.content.toggleConfigureTool().then(resolve())
+                } else {
+                    resolve();
+                }
             });
         })        
     }

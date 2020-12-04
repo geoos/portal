@@ -492,11 +492,51 @@ class GEOOS {
         this.events.trigger("layer", "layerItemsChanged", l);
     }
 
-    addTool(tool) {
+    getTools() {
+        return this.getActiveGroup().tools;
+    }
+    getTool(id) {
         let g = this.getActiveGroup();
-        g.addTool(tool);
-        this.events.trigger("tools", "toolAdded", tool);
+        return g.tools.find(t => (t.id == id));
+    }
+    getSelectedTool() {
+        let g = this.getActiveGroup();
+        if (!g.selectedToolId) return null;
+        return this.getTool(g.selectedToolId);
+    }
+    async addTool(tool) {
+        let g = this.getActiveGroup();
+        let oldSelected = this.getSelectedTool();
+        g.tools.push(tool);        
+        await this.events.trigger("tools", "toolAdded", tool);
+        if (!oldSelected) this.selectTool(tool.id);
+    }
+    async removeTool(id) {
+        let g = this.getActiveGroup();
+        let oldTool = this.getSelectedTool();
+        let wasSelected = (g.selectedToolId == id);        
+        let idx = g.tools.findIndex(t => (t.id == id));
+        if (!idx) throw "Can't remove tool. Not found";
+        g.tools.splice(idx,1);
+        if (wasSelected) {            
+            if (g.tools.length) {
+                g.selectedToolId = g.tools[0].id;
+                await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:this.getSelectedTool()});
+            } else {
+                g.selectedToolId = null;
+                await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:null});
+            }                
+        }
+        this.events.trigger("tools", "toolRemoved", oldTool);
     }    
+    async selectTool(id) {
+        let g = this.getActiveGroup();
+        let oldSelected = this.getSelectedTool();
+        let tool = this.getTool(id);
+        if (!tool) throw "Tool id '" + id + "' not found to select";
+        g.selectedToolId = id;
+        await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:this.getSelectedTool()});
+    }
 }
 
 window.geoos = new GEOOS();

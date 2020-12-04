@@ -10,6 +10,17 @@ class Tool3DChart extends GEOOSTool {
     get object() {return this.config.object}
     get layerId() {return this.config.layerId}
     get layer() {return window.geoos.getActiveGroup().getLayer(this.layerId)}
+    get mainPanelPath() {return "geoos-tools/3d-chart-panels/3DChartMain"}
+
+    getPropertyPanels() {
+        return [{
+            code:"tool-props", name:"Nombre del Análisis", path:"./propertyPanels/PropToolName"
+        }]
+    }
+
+    get caption() {
+        return this.name + ": 3D / (nombre de la variable)";
+    }
 }
 
 GEOOSTool.register("3d-chart", "Gráfico 3D", {    

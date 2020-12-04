@@ -135,10 +135,6 @@ class GEOOSGroup {
             code:"group-properties", name:"Propiedades del Grupo", path:"./groups/GroupProperties"
         }]
     }
-
-    addTool(tool) {
-        this.tools.push(tool);
-    }
 }
 
 class GEOOSLayer {

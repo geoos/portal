@@ -12,6 +12,18 @@
         <button id="cmdToolsAdd" type="button" class="btn btn-secondary pl-2" style="width:30px; height: 40px; position:absolute; top:0;">
             <i class="fas fa-plus"></i>
         </button>
+        <div id="toolCaptionPanel" style="height: 50px; position:absolute; top:45px; left:0; border-top: 1px solid white; border-bottom: 1px solid white;">
+            <h4 id="toolCaption" style="position: absolute; top:10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Generando ...</h4>
+            <div class="btn-group" style="position: absolute; top:5px; height: 40px; right:0;">
+                <button id="cmdConfigureTool" type="button" class="btn btn-secondary pl-1" style="width:40px;">
+                    <i class="fas fa-cogs ml-1"></i>
+                </button>
+                <button id="cmdDeleteTool" type="button" class="btn btn-danger pl-1" style="width:40px;">
+                    <i class="fas fa-trash-alt ml-1"></i>
+                </button>
+            </div>
+        </div>
     </div>
-    <div id="viewLoader" style="top:170px; position:absolute; overflow-y: auto; overflow-x:hidden; border: 1px solid white; border-bottom: 1px solid white" data-z-load="common/Empty"></div>
+    <div id="toolPropertyPanelsContainer" class="border rounded" style="left:0; top: 140px; position:absolute; width:300px; overflow-y: auto; overflow-x:hidden;"></div>
+    <div id="viewLoader" style="top:140px; position:absolute; overflow-y: auto; overflow-x:hidden; " data-z-load="common/Empty"></div>
 </div>

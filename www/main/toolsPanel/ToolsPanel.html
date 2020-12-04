@@ -1,14 +1,12 @@
-<div id="toolsPanelContainer" class="geoos-panel" style="padding:0; opacity: 1;">
-    <div id="toolsPanelContent" class="flex flex-row" style="display: flex;">
-        <div id="toolsCaption" class="" style="flex: 0 0 30px; width: 30px;">
-            <img src="img/icons/tool-box.svg" width="20px;" style="margin-left: 5px; margin-top: 5px;"/>
-            <span id="vertCaption" style="display:block; white-space: nowrap; transform: rotate(270deg);height: 120px; transform-origin: center; margin-left: 65px; margin-top:60px; ">Panel de Análisis</span>
-            <i id="cmdOpenTools" class="tools-expander far fa-lg fa-arrow-alt-circle-left" data-z-clickable="true" style="cursor: pointer; margin-left: 5px;"></i>
-            <i id="cmdCloseTools" class="tools-expander far fa-lg fa-arrow-alt-circle-right" data-z-clickable="true" style="cursor: pointer; margin-left: 5px; margin-top: 10px;"></i>
-        </div>
-        <div id="toolsMain" style="flex:1 1 100%;">
-            <div style="border-bottom: 1px solid white; margin-top:5px; padding-bottom: 3px;">Panel de Análisis</div>
-            <div id="toolsMainLoader" data-z-load="common/Empty" style="margin-right: 12px;"></div>
-        </div>
+<div id="toolsPanelContainer" class="geoos-panel" style="padding:0; position:absolute;">
+    <div id="toolsCaption" style="width: 30px; position:absolute;">
+        <img src="img/icons/tool-box.svg" width="20px;" style="margin-left: 5px; margin-top: 5px;"/>
+        <span id="vertCaption" style="display:block; white-space: nowrap; transform: rotate(270deg);height: 120px; transform-origin: center; margin-left: 65px; margin-top:60px; ">Panel de Análisis</span>
+        <i id="cmdOpenTools" class="tools-expander far fa-lg fa-arrow-alt-circle-left" data-z-clickable="true" style="cursor: pointer; margin-left: 5px;"></i>
+        <i id="cmdCloseTools" class="tools-expander far fa-lg fa-arrow-alt-circle-right" data-z-clickable="true" style="cursor: pointer; margin-left: 5px; margin-top: 10px;"></i>
+    </div>
+    <div id="toolsMain" style="position: absolute; bottom:0; left:30px">
+        <div style="border-bottom: 1px solid white; margin-top:5px; padding-bottom: 3px;">Panel de Análisis</div>
+        <div id="toolsMainLoader" data-z-load="common/Empty" style="margin-right: 12px;"></div>
     </div>
 </div>
