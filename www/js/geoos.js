@@ -506,10 +506,9 @@ class GEOOS {
     }
     async addTool(tool) {
         let g = this.getActiveGroup();
-        let oldSelected = this.getSelectedTool();
         g.tools.push(tool);        
         await this.events.trigger("tools", "toolAdded", tool);
-        if (!oldSelected) this.selectTool(tool.id);
+        await this.selectTool(tool.id);
     }
     async removeTool(id) {
         let g = this.getActiveGroup();

@@ -10,6 +10,7 @@ class GEOOSTool {
         this.id = id;
         this._name = name;
         this.config = config || {};
+        this._mainPanel = null; // assigned on "activated" from MainPanel through property
     }
 
     get name() {return this._name}
@@ -17,5 +18,19 @@ class GEOOSTool {
         this._name = n;
         window.geoos.events.trigger("tools", "renamed", this);
     }
-    get caption() {return this.name}    
+    get caption() {return this.name}   
+    
+    get mainPanel() {return this._mainPanel}
+    set mainPanel(p) {
+        this._mainPanel = p;
+        this.refresh(); // async run
+    }
+
+    startWorking() {}
+    finishWorking() {
+        window.geoos.events.trigger("tools", "results", this);
+        window.geoos.events.trigger("tools", "renamed", this);
+    }
+
+    async refresh() {throw "refresh not overwriten in tool " + this.code}
 }

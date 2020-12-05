@@ -215,13 +215,19 @@ class RasterQuery extends GEOOSQuery {
         }
     }
 
-    getHTML() {
+    getHTML(cantDelete) {
         let html =  `
             <div class="row mt-1">
                 <div class="col">
+            `;
+        if (!cantDelete) {
+            html += `
                     <i id="delVar${this.id}" class="fas fa-trash-alt mr-2 float-left mt-1" data-z-clickable="true" style="cursor: pointer;"></i>
+                `
+        }
+        html += `
                     <img class="mr-1 mt-1 float-left inverse-image" height="16px" src="${this.icon}"/>
-                    <span id="varName${this.id}" class="mt-1 float-left">${this.name}</span>
+                    <span id="varName${this.id}" class="selectable-name mt-1 float-left">${this.name}</span>
                 </div>
             </div>
         `
@@ -292,6 +298,11 @@ class RasterQuery extends GEOOSQuery {
                 this.level = parseInt(l);
                 if (listeners.onChange) listeners.onChange(this);
             }
+        }
+        container.find("#varName" + this.id).onclick = _ => {
+            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName}, variables => {
+                if (listeners.onSelect) listeners.onSelect(variables)
+            })
         }
     }
 }

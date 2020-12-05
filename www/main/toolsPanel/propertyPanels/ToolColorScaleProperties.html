@@ -1,0 +1,34 @@
+<div class="container">
+    <div class="row">
+        <div class="col-2 text-left pt-2 pr-0">Escala</div>
+        <div class="col-10">
+            <select id="edScaleName" class="custom-select custom-select-sm" data-z-id-field="name" data-z-label-field="name"></select>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <div id="edAuto" data-z-component="common/CheckBox" data-z-label="Cálculo de Límites Automático"></div>
+        </div>
+    </div>
+    <div id="rowClipOutOfRange" class="row mt-2">
+        <div class="col-12">
+            <div id="edClipOutOfRange" data-z-component="common/CheckBox" data-z-label="Eliminar Valores fuera del Rango"></div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <div id="preview" class="scale-preview"></div>
+        </div>
+    </div>    
+    <div class="row mt-2">
+        <div class="col-4 pr-0">
+            <input id="edMin" class="form-control form-control-sm text-left" type="number" data-z-autochange-delay="300" />
+        </div>
+        <div class="col-4">
+            <input id="edUnit" class="form-control form-control-sm text-center"  />
+        </div>
+        <div class="col-4 pl-0">
+            <input id="edMax" class="form-control form-control-sm text-right" type="number" data-z-autochange-delay="300" />
+        </div>
+    </div>    
+</div>

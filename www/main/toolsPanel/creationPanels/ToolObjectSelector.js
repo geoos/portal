@@ -1,6 +1,5 @@
 class ToolObjectSelector extends ZCustomController {
     async onThis_init(options) {
-        console.log("ToolObjectSelector init");
         this.types = options.allowedObjectTypes.reduce((map, type) => {
             map[type] = true;
             return map;
@@ -8,7 +7,6 @@ class ToolObjectSelector extends ZCustomController {
         if (options.caption) {
             this.find("#lblSelectCaption").textContent = options.caption;
         }
-        console.log("tools object selector con types", this.types);
         await this.refresh();
         this.userObjectAddedListener = uo => this.refresh({layerId:uo.layer.id, type:"user-object/" + uo.type, code:uo.id})
     }

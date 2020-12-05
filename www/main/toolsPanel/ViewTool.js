@@ -6,6 +6,7 @@ class ViewTool extends ZCustomController {
         this.toolAddedListener = tool => this.toolAdded(tool);
         this.toolRemovedListener = tool => this.toolRemoved(tool);
         this.toolRenamedListener = tool => this.refreshCaption(tool);
+        this.toolPropertyChangeListener = tool => {if (tool.id == window.geoos.getSelectedTool().id) this.refreshPropertyPanels();}
         this.showingProperties = false;
         this.panels = [];
     }
@@ -14,12 +15,14 @@ class ViewTool extends ZCustomController {
         window.geoos.events.on("tools", "toolAdded", this.toolAddedListener)
         window.geoos.events.on("tools", "toolRemoved", this.toolRemovedListener)
         window.geoos.events.on("tools", "renamed", this.toolRenamedListener);
+        window.geoos.events.on("tools", "propertyChange", this.toolPropertyChangeListener);
     }
     onThis_deactivated() {
         window.geoos.events.remove(this.selectionChangeListener);
         window.geoos.events.remove(this.toolAddedListener);
         window.geoos.events.remove(this.toolRemovedListener);
         window.geoos.events.remove(this.toolRenamedListener);
+        window.geoos.events.remove(this.toolPropertyChangeListener);
     }
     doResize() {
         let size = this.size;
@@ -53,8 +56,6 @@ class ViewTool extends ZCustomController {
         }, "")
         this.toolsContainer.html = `<table id="toolsContainerTable"><tr id="toolsRow">${html}</tr></table>`;
         $(this.toolsContainer.view).find(".tool-selector").click(e => {
-            let btn = $(e.currentTarget);
-            console.log("btn", btn, btn.data("tool-id"));
             let toolId = $(e.currentTarget).data("tool-id");
             window.geoos.selectTool(toolId);            
         });
@@ -132,16 +133,14 @@ class ViewTool extends ZCustomController {
     }
 
     async selectionChange(sel) {
-        console.log("selectionChange", sel);
         this.refresh()
         await this.refreshMainPanel();
+        if (this.showingProperties) await this.refreshPropertyPanels();
     }
     toolAdded(tool) {
-        console.log("toolAdded", tool);
         this.refresh()
     }
     toolRemoved(tool) {
-        console.log("toolRemoved", tool);
         if (!window.geoos.getTools().length) this.triggerEvent("addTool");
         else this.refresh()
     }
