@@ -24,6 +24,7 @@ class GEOOSQuery {
     get decimals() {return 2}
     get colorScale() {return {name:"SAGA - 01", clipOutOfRange:false, auto:true, unit:this.unit}}
     get minZTemporality() {throw "minZTemporality not overwritten"}
+    get dependsOnTime() {return true}
 
     redondea(value, includeUnit) {
         let pow = Math.pow(10, this.decimals);
@@ -144,6 +145,7 @@ class RasterQuery extends GEOOSQuery {
         if (t.unit == "months") return "1y";
         return "1y"
     }
+    get dependsOnTime() {return this.dataSet.temporality && this.dataSet.temporality != "none"}
 
     serialize() {
         return {
@@ -333,6 +335,7 @@ class MinZQuery extends GEOOSQuery {
     get unit() {return this.variable && this.variable.options && this.variable.options.unit?this.variable.options.unit:super.unit}
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
     get minZTemporality() {return this.temporality}
+    get dependsOnTime() {return true}
 
     get colorScale() {
         if (this.variable.options && this.variable.options.colorScale) return this.variable.options.colorScale;

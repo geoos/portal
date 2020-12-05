@@ -32,23 +32,17 @@ class ToolsPanel extends ZCustomController {
     }
 
     async refresh() {
-        if (!this.contenType) {
-            if (window.geoos.getActiveGroup().tools.length) {
-                await this.loadViewTools();
-            } else {
-                await this.loadNewTool();
-            }
+        if (!this.contenType) return;
+        if (window.geoos.getActiveGroup().tools.length) {
+            await this.loadViewTools();
         } else {
-            if (this.contenType == "view") {
-                if (!window.geoos.getActiveGroup().tools.length) {
-                    await this.loadNewTool();
-                } else {
-                    await this.toolsMainLoader.content.refresh();
-                }
-            } else {
-                await this.toolsMainLoader.content.refresh();
-            }
+            await this.loadNewTool();
         }
+    }
+
+    async destroyContent() {
+        this.contenType = null;
+        await this.loadEmpty();
     }
 
     toggle(newStatus) {  
@@ -56,7 +50,12 @@ class ToolsPanel extends ZCustomController {
             this.ignoreNextToggle = false;
             return;
         }      
-        if (newStatus == this.status) return;        
+        if (newStatus == this.status) return;
+        if (newStatus == "min" && this.contenType) {
+            return new Promise(resolve => {
+                this.destroyContent().then(resolve(this.toggle(newStatus)));
+            })            
+        }
         this.status = newStatus;
         this.toolsMain.hide();
         return new Promise(resolve => {
@@ -66,10 +65,11 @@ class ToolsPanel extends ZCustomController {
                 }
                 this.checkEnabled();
                 this.doResize();
-                console.log("toggleTools", this.status, this.contenType, this.toolsMainLoader.content.showingProperties)
                 if (this.status == "normal" && this.contenType == "view" && this.toolsMainLoader.content.showingProperties) {
-                    console.log("calling toggle toolProps")
-                    this.toolsMainLoader.content.toggleConfigureTool().then(resolve())
+                    this.toolsMainLoader.content.toggleConfigureTool().then(resolve());
+                } else if (!this.contenType && this.status !="min") {
+                    this.contenType = "view";
+                    this.refresh().then(resolve())
                 } else {
                     resolve();
                 }
@@ -104,6 +104,9 @@ class ToolsPanel extends ZCustomController {
         else if (this.status == "normal") await this.toggle("min");
     }
 
+    async loadEmpty() {
+        await this.toolsMainLoader.load("common/Empty");
+    }
     async loadNewTool() {
         if (this.status == "max") await this.toggle("normal");
         this.contenType = "new";

@@ -115,6 +115,9 @@ class MyPanel extends ZCustomController {
                             html += `<div class="my-panel-user-object" data-code="${layerItem.code}" style="padding-left:${(20 * layerItem.level)}px;">`;
                             html += `  <img class="user-object-icon" src="${layerItem.icon}" style="filter:invert(1);" />`;
                             html += `  <div class="user-object-name"><span ${objectSelected?" class='my-panel-selected-name'":""}>${layerItem.name}</span></div>`;
+                            if (layerItem.level == 0) {
+                                html += `  <i class="user-object-deleter far fa-trash-alt ml-2 float-right" style="cursor: pointer; margin-top:-12px;"></i>`;
+                            }
                             html += `</div>`;
                         }
                     }
@@ -136,6 +139,7 @@ class MyPanel extends ZCustomController {
         $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e))
         $myContainer.find(".visualizer-name").click(e => this.visualizerName_click(e))
         $myContainer.find(".user-object-name").click(e => this.userObjectName_click(e))
+        $myContainer.find(".user-object-deleter").click(e => this.userObjectDeleter_click(e))
         $myContainer.find(".group-context").click(e => this.groupContext_click(e))
         $myContainer.find(".layer-context").click(e => this.layerContext_click(e))
         $myContainer.find(".group-name").click(e => this.groupName_click(e))
@@ -315,6 +319,15 @@ class MyPanel extends ZCustomController {
             let opener = $(e.currentTarget);
             opener.find("span").addClass("my-panel-selected-name")
             await window.geoos.selectElement("user-object", uo);
+        }
+    }
+    async userObjectDeleter_click(e) {
+        let uoNameDiv = $(e.currentTarget);
+        let uoDiv = uoNameDiv.parent();
+        let uoCode = uoDiv.data("code");
+        let uo = window.geoos.getUserObject(uoCode);
+        if (uo) {
+            this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar el objeto '" + uo.name + "'?"}, _ => window.geoos.removeUserObject(uo.id))
         }
     }
     async toggleVisualizer(visualizer) {

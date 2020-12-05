@@ -23,14 +23,24 @@ class GEOOSTool {
     get mainPanel() {return this._mainPanel}
     set mainPanel(p) {
         this._mainPanel = p;
-        this.refresh(); // async run
+        if (p) {
+            this.refresh();
+        }
     }
 
-    startWorking() {}
+    startWorking() {
+        if (this.mainPanel) this.mainPanel.triggerEvent("startWorking");
+    }
     finishWorking() {
         window.geoos.events.trigger("tools", "results", this);
         window.geoos.events.trigger("tools", "renamed", this);
+        if (this.mainPanel) this.mainPanel.triggerEvent("finishWorking");
     }
 
     async refresh() {throw "refresh not overwriten in tool " + this.code}
+
+    async activate() {}
+    async deactivate() {}
+
+    async isValid() {return true}
 }

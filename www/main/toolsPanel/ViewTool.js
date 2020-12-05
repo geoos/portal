@@ -1,5 +1,6 @@
 class ViewTool extends ZCustomController {
     async onThis_init(options) {
+        this.viewWorking.hide();
         await this.refresh(options.idToSelect)
         this.doResize();
         this.selectionChangeListener = sel => this.selectionChange(sel);
@@ -7,8 +8,10 @@ class ViewTool extends ZCustomController {
         this.toolRemovedListener = tool => this.toolRemoved(tool);
         this.toolRenamedListener = tool => this.refreshCaption(tool);
         this.toolPropertyChangeListener = tool => {if (tool.id == window.geoos.getSelectedTool().id) this.refreshPropertyPanels();}
+        this.toolResultsListener = tool => {if (tool.id == window.geoos.getSelectedTool().id) this.refreshMainPanel();}
         this.showingProperties = false;
         this.panels = [];
+        await this.refreshMainPanel();
     }
     onThis_activated() {
         window.geoos.events.on("tools", "selectionChange", this.selectionChangeListener)
@@ -16,6 +19,7 @@ class ViewTool extends ZCustomController {
         window.geoos.events.on("tools", "toolRemoved", this.toolRemovedListener)
         window.geoos.events.on("tools", "renamed", this.toolRenamedListener);
         window.geoos.events.on("tools", "propertyChange", this.toolPropertyChangeListener);
+        window.geoos.events.on("tools", "results", this.toolResultsListener);
     }
     onThis_deactivated() {
         window.geoos.events.remove(this.selectionChangeListener);
@@ -23,6 +27,7 @@ class ViewTool extends ZCustomController {
         window.geoos.events.remove(this.toolRemovedListener);
         window.geoos.events.remove(this.toolRenamedListener);
         window.geoos.events.remove(this.toolPropertyChangeListener);
+        window.geoos.events.remove(this.toolResultsListener);
     }
     doResize() {
         let size = this.size;
@@ -35,11 +40,17 @@ class ViewTool extends ZCustomController {
             this.viewLoader.view.style.left = "310px";
             this.viewLoader.view.style.width = (size.width - 310) + "px";
             this.viewLoader.view.style.height = (size.height - 120) + "px";
+            this.viewWorking.view.style.left = "310px";
+            this.viewWorking.view.style.width = (size.width - 310) + "px";
+            this.viewWorking.view.style.height = (size.height - 120) + "px";
         } else {
             this.toolPropertyPanelsContainer.hide();
             this.viewLoader.view.style.left = "0";
             this.viewLoader.view.style.width = (size.width) + "px";
             this.viewLoader.view.style.height = (size.height - 120) + "px";
+            this.viewWorking.view.style.left = "0";
+            this.viewWorking.view.style.width = (size.width) + "px";
+            this.viewWorking.view.style.height = (size.height - 120) + "px";
         }
         this.toolCaptionPanel.view.style.width = (size.width) + "px";
         this.toolCaptionPanel.find("#toolCaption").style["max-width"] = (size.width - 85) + "px";
@@ -249,5 +260,14 @@ class ViewTool extends ZCustomController {
         if (tool.id != window.geoos.getSelectedTool().id) return;
         this.find("#toolCaption").textContent = window.geoos.getSelectedTool().caption;
     }
+
+    onCmdDeleteTool_click() {
+        this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar el análisis '" + window.geoos.getSelectedTool().name + "'?"}, _ => {
+            window.geoos.removeTool(window.geoos.getSelectedTool().id)
+        });
+    }
+
+    onViewLoader_startWorking() {this.viewWorking.show()}
+    onViewLoader_finishWorking() {this.viewWorking.hide()}
 }
 ZVC.export(ViewTool);

@@ -6,12 +6,25 @@ class Tool3DChart extends GEOOSTool {
         super("3d-chart", id, name, config);
         this.data = {aborter:null, grid:null}        
         this.colorScale = null;
+        this.timeChangeListener = async _ => await this.timeChanged();
+        this.objectMoveListener = async objectId => await this.objectMoved(objectId);
     }
 
     get object() {return this.config.object}
     get layerId() {return this.config.layerId}
     get layer() {return window.geoos.getActiveGroup().getLayer(this.layerId)}
     get mainPanelPath() {return "geoos-tools/3d-chart-panels/3DChartMain"}
+
+    async activate() {
+        super.activate();
+        window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
+        window.geoos.events.on("userObject", "moved", this.objectMoveListener);
+    }
+    async deactivate() {
+        window.geoos.events.remove(this.timeChangeListener);
+        window.geoos.events.remove(this.objectMoveListener);
+        super.deactivate();
+    }
 
     getPropertyPanels() {
         return [{
@@ -104,6 +117,10 @@ class Tool3DChart extends GEOOSTool {
     }
     refresh() {
         this.startWorking();
+        if (this.data.aborter) {
+            this.data.aborter.abort();
+            this.data.aborter = null;
+        }
         if (!this.variable) this.createDefaultConfig();
         let b = this.bounds;
         let {promise, controller} = this.variable.query({
@@ -122,6 +139,40 @@ class Tool3DChart extends GEOOSTool {
                 console.error(err)
             })
 
+    }
+
+    async timeChanged() {
+        if (this.variable && this.variable.dependsOnTime) {
+            if (this.mainPanel) {
+                this.refresh();                
+            } else {
+                this.data.grid = null;
+            }            
+        }                      
+    }
+
+    async objectMoved(objectId) {
+        if (this.object.type.startsWith("user-object") && objectId == this.object.code) {
+            if (this.mainPanel) {
+                this.refresh();                
+            } else {
+                this.data.grid = null;
+            }    
+        }
+    }
+
+    async isValid() {
+        //console.log("isValid", this.layerId, this.object);
+        if (this.object.type.startsWith("user-object/")) return window.geoos.getUserObject(this.object.code)?true:false;
+        /*
+        let layer = window.geoos.getLayer(this.layerId);
+        if (!layer) return false;        
+        console.log("layer", layer);
+        if (layer.type == "user-object") {
+            let uo = ...
+        }
+        */
+        return true;
     }
 }
 

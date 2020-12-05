@@ -358,10 +358,21 @@ class GEOOS {
         if (!g) throw "Can't find group '" + groupId + "'";
         let current = this.getActiveGroup();
         if (current) {
+            if (this.getSelectedTool()) {
+                // deactivate current tool, saving its id in old group
+                let oldSelectedToolId = current.selectedToolId;
+                await this.selectTool(null)
+                current.selectedToolId = oldSelectedToolId;
+            }
             await current.deactivate();
-            await this.events.trigger("portal", "groupDeactivated", current)
+            await this.events.trigger("portal", "groupDeactivated", current);
         }
         await g.activate();
+        if (g.selectedToolId) {
+            let oldSelectedToolId = g.selectedToolId;
+            g.selectedToolId = null; // prevent deactivate without activate in tool
+            await this.selectTool(oldSelectedToolId);
+        }
         await this.events.trigger("portal", "groupActivated", g)
     }
     async addLayers(layers, inGroup) {
@@ -484,12 +495,13 @@ class GEOOS {
         this.events.trigger("layer", "layerItemsChanged", l);
         this.events.trigger("userObject", "added", o);
     }
-    removeUserObject(id) {
+    async removeUserObject(id) {
         let g = this.getActiveGroup();
         let l = g.getUserObjectsLayer();
         if (!l) throw "No User Objects Layer in Active Group";
         l.removeUserObject(id);
-        this.events.trigger("layer", "layerItemsChanged", l);
+        await this.checkToolsValidity();
+        await this.events.trigger("layer", "layerItemsChanged", l);
     }
 
     getTools() {
@@ -507,34 +519,45 @@ class GEOOS {
     async addTool(tool) {
         let g = this.getActiveGroup();
         g.tools.push(tool);        
-        await this.events.trigger("tools", "toolAdded", tool);
         await this.selectTool(tool.id);
+        await this.events.trigger("tools", "toolAdded", tool);
     }
     async removeTool(id) {
         let g = this.getActiveGroup();
-        let oldTool = this.getSelectedTool();
-        let wasSelected = (g.selectedToolId == id);        
-        let idx = g.tools.findIndex(t => (t.id == id));
-        if (!idx) throw "Can't remove tool. Not found";
-        g.tools.splice(idx,1);
-        if (wasSelected) {            
-            if (g.tools.length) {
-                g.selectedToolId = g.tools[0].id;
-                await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:this.getSelectedTool()});
-            } else {
-                g.selectedToolId = null;
-                await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:null});
-            }                
+        let idxOld = g.tools.findIndex(t => t.id == id);
+        if (idxOld < 0) throw "Can't remove tool " + id + ". Not found";
+        let oldTool = this.getTool(id);
+        let newToolId = null;
+        let idxNew = g.tools.findIndex(t => t.id != id);
+        if (idxNew >= 0) {
+            newToolId = g.tools[idxNew].id;
         }
+        await this.selectTool(newToolId);
+        g.tools.splice(idxOld, 1);
         this.events.trigger("tools", "toolRemoved", oldTool);
     }    
     async selectTool(id) {
         let g = this.getActiveGroup();
         let oldSelected = this.getSelectedTool();
-        let tool = this.getTool(id);
-        if (!tool) throw "Tool id '" + id + "' not found to select";
-        g.selectedToolId = id;
+        if (oldSelected) await oldSelected.deactivate();
+        if (id !== null) {
+            let tool = this.getTool(id);
+            if (!tool) throw "Tool id '" + id + "' not found to select";
+            await tool.activate();
+            g.selectedToolId = id;
+        } else {
+            g.selectedToolId = null;
+        }
         await this.events.trigger("tools", "selectionChange", {old:oldSelected, new:this.getSelectedTool()});
+    }
+
+    async checkToolsValidity() {
+        // clone tools array
+        let tools = this.getActiveGroup().tools.reduce((list, tool) => [...list, tool], []);
+        for (let tool of tools) {
+            let valid = await tool.isValid();
+            if (!valid) await this.removeTool(tool.id);
+        }
     }
 }
 

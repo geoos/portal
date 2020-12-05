@@ -71,6 +71,7 @@ class GEOOSGroup {
         if (this.active) await layer.destroy();
         this.layers.splice(layer.index, 1);
         this.adjustOrder();
+        await window.geoos.checkToolsValidity();
     }
     async insertLayerAfter(layer, after) {
         layer.group = this; 
