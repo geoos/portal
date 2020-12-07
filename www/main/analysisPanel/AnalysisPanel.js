@@ -1,6 +1,7 @@
 class AnalysisPanel extends ZCustomController {    
     onThis_init() {
         window.geoos.analysisPanel = this;
+        this.analysisWorking.hide();
         this.open = false;
         this.status = "normal"; // min, normal, max
 
@@ -98,6 +99,10 @@ class AnalysisPanel extends ZCustomController {
             if (this.mainPanel && this.mainPanel.doResize) this.mainPanel.doResize();
         }
         if (this.mainPanel && this.mainPanel.doResize) this.mainPanel.doResize()
+        let pos = $(this.mainArea.view).position();
+        let mainSize = this.mainArea.size;
+        console.log("position", pos);
+        $(this.analysisWorking.view).css({left:pos.left, top:pos.top, width:mainSize.width, height:mainSize.height})
     }
 
     async objectSelected(o) {
@@ -301,11 +306,11 @@ class AnalysisPanel extends ZCustomController {
     }
 
     async startWorking() {
-        console.log("start working");
+        this.analysisWorking.show();
     }
     async finishWorking() {
-        console.log("finish working");
         if (this.mainPanel) this.mainPanel.refresh()
+        this.analysisWorking.hide();
     }
     onAnalyzerLoader_setCaption(caption) {
         this.find("#lblAnalysisName").textContent = caption;        

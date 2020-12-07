@@ -3,6 +3,7 @@ class GEOOSTool {
         if (!GEOOSTool.tools) GEOOSTool.tools = [];
         GEOOSTool.tools.push({code, name, factories});
     }
+    static getToolDef(code) {return GEOOSTool.tools.find(t => t.code == code)}
 
     constructor(type, id, name, config) {
         this.type = type;

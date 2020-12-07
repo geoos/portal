@@ -4,6 +4,10 @@ class PropToolName extends ZCustomController {
         this.edScaleLatLng.value = this.tool.scaleLatLng;
         this.edScaleZ.value = this.tool.scaleZ;
         this.edZScaleFactor.value = this.tool.zScaleFactor;
+        if (this.tool.forceScaleLatLng) {
+            this.edScaleLatLng.value = true;
+            this.rowLatLng.hide();
+        }
         this.checkZVisible();
     }
 
@@ -21,6 +25,7 @@ class PropToolName extends ZCustomController {
     }
 
     checkZVisible() {
+        if (this.tool.forceScaleLatLng) return;
         if (this.edScaleLatLng.checked && this.tool.variable.unit == "m") {
             this.rowScaleZ.show();
             if (this.edScaleZ.checked) {

@@ -7,14 +7,22 @@ class Top extends ZCustomController {
         this.doResize(window.geoos.size);
         $(this.rightBar.view).find(".top-action").mouseenter(e => {
             let t = $(e.currentTarget);
-            let icon = t.data("z-icon");            
+            let icon = t.data("z-icon");
+            if (this.isActionActive(icon)) return;  
             t.children()[0].src = "img/top-icons/" + icon + "-active.svg";
         })
         $(this.rightBar.view).find(".top-action").mouseleave(e => {
             let t = $(e.currentTarget);
-            let icon = t.data("z-icon");            
+            let icon = t.data("z-icon");
+            if (this.isActionActive(icon)) return;
             t.children()[0].src = "img/top-icons/" + icon + ".svg";
         })
+        $(this.rightBar.view).find(".top-action").click(e => {
+            let t = $(e.currentTarget);
+            let icon = t.data("z-icon");
+            this.toggleAction(icon);
+        })
+        this.refreshTools();
     }
 
     doResize(size) {
@@ -130,6 +138,29 @@ class Top extends ZCustomController {
         if ($(this.view).find("#" + id).hasClass("active")) this.deactivateOption(id); else this.activateOption(id);
     }
 
+    isActionActive(id) {
+        let div = $(this.rightBar.view).find("#op" + id.substr(0,1).toUpperCase() + id.substr(1));
+        return div.hasClass("active");
+    }
+    toggleAction(id) {
+        if (this.isActionActive(id)) this.deactivateAction(id);
+        else this.activateAction(id);
+    }
+    activateAction(id) {
+        let div = $(this.rightBar.view).find("#op" + id.substr(0,1).toUpperCase() + id.substr(1));
+        let icon = div.data("z-icon");
+        div.children()[0].src = "img/top-icons/" + icon + "-active.svg";
+        div.addClass("active");
+        window.geoos.events.trigger("top", "activateAction", id);
+    }
+    deactivateAction(id) {
+        let div = $(this.rightBar.view).find("#op" + id.substr(0,1).toUpperCase() + id.substr(1));
+        let icon = div.data("z-icon");
+        div.children()[0].src = "img/top-icons/" + icon + ".svg";
+        div.removeClass("active");
+        window.geoos.events.trigger("top", "deactivateAction", id);
+    }
+
     onOpMyPanel_click() {
         window.geoos.events.trigger("top", "clickMyPanel");
     }
@@ -141,6 +172,46 @@ class Top extends ZCustomController {
     }
     onOpObjects_click() {
         window.geoos.events.trigger("top", "clickObjects");
+    }
+
+    onOpWizard1_click() {
+        if (!window.geoos.user.config.toolsConfig.tool1) return;
+        window.geoos.toolsPanel.openAddTool(window.geoos.user.config.toolsConfig.tool1)
+    }
+    onOpWizard2_click() {
+        if (!window.geoos.user.config.toolsConfig.tool2) return;
+        window.geoos.toolsPanel.openAddTool(window.geoos.user.config.toolsConfig.tool2)
+    }
+    onOpWizard3_click() {
+        if (!window.geoos.user.config.toolsConfig.tool3) return;
+        window.geoos.toolsPanel.openAddTool(window.geoos.user.config.toolsConfig.tool3)
+    }
+
+    refreshTools() {
+        this.setWizardTool(1, window.geoos.user.config.toolsConfig.tool1)
+        this.setWizardTool(2, window.geoos.user.config.toolsConfig.tool2)
+        this.setWizardTool(3, window.geoos.user.config.toolsConfig.tool3)
+    }
+    setWizardTool(index, toolCode) {
+        let div = this["opWizard" + index];
+        let img = div.find("img");
+        // remove img styles
+        for (let prop in img.style) {
+            img.style.removeProperty(prop);
+        }
+        let span = div.find("span")
+        if (toolCode) {
+            let toolDef = GEOOSTool.getToolDef(toolCode);
+            if (!toolDef) console.error("Setting up tool wizards: No tool registered with code:" + toolCode);            
+            img.src = toolDef.factories.menuIcon;
+            for (let prop in (toolDef.factories.menuIconStyles || {})) {
+                img.style[prop] = toolDef.factories.menuIconStyles[prop]
+            }
+            span.textContent = toolDef.factories.menuLabel;
+        } else {
+            img.src = "img/top-icons/empty.svg";
+            span.textContent = "(Vacío)";
+        }
     }
 }
 ZVC.export(Top)

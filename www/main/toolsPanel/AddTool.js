@@ -1,7 +1,7 @@
 class AddTool extends ZCustomController {
-    async onThis_init() {
+    async onThis_init(options) {
         if (!window.geoos.getActiveGroup().tools.length) this.cmdCancelAddTool.hide();
-        this.edToolType.setRows(GEOOSTool.tools)
+        this.edToolType.setRows(GEOOSTool.tools, options?options.initialToolCode:null)
         this.cmdGenerateTool.disable();
         await this.refreshTool()
     }
@@ -16,6 +16,7 @@ class AddTool extends ZCustomController {
     }
 
     async refresh() {await this.refreshTool()}
+    onEdToolType_change() {this.refreshTool()}
     async refreshTool() {
         let tool = this.edToolType.selectedRow;
         this.iconTool.view.src = tool.factories.icon;

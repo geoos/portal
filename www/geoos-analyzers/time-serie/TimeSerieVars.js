@@ -9,6 +9,7 @@ class TimeSerieVars extends ZCustomController {
             let selector = GEOOSQuery.newEmptySelector("Seleccionar Variable Principal", this.analyzer.layer.minZDimension, this.analyzer.layer.name);
             this.edWatcher1.html = await selector.getHTML(true);
             selector.registerListeners(this.edWatcher1, {
+                singleSelection:true,
                 onSelect:variables => {
                     let q = GEOOSQuery.fromSearchItem(variables[0]);
                     if (q.type == "minz") {
@@ -22,12 +23,22 @@ class TimeSerieVars extends ZCustomController {
         } else {
             this.edWatcher1.html = await this.analyzer.watcher1.getHTML(true);
             this.analyzer.watcher1.registerListeners(this.edWatcher1, {
+                singleSelection:true,
                 onChange:_ => {
                     this.analyzer.watcher1 = this.analyzer.watcher1; // update serialized config
                     this.refresh();
                 },
                 onDelete:w => {
                     this.analyzer.watcher1 = null;
+                    this.refresh();
+                },
+                onSelect:variables => {
+                    let q = GEOOSQuery.fromSearchItem(variables[0]);
+                    if (q.type == "minz") {
+                        q.fixedFilter = {ruta:q.groupingDimension, valor:"${codigo-objeto}"}
+                        q.groupingDimension = null;
+                    }
+                    this.analyzer.watcher1 = q;
                     this.refresh();
                 }
             })

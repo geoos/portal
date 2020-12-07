@@ -41,6 +41,7 @@
         <script src="geoos-leaflet-layers/DataPointsVisualizer.js"></script>
         <script src="geoos-leaflet-layers/GEOOSInteractions.js"></script>
         <script src="geoos-leaflet-layers/LegendsVisualier.js"></script>
+        <script src="geoos-leaflet-layers/MapGridVisualizer.js"></script>
 
         <!-- Highcharts-->
         <script src="Highcharts-8.2.2/highcharts.js" type="text/javascript"></script>
@@ -64,12 +65,14 @@
         <script src="js/geoos-user-objects-layer.js"></script>
         <script src="js/geoos-query.js"></script>
         <script src="js/geoos-scales.js"></script>
+        <script src="js/geoos-user.js"></script>
 
         <script src="js/geoos-analyzer.js"></script>
         <script src="geoos-analyzers/time-serie.js"></script>
 
         <script src="js/geoos-tools.js"></script>
         <script src="geoos-tools/3d-chart.js"></script>
+        <script src="geoos-tools/3d-terrain-clouds.js"></script>
 
         <script src="js/raster-visualizers/raster-visualizers.js"></script>
         <script src="js/raster-visualizers/isolines.js"></script>
@@ -94,7 +97,7 @@
     </head>
     <body>
         <div id="splash" style="width: 100%; height: 100%; background-color: #f7f7f7; z-index: 20000; position:absolute; top:0; left:0;">
-            <i class="fas fa-2x fa-spin fa-spinner centered" style="margin-top: -100px;"></i>
+            <i class="fas fa-2x fa-spin fa-spinner centered" style="margin-top: -100px; color:black;"></i>
             <img class="centered" src="img/Logo-GEOOS-2.jpeg" style="margin-top: 20px;" />
         </div>
         <div id="main" data-z-component="./Main"></div> 

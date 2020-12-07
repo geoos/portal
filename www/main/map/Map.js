@@ -25,12 +25,36 @@ class Map extends ZCustomController {
             window.geoos.events.trigger("map", "move", this.currentPoint);
         });
 
-        let baseMap = window.geoos.baseMaps[0];
+        let mapConfig = window.geoos.user.config.mapConfig;
+        let baseMap = window.geoos.baseMaps.find(m => m.code == mapConfig.selectedMap)
 
         let mapOpts = baseMap.options;
+        this.mapBasePanel = this.map.createPane("baseMap");
+        this.mapBasePanel.id = "baseMap";
+        this.mapBasePanel.style["z-index"] = 100;
+        mapOpts.pane = this.mapBasePanel.id;
         this.lyBase = L.tileLayer(baseMap.url, mapOpts);
         this.lyBase.addTo(this.map);
 
+        this.namesLayerPanel = this.map.createPane("mapNames");
+        this.namesLayerPanel.id = "mapNames";
+        this.mapBasePanel.style["z-index"] = 101;
+        this.lyLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            pane:this.namesLayerPanel.id
+        });
+        if (mapConfig.namesLayer) {
+            this.lyLabels.addTo(this.map);
+        }
+
+        // Map Grid
+        this.mapGridPanel = this.map.createPane("mapGrid");
+        this.mapGridPanel.id = "mapGrid";
+        this.mapGridPanel.style["z-index"] = 995;
+        this.resetGrid();        
+        
         // Interactions
         this.interactionsPanel = this.map.createPane("interactions");
         this.interactionsPanel.id = "interactions";
@@ -39,6 +63,44 @@ class Map extends ZCustomController {
         this.interactionsKonvaLeafletLayer.addTo(window.geoos.map);
         this.interactionsKonvaLeafletLayer.addVisualizer("interactions", new GEOOSInteractions({}))
         window.geoos.interactions = this.interactionsKonvaLeafletLayer.getVisualizer("interactions");
+    }
+
+    resetBaseMap(code) {
+        let mapConfig = window.geoos.user.config.mapConfig;
+        mapConfig.selectedMap = code;
+        let baseMap = window.geoos.baseMaps.find(m => m.code == mapConfig.selectedMap)
+
+        this.lyBase.remove();
+        let mapOpts = baseMap.options;
+        this.lyBase = L.tileLayer(baseMap.url, mapOpts);
+        this.lyBase.addTo(this.map);
+    }
+    resetNamesLayer(selected) {
+        let mapConfig = window.geoos.user.config.mapConfig;
+        mapConfig.namesLayer = selected;
+        if (mapConfig.namesLayer) {
+            this.lyLabels.addTo(this.map);
+        } else {
+            this.lyLabels.remove();
+        }
+    }
+    resetGrid() {
+        let gridConfig = window.geoos.user.config.mapConfig.grid;
+        if (!gridConfig.show) {
+            if (this.showingGrid) {
+                this.mapGridKonvaLeafletLayer.removeFrom(this.map);
+                this.mapGridKonvaLeafletLayer = null;
+                this.showingGrid = false;
+            }
+            return;
+        }
+        if (!this.showingGrid) {
+            this.mapGridKonvaLeafletLayer = new KonvaLeafletLayer(this.map, null, null, {pane:this.mapGridPanel.id});
+            this.mapGridKonvaLeafletLayer.addTo(window.geoos.map);
+            this.mapGridKonvaLeafletLayer.addVisualizer("grid", new MapGridVisualizer({}))
+            this.showingGrid = true;
+        }
+        this.mapGridKonvaLeafletLayer.getVisualizer("grid").update();
     }
 
     serialize() {

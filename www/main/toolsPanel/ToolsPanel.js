@@ -31,6 +31,9 @@ class ToolsPanel extends ZCustomController {
         if (this.toolsMainLoader.content.doResize) this.toolsMainLoader.content.doResize();
     }
 
+    async openAddTool(toolCode) {
+        await this.loadNewTool(toolCode)
+    }
     async refresh() {
         if (!this.contenType) return;
         if (window.geoos.getActiveGroup().tools.length) {
@@ -45,7 +48,7 @@ class ToolsPanel extends ZCustomController {
         await this.loadEmpty();
     }
 
-    toggle(newStatus) {  
+    toggle(newStatus, initialToolCode) {  
         if (this.ignoreNextToggle) {
             this.ignoreNextToggle = false;
             return;
@@ -68,8 +71,18 @@ class ToolsPanel extends ZCustomController {
                 if (this.status == "normal" && this.contenType == "view" && this.toolsMainLoader.content.showingProperties) {
                     this.toolsMainLoader.content.toggleConfigureTool().then(resolve());
                 } else if (!this.contenType && this.status !="min") {
-                    this.contenType = "view";
-                    this.refresh().then(resolve())
+                    if (!initialToolCode) {
+                        this.contenType = "view";
+                        this.refresh().then(resolve())
+                    } else {
+                        this.toolsMainLoader.load("./AddTool", {initialToolCode})
+                            .then(_ => {
+                                this.doResize();
+                                this.checkEnabled();
+                                resolve();
+                            })
+
+                    }                        
                 } else {
                     resolve();
                 }
@@ -107,10 +120,14 @@ class ToolsPanel extends ZCustomController {
     async loadEmpty() {
         await this.toolsMainLoader.load("common/Empty");
     }
-    async loadNewTool() {
+    async loadNewTool(toolCode) {
+        if (this.status == "min") {
+            await this.toggle("normal", toolCode);
+            return;
+        }
         if (this.status == "max") await this.toggle("normal");
         this.contenType = "new";
-        await this.toolsMainLoader.load("./AddTool");
+        await this.toolsMainLoader.load("./AddTool", {initialToolCode:toolCode});
         this.doResize();
         this.checkEnabled();
     }

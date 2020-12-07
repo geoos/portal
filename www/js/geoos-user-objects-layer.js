@@ -447,7 +447,6 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
             this.lng1 = mp1.lng; this.lat1 = mp1.lat;
         }
         // Trigger actions for area and points
-        console.log("triggering move");
         this.points.forEach(p => {
             window.geoos.events.trigger("userObject", "moved", p.id)
             p.refreshWatchers();

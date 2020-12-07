@@ -126,7 +126,7 @@ class Tool3DChart extends GEOOSTool {
         let {promise, controller} = this.variable.query({
             format:"grid", n:b.n, s:b.s, w:b.w, e:b.e
         });
-        this.data1aborter = controller;
+        this.data.aborter = controller;
         promise
             .then(res => {
                 this.data.aborter = null;
@@ -176,12 +176,14 @@ class Tool3DChart extends GEOOSTool {
     }
 }
 
-GEOOSTool.register("3d-chart", "Gráfico 3D", {    
+GEOOSTool.register("3d-chart", "Gráficos 3D sobre Lat / Lng", {    
     creationPanelPath:"./creationPanels/ToolObjectSelector",
     creationPanelOptions:{
         allowedObjectTypes:["user-object/area"],
         caption:"Seleccione el Área para los datos del Gráfico"
     },
     icon:"img/tools/3d-chart.png",
+    menuIcon:"img/tools/menu-3d-chart.svg",
+    menuLabel:"Mapa 3D",
     factory:(name, creationPanelResult) => (new Tool3DChart(null, name, creationPanelResult))
 })

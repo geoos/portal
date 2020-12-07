@@ -344,7 +344,7 @@ class MyPanel extends ZCustomController {
     async handleDrop(e) {
         if (this.dragInfo.type == "layer") {
             let layer = this.dragInfo.layer;
-            await layer.group.removeLayer(layer.id);
+            await layer.group.removeLayer(layer.id, true); // dont check tools availability, to avoid then to be removed
             if (this.dropInfo.type == "layer") {
                 await this.dropInfo.layer.group.insertLayerAfter(layer, this.dropInfo.layer);
             } else if (this.dropInfo.type == "group") {

@@ -81,7 +81,7 @@ class GEOOSQuery {
     }
     registerListeners(container, listeners) {
         container.find("#varName" + this.id).onclick = _ => {
-            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName}, variables => {
+            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName, singleSelection:listeners.singleSelection}, variables => {
                 if (listeners.onSelect) listeners.onSelect(variables)
             })
         }
@@ -302,7 +302,7 @@ class RasterQuery extends GEOOSQuery {
             }
         }
         container.find("#varName" + this.id).onclick = _ => {
-            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName}, variables => {
+            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName, singleSelection:listeners.singleSelection}, variables => {
                 if (listeners.onSelect) listeners.onSelect(variables)
             })
         }

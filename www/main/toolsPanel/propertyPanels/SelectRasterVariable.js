@@ -6,9 +6,10 @@ class SelectRasterVariable extends ZCustomController {
 
     async refresh() {
         if (!this.tool.variable) {
-            let selector = GEOOSQuery.newEmptySelector("Seleccionar Variable");
+            let selector = GEOOSQuery.newEmptySelector("Seleccionar Variable", null, null, true);
             this.edVariable.html = await selector.getHTML(true);
             selector.registerListeners(this.edVariable, {
+                singleSelection:true,
                 onSelect:variables => {
                     let q = GEOOSQuery.fromSearchItem(variables[0]);
                     this.tool.variable = q;
@@ -18,6 +19,7 @@ class SelectRasterVariable extends ZCustomController {
         } else {
             this.edVariable.html = await this.tool.variable.getHTML(true);
             this.tool.variable.registerListeners(this.edVariable, {
+                singleSelection:true,
                 onSelect:variables => {
                     let q = GEOOSQuery.fromSearchItem(variables[0]);
                     this.tool.variable = q;

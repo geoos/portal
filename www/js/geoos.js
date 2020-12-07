@@ -7,6 +7,7 @@ class GEOOS {
         this._time = Date.now();
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());        
+        this.user = new GEOOSUser();
     }
 
     async init() {
@@ -75,6 +76,8 @@ class GEOOS {
         if (this.addPanel.open) this.addPanel.toggle();
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
+        this.userConfigPanel.close();
+
         this.toolsPanel.toggle("min");
     }
     openMyPanel() {
@@ -374,6 +377,7 @@ class GEOOS {
             await this.selectTool(oldSelectedToolId);
         }
         await this.events.trigger("portal", "groupActivated", g)
+        this.checkToolsValidity();
     }
     async addLayers(layers, inGroup) {
         let group = inGroup || this.getActiveGroup();

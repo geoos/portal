@@ -2,6 +2,10 @@ class WSelectVariables extends ZDialog {
     async onThis_init(options) {
         this.dimCode = options.dimCode;
         this.layerName = options.layerName;
+        this.singleSelection = options.singleSelection;
+        console.log("usando singleSelection", this.singleSelection);
+        this.selectedIcon = options.singleSelection?"fa-dot-circle":"fa-check-square";
+        this.unselectedIcon = options.singleSelection?"fa-circle":"fa-square";
         
         this.infoVarCode = null;
         this.infoContent.hide();
@@ -195,7 +199,7 @@ class WSelectVariables extends ZDialog {
         for (let layer of this.filteredLayers) {
             htmlVars += `
                 <div class="add-panel-variable" data-code="${layer.code}">
-                    <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                    <i class="far fa-lg ${layer.selected?this.selectedIcon:this.unselectedIcon} float-left mr-2"></i>
                     ${layer.name}
                     <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoVarCode==layer.code?"-active":""}.svg" />
                     <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
@@ -237,7 +241,12 @@ class WSelectVariables extends ZDialog {
             let div = $(e.currentTarget);
             let code = div.data("code");
             let variable = this.filteredLayers.find(v => v.code == code);
-            variable.selected = !variable.selected;
+            if (this.singleSelection) {
+                this.filteredLayers.forEach(v => v.selected = false)
+                variable.selected = true;
+            } else {
+                variable.selected = !variable.selected;
+            }
             this.refresh();
         })
         this.refreshResume();
