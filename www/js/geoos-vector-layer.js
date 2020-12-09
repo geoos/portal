@@ -324,8 +324,15 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.startWorking();
         if (r.queryCount === undefined) r.queryCount = 0;
         r.queryCount++;
-        let thisQuery = r.queryCount;
-        let i=0, results = []; 
+        let pending = this.metadata.objects.reduce((list, o, index) => [...list, {queryCount:r.queryCount, index, working:false}], []);        
+        await (new Promise((resolve, reject) => {
+            let i=0, results = []; 
+            while (i<10) {
+                this.resolveNextRasterWatcher(pending, w, r, results, resolve, reject);
+                i++;
+            }
+        }))
+        /*
         while (i < this.metadata.objects.length && thisQuery == r.queryCount) {
             w.progress = 100 * i / this.metadata.objects.length;
             window.geoos.events.trigger("watcher", "progress", w);
@@ -352,6 +359,40 @@ class GEOOSVectorLayer extends GEOOSLayer {
         if (w.color) {
             this.precalculateColor();
         }
+        */
+    }
+
+    async resolveNextRasterWatcher(pending, w, r, results, resolve, reject) {
+        let n = pending.reduce((sum, p) => (sum + (p.working?1:0)), 0);
+        if (!pending.length) {
+            this.finishWorking();
+            w.progress = 100;
+            window.geoos.events.trigger("watcher", "progress", w);
+            r.results = results;
+            if (w.color) {
+                this.precalculateColor();
+            }
+            resolve();
+            return;
+        }
+        let idx = pending.findIndex(o => !o.working);
+        if (idx < 0) return;
+        let p = pending[idx];
+        p.working = true;
+        w.progress = 100 * p.index / this.metadata.objects.length;
+        window.geoos.events.trigger("watcher", "progress", w);
+        let o = this.metadata.objects[p.index];
+        let v;
+        try {
+            let {promise, controller} = await w.query({format:"valueAtPoint", lat:o.centroid.lat, lng:o.centroid.lng});
+            let res = await promise;
+            if (res) v = res.value;
+        } catch(error) {
+            console.error(error);
+        }
+        results.push({_id:o.id, resultado:v, dim:{code:o.id, name:o.name}})
+        pending.splice(pending.findIndex(p2 => p2.index == p.index), 1);
+        this.resolveNextRasterWatcher(pending, w, r, results, resolve, reject);
     }
 
     precalculateColor() {

@@ -1,4 +1,4 @@
-class VectorsRasterVisualizer extends RasterVisualizer {
+class WindyRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
         return layer.variable.queries.includes("vectorsGrid");
     }
@@ -6,40 +6,66 @@ class VectorsRasterVisualizer extends RasterVisualizer {
     constructor(layer, config) {
         super(layer);
         config = config || {};
-        if (!config.colorScale) {
-            if (layer.variable.options.colorScale) config.colorScale = JSON.parse(JSON.stringify(layer.variable.options.colorScale));
-            else config.colorScale = {
-                name:"Open Weather - Wind", auto:true, clipOutOfRange:false
-            }            
-        }
-        config.colorScale.unit = layer.variable.unit;
         this.config = config;
+        if (!this.config.colorScale) {
+            if (layer.variable.options.colorScale) this.config.colorScale = JSON.parse(JSON.stringify(layer.variable.options.colorScale));
+            else this.config.colorScale = {
+                name:"Open Weather - Wind", auto:true, clipOutOfRange:false
+            }
+        }
+        if (!this.config.lineWidth) this.config.lineWidth = 1;
+        if (!this.config.nParticles) this.config.nParticles = 1500;
+        if (!this.config.speed) this.config.speed = 0.7;
+        this.config.colorScale.unit = layer.variable.unit;
         this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "vectors");
         this.aborter = null;
         this.createColorScale();
     }
-    get code() {return "vectors"}
-    get name() {return "Vectores"}
+    get code() {return "windy"}
+    get name() {return "Partículas"}
     get colorScaleConfig() {return this.config.colorScale}
+
+    get nParticles() {return this.config.nParticles}
+    set nParticles(n) {
+        this.config.nParticles = n;
+        this.redraw();
+    }
+    get lineWidth() {return this.config.lineWidth}
+    set lineWidth(w) {
+        this.config.lineWidth = w;
+        this.redraw();
+    }
+    get speed() {return this.config.speed}
+    set speed(s) {
+        this.config.speed = s;
+        this.redraw();
+    }
 
     createColorScale() {
         let scaleDef = window.geoos.scalesFactory.byName(this.colorScaleConfig.name);
         if (!scaleDef) throw "Can't find color scale '" + this.colorScaleConfig.name + "'";
         this.colorScale = window.geoos.scalesFactory.createScale(scaleDef, this.colorScaleConfig)
+        if (this.limits) {
+            this.colorScale.setRange(this.limits.min, this.limits.max);
+        }
     }
 
     updateColorScale() {
         this.createColorScale();
-        this.update();
+        //this.update();
+        this.redraw();
     }
 
     async create() {
-        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new VectorsVisualizer({
-            zIndex:4,
+        this.visualizer = this.layer.konvaLeafletLayer.addVisualizer(this.code, new WindyVisualizer({
+            zIndex:3,
             onBeforeUpdate: _ => {this.startQuery(); return false},
-            vectorColor:value => {
+            getColor:value => {
                 return this.colorScale.getColor(value)
-            }
+            },
+            getNParticles: _ => (this.nParticles),
+            getLineWidth: _ => (this.lineWidth),
+            getSpeed: _ => (this.speed)
         }));
         this.timeChangeListener = _ => {
             if (this.layer.config.dataSet.temporality != "none") this.startQuery()
@@ -61,6 +87,11 @@ class VectorsRasterVisualizer extends RasterVisualizer {
             this.layer.konvaLeafletLayer.getVisualizer(this.code).update();
         }
     }
+    redraw() {
+        if (this.active && this.layer.active && this.layer.group.active) {
+            this.layer.konvaLeafletLayer.getVisualizer(this.code).redraw();
+        }
+    }
     startQuery() {
         if (this.aborter) {
             this.aborter.abort();
@@ -74,9 +105,10 @@ class VectorsRasterVisualizer extends RasterVisualizer {
             .then(ret => {
                 this.aborter = null;
                 this.finishWorking();
+                this.limits = {min:ret.min, max:ret.max}
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
-                visualizer.setVectorData(ret.foundBox, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);
+                visualizer.setWindyData(ret.foundBox, ret.min, ret.max, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);
             })
             .catch(err => {
                 this.aborter = null;
@@ -84,15 +116,17 @@ class VectorsRasterVisualizer extends RasterVisualizer {
                     console.error(err);
                     this.finishWorking();
                 }
-                visualizer.setVectorData(null, null, null, null, null);
+                visualizer.setWindyData(null, null, null, null, null, null, null);
             })
     }
 
     getPropertyPanels() {
         return [{
+            code:"particles", name:"Configurar Partículas", path:"main/configPanel/layers/visualizers/ParticlesProperties"
+        }, {
             code:"color-scale", name:"Escala de Colores", path:"./ColorScaleProperties"
         }]
     }
 }
 
-RasterVisualizer.registerVisualizerClass("vectors", VectorsRasterVisualizer);
+RasterVisualizer.registerVisualizerClass("windy", WindyRasterVisualizer);
