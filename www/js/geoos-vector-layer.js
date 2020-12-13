@@ -4,6 +4,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.watchers = [];
         this.watcherResults = {}
         this.colorScale = null;
+        if (config.file && config.file.options && config.file.options.analysisConfig) this.analysisConfig = config.file.options.analysisConfig;
     }
 
     get file() {return this.config.file}
@@ -22,6 +23,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         l.geoServer = this.geoServer.code;
         l.dataSet = this.dataSet.code;
         l.watchers = this.watchers.reduce((list, w) => [...list, w.serialize()], [])
+        l.analysisConfig = this.analysisConfig;
         return l;
     }
     static deserialize(s, config) {
@@ -67,7 +69,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         if (this.file.options && this.file.options.getFeatureStyle) {
             try {
                 getFeatureStyle = eval(this.file.options.getFeatureStyle);
-                if (getFeatureStyle instanceof Object) {
+                if (getFeatureStyle instanceof Object && !(getFeatureStyle instanceof Function)) {
                     this.fixedStyle = getFeatureStyle;
                     getFeatureStyle = f => (this.fixedStyle)
                 } else if (!(getFeatureStyle instanceof Function)) {
@@ -84,7 +86,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         if (this.file.options && this.file.options.getSelectedFeatureStyle) {
             try {
                 getSelectedFeatureStyle = eval(this.file.options.getSelectedFeatureStyle);
-                if (getSelectedFeatureStyle instanceof Object) {
+                if (getSelectedFeatureStyle instanceof Object && !(getSelectedFeatureStyle instanceof Function)) {
                     this.fixedSelectedStyle = getSelectedFeatureStyle;
                     getSelectedFeatureStyle = f => (this.fixedSelectedStyle)
                 } else if (!(getSelectedFeatureStyle instanceof Function)) {
@@ -97,24 +99,6 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 console.error(err);
             }
         }
-        let getHoverFeatureStyle = f => ({stroke:"black", strokeWidth:1.2, fill:"rgba(50, 50, 250, 0.2)"});
-        if (this.file.options && this.file.options.getHoverFeatureStyle) {
-            try {
-                getHoverFeatureStyle = eval(this.file.options.getHoverFeatureStyle);
-                if (getHoverFeatureStyle instanceof Object) {
-                    this.fixedHoverStyle = getHoverFeatureStyle;
-                    getHoverFeatureStyle = f => (this.fixedHoverStyle)
-                } else if (!(getHoverFeatureStyle instanceof Function)) {
-                    console.error("Invalid 'getSelectedFeatureStyle' option for file '" + this.file.name + "'. Must be a javascript object or function");
-                    getHoverFeatureStyle = null;
-                }
-             } catch(err) {
-                console.error("Error parsing 'getSelectedFeatureStyle' for file '" + this.file.name + "'");
-                console.warn(this.file.options.getSelectedFeatureStyle);
-                console.error(err);
-            }
-        }
-
         this.pane = window.geoos.mapPanel.createPanelForLayer(this);
         this.hoveredId = null;
         this.konvaLeafletLayer = new KonvaLeafletLayer(window.geoos.map, null, null, {pane:this.pane.id});
@@ -128,27 +112,33 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 this.startWorking();
                 return this.geoServer.client.fileGeoJsonTile(this.dataSet.code, this.file.name, time, z, x, y, _ => this.finishWorking());
             },
-            getFeatureStyle: f => {                
+            getFeatureStyle: f => {       
                 if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.code == f.tags.id) {
                     return getSelectedFeatureStyle(f)
                 }
-                if (f.tags.id == this.hoveredId) return getHoverFeatureStyle(f)
-                else if (this.getColorWatcher()) {
+                if (this.getColorWatcher()) {
                     let s = getFeatureStyle(f);
                     if (this.watchColorResults) {                        
                         let v = this.watchColorResults[f.tags.id];
                         s.fill = this.getColorScale().getColor(v);
                     }
                     return s;
-                } else return getFeatureStyle(f)
+                }
+                return getFeatureStyle(f)
             },
             onmouseover: f => {
                 if (f.tags.id == this.hoveredId) return;
                 this.hoveredId = f.tags.id;
-                let name = f.tags.name, lat = f.tags.centroidLat, lng = f.tags.centroidLng;
-                if (lat === undefined || lng === undefined) {
-                    lat = f.tags.centerLat, lng = f.tags.centerLng;
-                }
+                let o = this.metadataMap[this.hoveredId];
+                let name, lat, lng;
+                if (o) {
+                    name = o.name; lat = o.centroid.lat, lng = o.centroid.lng;
+                } else {
+                    name = f.tags.name; lat = f.tags.centroidLat; lng = f.tags.centroidLng;
+                    if (lat === undefined || lng === undefined) {
+                        lat = f.tags.centerLat, lng = f.tags.centerLng;
+                    }
+                }                
                 if (name !== undefined && lat !== undefined && lng !== undefined) {
                     this.konvaLeafletLayer.getVisualizer("legends").setContextLegend(lat, lng, name);
                 } else {
@@ -324,7 +314,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.startWorking();
         if (r.queryCount === undefined) r.queryCount = 0;
         r.queryCount++;
-        let pending = this.metadata.objects.reduce((list, o, index) => [...list, {queryCount:r.queryCount, index, working:false}], []);        
+        let pending = this.metadata.objects.reduce((list, o, index) => (list.length < 500?[...list, {queryCount:r.queryCount, index, working:false}]:list), []);
         await (new Promise((resolve, reject) => {
             let i=0, results = []; 
             while (i<10) {
@@ -332,34 +322,6 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 i++;
             }
         }))
-        /*
-        while (i < this.metadata.objects.length && thisQuery == r.queryCount) {
-            w.progress = 100 * i / this.metadata.objects.length;
-            window.geoos.events.trigger("watcher", "progress", w);
-            let o = this.metadata.objects[i];
-            let v;
-            try {
-                let {promise, controller} = await w.query({format:"valueAtPoint", lat:o.centroid.lat, lng:o.centroid.lng});
-                let res = await promise;
-                if (res) v = res.value;
-            } catch(error) {
-                console.error(error);
-            }
-            results.push({_id:o.id, resultado:v, dim:{code:o.id, name:o.name}})
-            i++;
-        }
-        w.progress = 100;
-        window.geoos.events.trigger("watcher", "progress", w);
-        this.finishWorking();
-        if (thisQuery != r.queryCount) {
-            console.warn("raster query canceled");
-            return;
-        };
-        r.results = results;
-        if (w.color) {
-            this.precalculateColor();
-        }
-        */
     }
 
     async resolveNextRasterWatcher(pending, w, r, results, resolve, reject) {
@@ -379,7 +341,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         if (idx < 0) return;
         let p = pending[idx];
         p.working = true;
-        w.progress = 100 * p.index / this.metadata.objects.length;
+        w.progress = 100 * p.index / Math.min(this.metadata.objects.length, 500);
         window.geoos.events.trigger("watcher", "progress", w);
         let o = this.metadata.objects[p.index];
         let v;

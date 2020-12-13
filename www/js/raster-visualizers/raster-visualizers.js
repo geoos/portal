@@ -15,7 +15,7 @@ class RasterVisualizer {
 
     constructor(layer) {
         this.layer = layer;
-        this.active = false;
+        this.active = layer.config.variable.options && layer.config.variable.options.initialVisualizers && layer.config.variable.options.initialVisualizers[this.code];
         this.working = false;
     }
     get type() {return "visualizer"}

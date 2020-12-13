@@ -209,6 +209,7 @@ class AnalysisPanel extends ZCustomController {
     }
     async onEdAnalysisPanel_change() {
         await this.refreshAnalyzer();
+        window.geoos.triggerResize();
     }
     async refreshAnalyzer() {
         let code = this.edAnalysisPanel.value;

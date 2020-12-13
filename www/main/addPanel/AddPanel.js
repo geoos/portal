@@ -177,7 +177,6 @@ class AddPanel extends ZCustomController {
         })
         accordion.find(".section-filter-item").click(e => {
             let item = $(e.currentTarget);
-            console.log("item", item);
             let sectionCode = item.data("section");
             let rowCode = item.data("code");            
             let idx = this.filters[sectionCode].indexOf(rowCode);
@@ -209,7 +208,6 @@ class AddPanel extends ZCustomController {
                 let item = $(e.currentTarget);
                 let sectionCode = item.data("section");
                 let rowCode = item.data("code");
-                console.log(sectionCode, rowCode)
                 let idx = this.filters[sectionCode].indexOf(rowCode);
                 this.filters[sectionCode].splice(idx, 1);
                 this.refresh();
@@ -336,7 +334,6 @@ class AddPanel extends ZCustomController {
     }
 
     refreshInfo(layer) {
-        console.log("variable", layer);
         this.infoVarCode = layer.code;
         this.lblVarName.text = layer.name;
         let provider = window.geoos.providers.find(p => p.code == layer.providers[0]);
