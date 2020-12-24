@@ -378,7 +378,7 @@ class MyPanel extends ZCustomController {
             code:"delete", icon:"far fa-trash-alt", label:"Eliminar el Grupo", 
         }], {
             vMargin:10,
-            onClick:(code, item) => {
+            onClick:async (code, item) => {
                 if (code == "delete") {
                     this.showDialog("common/WConfirm", {
                         subtitle:"Eliminar grupo de Capas",
@@ -397,9 +397,14 @@ class MyPanel extends ZCustomController {
                 } else if (code == "share") {
                     let s = group.serialize();
                     s.mapView = window.geoos.mapPanel.serialize();
+                    s.toolsStatus = window.geoos.toolsPanel.status;
+                    let linkToken = await zPost("createLink.geoos", {content:s});
+                    /*
                     s = JSON.stringify(s);
                     let b = btoa(s);
                     let url = window.location.href.split('?')[0] + "?group=" + encodeURIComponent(b);
+                    */
+                    let url = window.location.href.split('?')[0] + "?group=" + linkToken;
                     const el = document.createElement('textarea');
                     el.value = url;
                     document.body.appendChild(el);
@@ -445,8 +450,6 @@ class MyPanel extends ZCustomController {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
-        }, {
-            code:"share", icon:"fas fa-share-square", label:"Compartir", 
         }, {
             code:"sep", icon:"-", label:"-", 
         }, {

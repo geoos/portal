@@ -25,7 +25,9 @@ class GEOOSGroup {
             config:this.config, 
             active:this.active, 
             expanded:this.expanded, 
-            layers:this.layers.reduce((list, l) => {list.push(l.serialize()); return list}, [])
+            layers:this.layers.reduce((list, l) => ([...list, l.serialize()]) , []),
+            tools:this.tools.reduce((list, tool) => ([...list, tool.serialize()]), []),
+            selectedToolId:this.selectedToolId
         }
     } 
     static deserialize(s) {
@@ -38,7 +40,14 @@ class GEOOSGroup {
             l.group = g;
             list.push(l);
             return list;
-        }, [])    
+        }, []);
+        g.tools = s.tools.reduce((list, tool) => {
+            let t = GEOOSTool.deserialize(tool);
+            list.push(t);
+            return list;
+        }, []);
+        if (s.selectedToolId) g.selectedToolId = s.selectedToolId;
+
         return g;
     }
 

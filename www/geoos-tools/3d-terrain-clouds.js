@@ -188,5 +188,10 @@ GEOOSTool.register("3d-terrain-clouds", "Vista 3D de Terreno y Nubosidad", {
     menuIcon:"img/tools/menu-3d-terrain-clouds.svg", 
     menuIconStyles:{filter:"invert(1)"},
     menuLabel:"Terreno y Nubosidad",
-    factory:(name, creationPanelResult) => (new Tool3DTerrainClouds(null, name, creationPanelResult))
+    factory:(name, creationPanelResult) => (new Tool3DTerrainClouds(null, name, creationPanelResult)),
+    deserialize:(id, name, config) => {
+        let tool = new Tool3DTerrainClouds(id, name, {layerId:config.layerId, object:config.object})
+        tool.config = config; 
+        return tool;
+    } 
 })

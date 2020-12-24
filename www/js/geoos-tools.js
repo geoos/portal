@@ -4,6 +4,9 @@ class GEOOSTool {
         GEOOSTool.tools.push({code, name, factories});
     }
     static getToolDef(code) {return GEOOSTool.tools.find(t => t.code == code)}
+    static deserialize(s) {
+        return GEOOSTool.getToolDef(s.type).factories.deserialize(s.id, s.name, s.config);
+    }
 
     constructor(type, id, name, config) {
         this.type = type;
@@ -12,6 +15,12 @@ class GEOOSTool {
         this._name = name;
         this.config = config || {};
         this._mainPanel = null; // assigned on "activated" from MainPanel through property
+    }
+
+    serialize() {
+        return {
+            type:this.type, id:this.id, name:this.name, config:this.config
+        }
     }
 
     get name() {return this._name}
