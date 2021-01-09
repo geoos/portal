@@ -713,3 +713,38 @@ a:hover {
 .map-icon.selected {
     background-color: #000000;
 }
+
+/* User Help */
+.user-help-panel {
+    opacity: 0.9;
+    background-color: #272626;    
+    color: white;
+    box-shadow: 0px 4px 4px 0px #000000 25%;
+    z-index: 400;
+    border-radius: 5px;
+    border: 2px solid rgba(246,246,246,0.5);
+    position: absolute;
+    width:500px; 
+    right: 40px;
+    top: 77px;    
+}
+.faq-q {
+    padding-top:10px;
+    padding-bottom:5px;
+    margin-left: 5px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.faq-q:hover {
+    text-decoration: underline;
+}
+.faq-q i {
+    transition: 0.3s ease-in-out;
+}
+.faq-q i.expanded {
+    transform: rotate(90deg);
+}
+.faq-a {
+    margin-top: 5px;
+}

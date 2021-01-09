@@ -23,11 +23,13 @@ class Top extends ZCustomController {
             this.toggleAction(icon);
         })
         this.refreshTools();
+        /*
         window.geoos.events.on("top", "activateAction", id => {
             if (id == "help") {
                 this.showDialog("main/help/WHelp", {}, _ =>this.toggleAction("help"), _ => this.toggleAction("help"))
             }
         });
+        */
     }
 
     doResize(size) {
