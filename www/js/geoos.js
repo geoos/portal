@@ -74,6 +74,7 @@ class GEOOS {
     closeFloatingPanels() {
         if (this.myPanel.open) this.myPanel.toggle();
         if (this.addPanel.open) this.addPanel.toggle();
+        if (this.searchLocationPanel.open) this.searchLocationPanel.toggle();
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
         this.userConfigPanel.close();

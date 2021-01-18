@@ -625,6 +625,25 @@ a:hover {
 .bootstrap-datetimepicker-widget table td span:hover {
     color: gray;
 }
+.time-center-panel {
+    pointer-events: all;
+    opacity: 0.9;
+    z-index: 400;
+}
+.time-center-button {
+    pointer-events: all;
+    cursor: pointer;
+    opacity: 0.9;
+    background-color: #272626;    
+    color: white;
+    z-index: 400;
+    border: 1px solid #3D3D3D;
+}
+.custom-select:disabled {
+    color: #6c757d;
+    background-color: transparent;
+}
+
 
 /* Watchers */
 .inverse-image {filter: invert(1)}
@@ -747,4 +766,12 @@ a:hover {
 }
 .faq-a {
     margin-top: 5px;
+    margin-left: 20px;
+}
+.loc-search-result {
+    margin-top: 5px;
+    cursor: pointer;
+}
+.loc-search-result:hover {
+    text-decoration: underline;
 }

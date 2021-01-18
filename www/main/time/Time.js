@@ -14,6 +14,22 @@ class Time extends ZCustomController {
         this.updateLabels();
         this.updatePickers();
         this.doResize();
+        this.edTimeSelector.setRows([{id:"basic", label:"Selector Tiempo: BÁSICO"}, {id:"layer", label:"Selector Tiempo: CAPA"}])
+        let days = [];
+        for (let i=0; i<31; i++) {
+            days.push({id:i, label:(i<10?"0":"") + i})
+        }
+        this.edSelDays.setRows(days, 0);
+        let hours = [];
+        for (let i=0; i<25; i++) {
+            hours.push({id:i, label:(i<10?"0":"") + i})
+        }
+        this.edSelHours.setRows(hours, 3);
+        let minutes = [];
+        for (let i=0; i<60; i++) {
+            minutes.push({id:i, label:(i<10?"0":"") + i})
+        }
+        this.edSelMinutes.setRows(minutes, 0);
         window.geoos.events.on("portal", "timeChange", _ => {
             /*
             this.doResize();
@@ -21,6 +37,7 @@ class Time extends ZCustomController {
             */
             this.refreshTime();
         });
+        this.cntSubSelector.hide();
     }
 
     onSlider_changing(v) {
@@ -61,6 +78,9 @@ class Time extends ZCustomController {
     }
     
     doResize(size) {
+        // Center
+        this.cntColCenter.view.style.left = (window.geoos.size.width / 2 - this.cntColCenter.size.width / 2) + "px"
+
         this.slider.setRange(0, this.slider.pixelsRange, 1);        
         let gt = moment.tz(window.geoos.time, window.timeZone);
         if (!this.t0 || !gt.isBetween(this.t0, this.t1)) this.adjustTime();
@@ -86,7 +106,10 @@ class Time extends ZCustomController {
         this.timePickerContainer.view.style.bottom = (110 + bot) + "px";
         this.cntCol2.view.style.bottom = (78 + bot) + "px";
         this.cntCol3.view.style.bottom = (78 + bot) + "px";
+        this.cntColCenter.view.style.bottom = (78 + bot) + "px";
         this.daysBar.view.style.bottom = (10 + bot) + "px";
+        this.cntColRight.view.style.bottom = (78 + bot) + "px";
+        this.cntSubSelector.view.style.bottom = (108 + bot) + "px";
         this.repaint();
     }
     repaint() {
@@ -158,5 +181,81 @@ class Time extends ZCustomController {
     onCmdPrevDay_click() {window.geoos.moment = window.geoos.moment.subtract(1, "day")}
     onCmdNextTime_click() {window.geoos.moment = window.geoos.moment.add(15, "minutes")}
     onCmdPrevTime_click() {window.geoos.moment = window.geoos.moment.subtract(15, "minutes")}
+
+    onCmdLeftStep_click() {
+        let days = parseInt(this.edSelDays.value);
+        let hours = parseInt(this.edSelHours.value);
+        let minutes = parseInt(this.edSelMinutes.value);
+        let m = window.geoos.moment.subtract(days, "days");
+        m = m.subtract(hours, "hours");
+        m = m.subtract(minutes, "minutes");
+        window.geoos.moment = m;
+    }
+    onCmdRightStep_click() {
+        let days = parseInt(this.edSelDays.value);
+        let hours = parseInt(this.edSelHours.value);
+        let minutes = parseInt(this.edSelMinutes.value);
+        let m = window.geoos.moment.add(days, "days");
+        m = m.add(hours, "hours");
+        m = m.add(minutes, "minutes");
+        window.geoos.moment = m;
+    }
+
+    onEdTimeSelector_change() {
+        if (this.edTimeSelector.value == "basic") {
+            this.cntSubSelector.hide();
+            return;
+        }
+        if (this.edTimeSelector.value == "layer") {
+            this.cntSubSelector.show();
+            this.refreshLayers();
+            return;
+        }
+    }
+
+    refreshLayers() {
+        let rows = []
+
+        window.geoos.getActiveGroup().layers.forEach(l => {
+            console.log("layer", l);
+            if (l instanceof GEOOSRasterLayer) {
+                let t = l.dataSet.temporality, dd=0, hh=0, mm=0;
+                if (t.unit == "days") dd = t.value;
+                else if (t.unit == "hours") hh = t.value;
+                else if (t.unit == "minutes") mm = t.value;
+                rows.push({id:l.id, label:l.name, tempo:{dd, hh, mm}})                
+            }
+        })
+        if (!rows.length) {
+            this.cntSubSelector.hide();
+            this.edTimeSelector.value = "basic";
+            this.showDialog("common/WInfo", {subtitle:"No hay capas", message:"No ha agregado capas con temporalidad definida"});
+            this.adjustTimeStepSelectors();
+            return;
+        }
+        let v = this.edTimeSubSelector.value;
+        this.edTimeSubSelector.setRows(rows, v);
+        this.adjustTimeStepSelectors();
+    }
+
+    onEdTimeSubSelector_change() {
+        this.adjustTimeStepSelectors()
+    }
+
+    adjustTimeStepSelectors() {
+        if (this.edTimeSelector.value == "basic") {
+            this.edSelDays.enable();
+            this.edSelHours.enable();
+            this.edSelMinutes.enable();
+        } else if (this.edTimeSelector.value == "layer") {
+            let l = this.edTimeSubSelector.selectedRow;
+            this.edSelDays.value = l.tempo.dd;
+            this.edSelDays.disable();
+            this.edSelHours.value = l.tempo.hh;
+            this.edSelHours.disable();
+            this.edSelMinutes.value = l.tempo.mm;
+            this.edSelMinutes.disable();
+        }
+    }
 }
 ZVC.export(Time)

@@ -55,6 +55,16 @@ class Map extends ZCustomController {
         this.mapGridPanel.style["z-index"] = 995;
         this.resetGrid();        
         
+        // Highlights
+        this.highlightsPanel = this.map.createPane("highlights");
+        this.highlightsPanel.id = "highlights";
+        this.highlightsPanel.style["z-index"] = 998;
+        this.highlightsKonvaLeafletLayer = new KonvaLeafletLayer(this.map, null, null, {pane:this.highlightsPanel.id});
+        this.highlightsKonvaLeafletLayer.addTo(window.geoos.map);
+        this.highlightsKonvaLeafletLayer.addVisualizer("highlights", new GEOOSHighlights({}))
+        window.geoos.highlights = this.highlightsKonvaLeafletLayer.getVisualizer("highlights");
+        window.geoos.highlights.init();
+        
         // Interactions
         this.interactionsPanel = this.map.createPane("interactions");
         this.interactionsPanel.id = "interactions";
@@ -62,7 +72,7 @@ class Map extends ZCustomController {
         this.interactionsKonvaLeafletLayer = new KonvaLeafletLayer(this.map, null, null, {pane:this.interactionsPanel.id});
         this.interactionsKonvaLeafletLayer.addTo(window.geoos.map);
         this.interactionsKonvaLeafletLayer.addVisualizer("interactions", new GEOOSInteractions({}))
-        window.geoos.interactions = this.interactionsKonvaLeafletLayer.getVisualizer("interactions");
+        window.geoos.interactions = this.interactionsKonvaLeafletLayer.getVisualizer("interactions");       
     }
 
     resetBaseMap(code) {

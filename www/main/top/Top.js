@@ -180,6 +180,9 @@ class Top extends ZCustomController {
     onOpObjects_click() {
         window.geoos.events.trigger("top", "clickObjects");
     }
+    onOpSearchLocation_click() {
+        window.geoos.events.trigger("top", "clickSearchLocation");
+    }
 
     onOpWizard1_click() {
         if (!window.geoos.user.config.toolsConfig.tool1) return;

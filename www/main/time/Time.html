@@ -1,8 +1,7 @@
 <div class="time-panel w-100 h-100">
     <div id="cntCol1" class="time-element" style="position: absolute; width: 200px; height: 24px; left: 22px; bottom: 78px;">
         <img src="img/icons/info.svg" width="16px;" class="mr-2 float-left" />
-        <span id="edSelectorType" class="time-link">Selector Tiempo: BÁSICO</span>
-        <i class="fas fa-caret-down ml-2 float-right"></i>
+        <select id="edTimeSelector" class="custom-select custom-select-sm" style="margin-top:-30px; margin-left: 16px; font-size: 100%; border:0; width: 185px;" data-z-id-field="id" data-z-label-field="label"></select>
     </div>
 
     <div id="datePicker" class="time-element datetimepicker" data-z-format="DD/MMM/YYYY" style="position: absolute; width: 200px; height: 190px; left: 230px; bottom: 110px;">        
@@ -23,6 +22,43 @@
         <i id="cmdNextTime" class="fas fa-chevron-right ml-2 float-right time-icon" data-z-clickable="true" style="margin-top: 2px;"></i>
         <i id="cmdClock" class="far fa-clock ml-2 float-right time-icon" data-z-clickable="true" style="margin-top: 2px;"></i>
     </div>
+    <div id="cntColCenter" class="time-center-panel" style="position: absolute; width: 170px; height: 31px; bottom:78px;">
+        <div id="cmdCamera" style="position: absolute; left: 0; top:0; width: 31px; height: 31px;" class="time-center-button">
+            <img src="img/icons/camera.png" style="margin-left: 5px; margin-top: 5px;" />
+        </div>
+        <div style="position: absolute; left: 36px; top:0; width: 62px; height: 31px;" class="time-center-button">
+            <img id="cmdLeftStep" src="img/icons/time-left.png" style="position: absolute; left:0; top:0; margin-left: 7px; margin-top: 7px;" data-z-clickable="true"/>
+            <img id="cmdRightStep" src="img/icons/time-right.png" style="position: absolute; left:31px; top:-1px; margin-left: 7px; margin-top: 7px;" data-z-clickable="true"/>
+        </div>
+        <div id="cmdTimeLayers" style="position: absolute; left: 103px; top:0; width: 31px; height: 31px;" class="time-center-button">
+            <img src="img/icons/time-layers.png" style="margin-left: 5px; margin-top: 5px;" />
+        </div>
+        <div id="cmdTimeHide" style="position: absolute; left: 138px; top:0; width: 31px; height: 31px;" class="time-center-button">
+            <img src="img/icons/time-hide.png" style="margin-left: 5px; margin-top: 5px;" />
+        </div>
+    </div>
+
+    <div id="cntColRight" class="time-element" style="position: absolute; width: 360px; height: 24px; right: 42px; bottom: 78px;">
+        <img src="img/icons/info.svg" width="16px;" style="position: absolute; "/>
+        <span style="position:absolute; left:24px;">Salto de tiempo: Días</span>
+        <select id="edSelDays" class="custom-select custom-select-sm" style="position: absolute; border:0; left:136px; top:-4px; width: 52px; " data-z-id-field="id" data-z-label-field="label">
+            <option value="30">30</option>
+        </select>
+        <span style="position:absolute; left:186px;">Horas</span>
+        <select id="edSelHours" class="custom-select custom-select-sm" style="position: absolute; border:0; left:216px; top:-4px; width: 52px; " data-z-id-field="id" data-z-label-field="label">
+            <option value="12">12</option>
+        </select>
+        <span style="position:absolute; left:266px;">Minutos</span>
+        <select id="edSelMinutes" class="custom-select custom-select-sm" style="position: absolute; border:0; left:310px; top:-4px; width: 52px; " data-z-id-field="id" data-z-label-field="label">
+            <option value="30">30</option>
+        </select>
+    </div>
+
+    <div id="cntSubSelector" class="time-element" style="position: absolute; width: 360px; height: 24px; right: 42px; bottom: 108px;">        
+        <select id="edTimeSubSelector" class="custom-select custom-select-sm" style="position: absolute; border:0; left:0; top:-4px; width: 350px; " data-z-id-field="id" data-z-label-field="label">
+        </select>
+    </div>
+
     <div id="daysBar" class="time-subpanel days-bar" style="position:absolute; left: 20px; right: 40px; bottom: 10px; pointer-events: all;">
         <div id="slider" data-z-component="common/Slider"></div>
         <div id="daysTable" class="days-table" data-z-clickable="true"></div>

@@ -27,7 +27,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "hjson": "^3.2.1",
-    "mongodb": "^3.6.2"
+    "mongodb": "^3.6.2",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
