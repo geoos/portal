@@ -202,7 +202,7 @@ class AddPanel extends ZCustomController {
             }
         }
         if (htmlFilters.length) {
-            this.filterPills.html = "<b style='margin-left: 6px;'>Filtros Activos: </b>" + htmlFilters + "<a href='#' class='filters-cleaner'>Limpiar Filtros</a>";
+            this.filterPills.html = "<b style='margin-left: 6px;'>Filtros Activos: </b>" + htmlFilters + "<a href='#' class='filters-cleaner btn btn-sm btn-secondary geoos-panel-ok'>Limpiar Filtros</a>";
             this.filterPills.show();
             $(this.filterPills.view).find(".add-panel-filter i").click(e => {
                 let item = $(e.currentTarget);

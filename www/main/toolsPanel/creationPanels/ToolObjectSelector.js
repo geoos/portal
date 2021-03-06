@@ -9,12 +9,23 @@ class ToolObjectSelector extends ZCustomController {
         }
         await this.refresh();
         this.userObjectAddedListener = uo => this.refresh({layerId:uo.layer.id, type:"user-object/" + uo.type, code:uo.id})
+        this.userObjectRenameListener = uo => {
+            let rows = this.edObject.rows;
+            if (rows && rows.length) {
+                let idx = rows.findIndex(r => r.code == uo.id);
+                if (idx >= 0) {
+                    this.edObject.view.options[idx].innerHTML = uo.name;
+                }
+            }
+        }
     }
     async onThis_activated() {
         window.geoos.events.on("userObject", "added", this.userObjectAddedListener)
+        window.geoos.events.on("userObject", "rename", this.userObjectRenameListener)
     }
     async onThis_deactivated() {
         window.geoos.events.remove(this.userObjectAddedListener)
+        window.geoos.events.remove(this.userObjectRenameListener)
     }
 
     refresh(select) {

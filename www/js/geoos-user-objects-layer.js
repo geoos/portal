@@ -169,7 +169,9 @@ class GEOOSUserObject {
         this.parentObject = parentObject;
         if (!id) id = type + "_" + parseInt(Math.random() * 9999999999);
         if (!name) {
-            let idx = 1, baseName = type.substr(0,1).toUpperCase() + type.substr(1);            
+            const baseNames = {point:"Punto", area:"Área"}
+            let baseName = baseNames[type] || (type.substr(0,1).toUpperCase() + type.substr(1));
+            let idx = 1; // baseName = type.substr(0,1).toUpperCase() + type.substr(1);            
             while (window.geoos.getUserObjects().find(o => (o.name == (baseName + " " + idx)))) idx++; 
             name = baseName + " " + idx;            
         }

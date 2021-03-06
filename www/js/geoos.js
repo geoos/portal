@@ -473,6 +473,7 @@ class GEOOS {
         else this.addStation(code);
     }
     getAddedStations() {
+        if (!this.getActiveGroup()) return [];
         let l = this.getActiveGroup().getStationsLayer();
         if (!l) return [];
         return l.getStations();

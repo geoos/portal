@@ -1,6 +1,7 @@
 class AddTool extends ZCustomController {
     async onThis_init(options) {
         if (!window.geoos.getActiveGroup().tools.length) this.cmdCancelAddTool.hide();
+        else this.cmdCancelAddTool.show();
         this.edToolType.setRows(GEOOSTool.tools, options?options.initialToolCode:null)
         this.cmdGenerateTool.disable();
         await this.refreshTool()

@@ -68,7 +68,12 @@ class MyPanel extends ZCustomController {
     onCmdCloseMyPanel_click() {this.toggle()}
 
     onCmdAddGroup_click() {
-        window.geoos.addGroup({name:"Nuevo Grupo de Capas"});
+        let baseName = "Nuevo Grupo de Capas";
+        let name = baseName, idx=1;
+        while(window.geoos.groups.find(g => g.name == name)) {
+            name = baseName + " (" + (idx++) + ")";
+        }
+        window.geoos.addGroup({name});
         this.refresh();
     }
 
@@ -116,7 +121,7 @@ class MyPanel extends ZCustomController {
                             html += `  <img class="user-object-icon" src="${layerItem.icon}" style="filter:invert(1);" />`;
                             html += `  <div class="user-object-name"><span ${objectSelected?" class='my-panel-selected-name'":""}>${layerItem.name}</span></div>`;
                             if (layerItem.level == 0) {
-                                html += `  <i class="user-object-deleter far fa-trash-alt ml-2 float-right" style="cursor: pointer; margin-top:-12px;"></i>`;
+                                html += `  <i class="user-object-deleter far fa-trash-alt ml-2 float-right" style="cursor: pointer; margin-top:-12px; font-size:12px; margin-right:6px; "></i>`;
                             }
                             html += `</div>`;
                         }
@@ -389,7 +394,7 @@ class MyPanel extends ZCustomController {
                         } catch(error) {
                             console.log("error")
                             this.showDialog("common/WError", {
-                                subtitle:"Ha ocurrido un error eliminando el grupo",
+                                subtitle:"Advertencia",
                                 message:error.toString()
                             });    
                         }
@@ -469,7 +474,7 @@ class MyPanel extends ZCustomController {
                         } catch(error) {
                             console.log("error")
                             this.showDialog("common/WError", {
-                                subtitle:"Ha ocurrido un error eliminando la Capa",
+                                subtitle:"Advertencia",
                                 message:error.toString()
                             });    
                         }

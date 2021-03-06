@@ -199,7 +199,7 @@ class AddStationsPanel extends ZCustomController {
             }
         }
         if (htmlFilters.length) {
-            this.stationsFilterPills.html = "<b style='margin-left: 6px;'>Filtros Activos: </b>" + htmlFilters + "<a href='#' class='filters-cleaner'>Limpiar Filtros</a>";
+            this.stationsFilterPills.html = "<b style='margin-left: 6px;'>Filtros Activos: </b>" + htmlFilters + "<a href='#' class='filters-cleaner btn btn-sm btn-secondary geoos-panel-ok'>Limpiar Filtros</a>";
             this.stationsFilterPills.show();
             $(this.stationsFilterPills.view).find(".add-panel-filter i").click(e => {
                 let item = $(e.currentTarget);
@@ -209,7 +209,11 @@ class AddStationsPanel extends ZCustomController {
                 this.filters[sectionCode].splice(idx, 1);
                 this.refresh();
             })
-            $(this.stationsFilterPills.view).find(".filters-cleaner").click(_ => this.refresh());
+            $(this.stationsFilterPills.view).find(".filters-cleaner").click(_ => {
+                this.filters = {};
+                this.sections.forEach(section => this.filters[section.code] = [])
+                this.refresh()
+            });
         } else {
             this.stationsFilterPills.html = "";
             this.stationsFilterPills.hide();
@@ -289,6 +293,7 @@ class AddStationsPanel extends ZCustomController {
             let code = div.data("code");
             window.geoos.toggleStation(code);
             this.refresh();
+            this.refreshResume();
         })
         $(this.stationsContainer.view).find(".add-panel-proveedor").click(e => {
             let div = $(e.currentTarget);
@@ -315,7 +320,7 @@ class AddStationsPanel extends ZCustomController {
     }
 
     refreshResume() {
-        let nSelected = this.filteredStations.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
+        let nSelected = window.geoos.getAddedStations().length;
         if (!nSelected) {
             this.lblStationsCountResume.text = "No hay estaciones seleccionadas";
         } else if (nSelected == 1) {
