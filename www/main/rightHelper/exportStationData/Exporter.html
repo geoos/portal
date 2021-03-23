@@ -1,0 +1,33 @@
+<div>
+    <hr class="bg-light mt-0 mb-0" />
+    <div id="lblEstacion" class="mx-4 my-2"></div>
+    <hr class="bg-light mt-0 mb-0" />
+    <div style="margin-left: 60px; margin-top:10px;">
+        <table id="stepsTable">
+            <tr>
+                <td id="step1" class="wizard-step-cell wizard-step-cell-active">1</td>
+                <td><div class="wizard-step-union">&nbsp;</div></td>
+                <td id="step2" class="wizard-step-cell">2</td>
+                <td><div class="wizard-step-union">&nbsp;</div></td>
+                <td id="step3" class="wizard-step-cell">3</td>
+                <td><div class="wizard-step-union">&nbsp;</div></td>
+                <td id="step4" class="wizard-step-cell">4</td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-left: 20px; margin-top:5px;">
+        <table>
+            <tr>
+                <td class="wizard-step-text">Origen de los Datos</td>
+                <td class="wizard-step-text">Selección de Variables</td>
+                <td class="wizard-step-text">Período de Extracción</td>
+                <td class="wizard-step-text">Descargar</td>
+            </tr>
+        </table>
+    </div>
+    <div id="exporterLoader" class="m-3" data-z-load="common/Empty"></div>
+    <div class="mt-4 mb-2 p-2">
+        <button id="cmdPrev" class="btn btn-sm btn-outline-primary btn-wizard-prev float-left mb-2">Volver</button>
+        <button id="cmdNext" class="btn btn-sm btn-primary btn-wizard-next float-right mb-2">Continuar</button>
+    </div>
+</div>

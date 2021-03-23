@@ -1,58 +1,60 @@
 <div class="container-fluid pt-2" style="padding-right: 140px;">    
     <div id="edShowGrid" data-z-component="common/CheckBox" data-z-label="Mostrar Grilla de Coordenadas"></div>
-    <hr style="background-color: white;" />
-    <h6>Línea Principal</h6>
-    <div class="ml-2">
-        <div class="row">
-            <div class="col-4">
-                <label class="mt-1">Rango</label>
+    <div id="propGrid">
+        <hr style="background-color: white;" />    
+        <h6>Línea Principal</h6>
+        <div class="ml-2">
+            <div class="row">
+                <div class="col-4">
+                    <label class="mt-1">Rango</label>
+                </div>
+                <div class="col-8">
+                    <select id="edStep1" class="custom-select custom-select-sm" data-z-id-field="value" data-z-label-field="name"></select>
+                </div>
             </div>
-            <div class="col-8">
-                <select id="edStep1" class="custom-select custom-select-sm" data-z-id-field="value" data-z-label-field="name"></select>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Grosor</label>
+                </div>
+                <div class="col-8">
+                    <input id="edWidth1" type="number" step="0.1" class="form-control form-control-sm" />
+                </div>
             </div>
-        </div>
-        <div class="row mt-1">
-            <div class="col-4">
-                <label class="mt-1">Grosor</label>
-            </div>
-            <div class="col-8">
-                <input id="edWidth1" type="number" step="0.1" class="form-control form-control-sm" />
-            </div>
-        </div>
-        <div class="row mt-1">
-            <div class="col-4">
-                <label class="mt-1">Color</label>
-            </div>
-            <div class="col-8">
-                <input id="edColor1" type="color" class="form-control form-control-sm" />
-            </div>
-        </div>
-    </div>
-    <hr style="background-color: white;" />
-    <h6>Línea Secundaria</h6>
-    <div class="ml-2">
-        <div class="row">
-            <div class="col-4">
-                <label class="mt-1">Rango</label>
-            </div>
-            <div class="col-8">
-                <select id="edStep2" class="custom-select custom-select-sm" data-z-id-field="value" data-z-label-field="name"></select>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Color</label>
+                </div>
+                <div class="col-8">
+                    <input id="edColor1" type="color" class="form-control form-control-sm" />
+                </div>
             </div>
         </div>
-        <div class="row mt-1">
-            <div class="col-4">
-                <label class="mt-1">Grosor</label>
+        <hr style="background-color: white;" />
+        <h6>Línea Secundaria</h6>
+        <div class="ml-2">
+            <div class="row">
+                <div class="col-4">
+                    <label class="mt-1">Rango</label>
+                </div>
+                <div class="col-8">
+                    <select id="edStep2" class="custom-select custom-select-sm" data-z-id-field="value" data-z-label-field="name"></select>
+                </div>
             </div>
-            <div class="col-8">
-                <input id="edWidth2" type="number" step="0.1" class="form-control form-control-sm" />
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Grosor</label>
+                </div>
+                <div class="col-8">
+                    <input id="edWidth2" type="number" step="0.1" class="form-control form-control-sm" />
+                </div>
             </div>
-        </div>
-        <div class="row mt-1">
-            <div class="col-4">
-                <label class="mt-1">Color</label>
-            </div>
-            <div class="col-8">
-                <input id="edColor2" type="color" class="form-control form-control-sm" />
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Color</label>
+                </div>
+                <div class="col-8">
+                    <input id="edColor2" type="color" class="form-control form-control-sm" />
+                </div>
             </div>
         </div>
     </div>

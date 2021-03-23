@@ -22,6 +22,7 @@ class ZRepoClient {
     async readMetadata() {
         await this.getDimensiones();
         await this.getVariables();
+        await this.getDataSets();
         return {dimensiones:this.dimensiones, variables:this.variables}
     }
 
@@ -179,6 +180,35 @@ class ZRepoClient {
         let variables = await this.getVariables();
         return variables.find(v => (v.code == code));
     }
+
+    async getDataSets() {
+        if (this.dataSets) return this.dataSets;
+        try {
+            let cache = Math.random() * 9999999999;
+            this.dataSets = (await (await fetch(this.url + "/dataSets?token=" + this.token + "&cache=" + cache)).json());
+            return this.dataSets;
+        } catch(error) {
+            throw error;
+        }
+    }
+    async getDataSet(code) {
+        let dataSets = await this.getDataSets();
+        return dataSets.find(d => (d.code == code));
+    }
+    async queryDataSet(dsCode, startTime, endTime, filter, columns) {        
+        try {
+            let cache = Math.random() * 9999999999;
+            let url = this.url + "/dataSet/" + dsCode + "/rows?token=" + this.token + "&cache=" + cache
+                    + "&startTime=" + startTime + "&endTime=" + endTime
+                    + "&filter=" + encodeURIComponent(JSON.stringify(filter))
+                    + "&columns=" + encodeURIComponent(JSON.stringify(columns))
+            //return (await (await fetch(url)).json());
+            let rows = await this._getJSON(url);
+            return rows;
+        } catch(error) {
+            throw error;
+        }
+    }
     
     buscaRutasDesde(variable, origen, rutas, path, codigoDimension) {
         origen.classifiers.forEach(c => {
@@ -310,11 +340,12 @@ class ZRepoClient {
             default: throw "Acumulador '" + acumulador + "' no manejado";
         }
     }
-    query(query, startTime, endTime) {        
+    query(query, startTime, endTime) {    
+        /*    
         console.log("minZ Query", query);
         console.log("startTime", moment.tz(startTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
         console.log("endTime", moment.tz(endTime, window.timeZone).format("YYYY-MM-DD HH:mm"));
-        
+        */
         try {
             let filtro, resultado;
             switch (query.tipoQuery) {
@@ -404,6 +435,25 @@ class ZRepoClient {
             url += "&startTime=" + startTime + "&endTime=" + endTime;
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&temporality=" + temporality;
+            let controller = new AbortController();
+            console.log("filter", JSON.stringify(filter, null, 4), "temporality", temporality)
+            return {promise: this._getJSON(url, controller.signal), controller:controller}
+            //let summary = (await (await fetch(url)).json());
+            //return summary;
+        } catch(error) {
+            throw error;
+        }
+    }
+    queryMultiVarTimeSerie(variables, startTime, endTime, filter, temporality, minimize) {
+        try {
+            let url = this.url + "/data/multi-var/time-serie?token=" + this.token;
+            url += "&startTime=" + startTime + "&endTime=" + endTime;
+            url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
+            url += "&variables=" + encodeURIComponent(JSON.stringify(variables));
+            url += "&temporality=" + temporality;
+            if (minimize) {
+                url += "&minimize=true";
+            }
             let controller = new AbortController();
             console.log("filter", JSON.stringify(filter, null, 4), "temporality", temporality)
             return {promise: this._getJSON(url, controller.signal), controller:controller}

@@ -77,6 +77,7 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
         }]
         this.windy = new Windy({
             canvas:this.stageCanvas,
+            //canvas:this.canvas,
             map:window.geoos.map,
             data:windyGridData,
             maxVelocity:this.max,

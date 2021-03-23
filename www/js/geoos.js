@@ -79,6 +79,7 @@ class GEOOS {
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
         this.userConfigPanel.close();
         this.userHelpPanel.close();
+        this.rightHelper.close();
 
         this.toolsPanel.toggle("min");
     }

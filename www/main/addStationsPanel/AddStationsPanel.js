@@ -255,6 +255,7 @@ class AddStationsPanel extends ZCustomController {
                         ${station.name}
                         <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoStationCode==station.code?"-active":""}.svg" />
                         <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
+                        <img class="add-panel-variable-icon download" style="height: 16px; filter: invert(1); " src="img/icons/download.svg" />
                     </div>
                 `;
             }
@@ -287,6 +288,16 @@ class AddStationsPanel extends ZCustomController {
             let code = img.parent().data("code");
             let station = this.filteredStations.find(v => v.code == code);
             return false;
+        });
+        $(this.stationsContainer.view).find(".download").click(e => {
+            $(this.stationsContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
+            let img = $(e.currentTarget);
+            let div = img.parent();
+            let code = div.data("code");
+            let station = this.filteredStations.find(v => v.code == code);
+            this.toggle();
+            window.geoos.rightHelper.loadContent("main/rightHelper/exportStationData/Exporter", "Descargar Datos de Estación", "fas fa-download", {station});
+            return false;           
         });
         $(this.stationsContainer.view).find(".add-panel-variable").click(e => {
             let div = $(e.currentTarget);

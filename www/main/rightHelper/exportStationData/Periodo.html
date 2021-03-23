@@ -1,0 +1,36 @@
+<div>
+    <div id="error" class="my-4">
+        <i class="fas fa-2x fa-exclamation-triangle mr-2 text-danger"></i>
+        <span id="lblError"></span>
+    </div>
+    <div id="rowAgrupador" class="mb-2">
+        <label>Agrupación Temporal</label><br />
+        <select id="edTemporalidad" class="custom-select custom-select-sm" style="width: 200px;" data-z-id-field="code" data-z-label-field="name"></select>
+    </div>    
+    <div class="container-full">
+        <div class="row">
+            <div class="col-6">Fecha de Inicio</div>
+            <div class="col-6">Fecha de Término</div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <table>
+                    <tr>
+                        <td><input id="edFromYear" class="form-control-form-control-sm" type="number" style="width: 60px;" min="1950" max="2200" data-z-autochange-delay="300" /></td>
+                        <td style="transform: scale(0.75);"><select id="edFromMonth" class="custom-select custom-select-sm" data-z-id-field="index" data-z-label-field="name"></select></td>
+                        <td><input id="edFromDate" class="form-control-form-control-sm" type="number" style="width: 40px;" min="1" max="31" data-z-autochange-delay="300" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-6">
+                <table>
+                    <tr>
+                        <td><input id="edToYear" class="form-control-form-control-sm" type="number" style="width: 60px;" min="1950" max="2200" data-z-autochange-delay="300" /></td>
+                        <td style="transform: scale(0.75);"><select id="edToMonth" class="custom-select custom-select-sm" data-z-id-field="index" data-z-label-field="name"></select></td>
+                        <td><input id="edToDate" class="form-control-form-control-sm" type="number" style="width: 40px;" min="1" max="31" data-z-autochange-delay="300" /></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

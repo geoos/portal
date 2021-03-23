@@ -575,6 +575,12 @@ a:hover {
     height: 20px;
     margin-top: 10px;
 }
+.bootstrap-datetimepicker-widget table td.active {
+    background-color: #6042cb;
+}
+.bootstrap-datetimepicker-widget table td.active:hover {
+    background-color: #6042cb;
+}
 .day-cell {
     border-right: 1px solid white;
     height: 20px;
@@ -621,6 +627,7 @@ a:hover {
     font-size: 12px !;
     font-weight: normal !important;    
     line-height: 30px !important;
+    background-color: #6042cb;
 }
 .timepicker-minute {
     width: 30px !important;
@@ -628,6 +635,7 @@ a:hover {
     font-size: 12px !;
     font-weight: normal !important;    
     line-height: 30px !important;
+    background-color: #6042cb;
 }
 .bootstrap-datetimepicker-widget table td span {
     width: 30px !important;
@@ -746,6 +754,21 @@ a:hover {
     background-color: #000000;
 }
 
+/* Right Helper */
+.right-helper-panel {
+    opacity: 0.9;
+    background-color: #272626;    
+    color: white;
+    box-shadow: 0px 4px 4px 0px #000000 25%;
+    z-index: 400;
+    border-radius: 5px;
+    border: 2px solid rgba(246,246,246,0.5);
+    position: absolute;
+    width:500px; 
+    right: 40px;
+    top: 77px;    
+}
+
 /* User Help */
 .user-help-panel {
     opacity: 0.9;
@@ -831,3 +854,49 @@ a:hover {
 .checkbox .fa-check-square {
     background-color: #6042cb;
 }
+
+/* Export Station Data */
+.wizard-step-cell {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 20px;
+    background-color: #4285C4;
+}
+.wizard-step-cell-active {
+    background-color: #2DBBC2;
+}
+.wizard-step-union {
+    width:70px;
+    margin-top: 17px;
+    margin-bottom: 17px;
+    background-color: #2DBBC2;
+    line-height: 3px;
+}
+.wizard-step-text {
+    width:113px;
+    text-align: center;
+    font-size: 90%;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.wizard-radio {
+    cursor: pointer;
+}
+.wizard-radio:hover {
+    text-decoration: underline;
+}
+.btn-wizard-prev {
+    width: 150px;
+    border-color: #6042cb;
+    color: white;
+}
+.btn-wizard-next {
+    width: 150px;
+    color: white;
+    background-color: #6042cb;
+}
+.btn-wizard-next:hover {background-color: #6042cb;}
+.btn-wizard-next:focus {background-color: #6042cb;}
+.btn-wizard-next:disabled {background-color: #6042cb;}

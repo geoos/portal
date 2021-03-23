@@ -27,6 +27,12 @@ class GridPage extends ZCustomController {
         this.edColor1.value = this.config.color1;
         this.edWidth2.value = this.config.width2;
         this.edColor2.value = this.config.color2;
+        this.checkProps();
+    }
+
+    checkProps() {
+        if (this.config.show) this.propGrid.show();
+        else this.propGrid.hide();
     }
 
     get config() {return window.geoos.user.config.mapConfig.grid}
@@ -39,6 +45,7 @@ class GridPage extends ZCustomController {
     onEdShowGrid_change() {
         this.config.show = this.edShowGrid.checked;
         this.applyConfig();
+        this.checkProps();
     }
 
     onEdStep1_change() {
