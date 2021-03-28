@@ -4,7 +4,7 @@ class Slider extends ZCustomController {
         this.max = 100;
         this.step = 1;
         this.$handler = $(this.handler.view);
-        this.$handler.draggable({axis: "x", containment: "parent",
+        this.$handler.draggable({axis: "x", containment: "parent", scroll:false, 
             start:_ => {
                 if (!this.handlerFixedClass) this.$handler.addClass("text-primary");
             },

@@ -101,7 +101,10 @@ class AddPanel extends ZCustomController {
             }
             if (passFilter) filtered.push(layer);
         }
-        if (textFilter) filtered = filtered.filter(l => (l.name.toLowerCase().indexOf(textFilter.toLowerCase()) >= 0))
+        if (textFilter) {
+            textFilter = window.geoos.neutralizaTildes(textFilter);
+            filtered = filtered.filter(l => (window.geoos.neutralizaTildes(l.name).indexOf(textFilter) >= 0))
+        }
         return filtered;
     }
     refresh() {
@@ -276,7 +279,8 @@ class AddPanel extends ZCustomController {
     }
 
     refreshResume() {
-        let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
+        //let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
+        let nSelected = this.layers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
         let name = this.edLayerType.value == "variables"?"Variables":"Capas";
         let name1 = this.edLayerType.value == "variables"?"Variable":"Capa";
         if (!nSelected) {
@@ -298,7 +302,8 @@ class AddPanel extends ZCustomController {
     onCmdCancelLayers_click() {this.toggle()}
     onCmdAddLayers_click(){
         this.toggle();
-        window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
+        //window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
+        window.geoos.addLayers(this.layers.filter(l => (l.selected)));
         window.geoos.openMyPanel();
     }
 

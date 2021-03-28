@@ -18,7 +18,7 @@ class Final extends ZCustomController {
             return list;
         }, [])
         if (vars.length == 1) desc += ", exportar los valores de una variable";
-        else desc += ", exportar los valores de " + vars.length + " varioables";
+        else desc += ", exportar los valores de " + vars.length + " variables";
         desc += " para el período comprendido entre ";
         if (options.dsOriginal || options.temporalidad != "1M") {
             desc += "el día " + options.fmtFromTime + " y el día " + options.fmtToTime;
@@ -51,7 +51,7 @@ class Final extends ZCustomController {
                     let m = moment.tz(row.time, window.timeZone);
                     let st = m.format("DD/MM/YYYY HH:mm");
                     st += columns.reduce((st, col) => {
-                        return st + ";" + (row[col] === undefined?"":row[col].toLocaleString("en", {useGrouping:false}));
+                        return st + ";" + ((isNaN(row[col]) || row[col] == null)?"":row[col].toLocaleString("en", {useGrouping:false}));
                     }, "");
                     return txt + "\n" + st;
                 }, head);
@@ -70,7 +70,7 @@ class Final extends ZCustomController {
                 let filter = {estacion:this.options.station.code};
                 let vars = this.options.variables;
                 let variables = this.options.listaVariables.reduce((lista, v) => {
-                    if (vars[v.code + "-avg"] || vars[v.code + "-min"] || vars[v.code + "-max"]) lista.push(v.code);
+                    if (vars[v.code + "-avg"] || vars[v.code + "-min"] || vars[v.code + "-max"] || vars[v.code + "-n"]) lista.push(v.code);
                     return lista;
                 }, [])
                 let data = await (this.options.station.server.client.queryMultiVarTimeSerie(
@@ -84,6 +84,7 @@ class Final extends ZCustomController {
                     if (this.options.variables[v + "-avg"]) st += ";" + vName + "_avg";
                     if (this.options.variables[v + "-min"]) st += ";" + vName + "_min";
                     if (this.options.variables[v + "-max"]) st += ";" + vName + "_max";
+                    if (this.options.variables[v + "-n"]) st += ";" + vName + "_n";
                     return st;
                 }, "");
                 let indexes = {};
@@ -102,16 +103,18 @@ class Final extends ZCustomController {
                         let m = moment.tz(time, window.timeZone);
                         let st = m.format("DD/MM/YYYY HH:mm");
                         variables.forEach(v => {
-                            let avg="", min="", max="";
+                            let avg="", min="", max="", nSamples="";
                             if (indexes[v] < data[v].length) {
                                 let idx = indexes[v];
                                 let t = data[v][idx].t;
                                 if (t == time) {
                                     let val = data[v][idx];
-                                    if (val.n) {
+                                    if (val.n && val.m !== null && val.M !== null) {
+                                        console.log("val", val);
                                         avg = (val.v / val.n).toLocaleString("en", {useGrouping:false});
                                         min = val.m.toLocaleString("en", {useGrouping:false});
                                         max = val.M.toLocaleString("en", {useGrouping:false});
+                                        nSamples = val.n;
                                     }
                                     indexes[v]++;
                                 }
@@ -119,6 +122,7 @@ class Final extends ZCustomController {
                             if (this.options.variables[v + "-avg"]) st += ";" + avg;
                             if (this.options.variables[v + "-min"]) st += ";" + min;
                             if (this.options.variables[v + "-max"]) st += ";" + max;
+                            if (this.options.variables[v + "-n"]) st += ";" + nSamples;
                         })
                         csv += "\n" + st;
                     }

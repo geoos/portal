@@ -31,7 +31,11 @@ class GEOOS {
         this.events.trigger("portal", "timeChange");
     }
     get moment() {return moment.tz(this.time, window.timeZone)}
-    set moment(m) {this.time = m.valueOf()}
+    set moment(m) {
+        if (this._time && m.valueOf() != this._time) { 
+            this.time = m.valueOf()
+        }
+    }
     get bounds() {
         let b = this.map.getBounds();
         return {n:b.getNorth(), s:b.getSouth(), e:b.getEast(), w:b.getWest()}
@@ -566,6 +570,16 @@ class GEOOS {
             let valid = await tool.isValid();
             if (!valid) await this.removeTool(tool.id);
         }
+    }
+
+    neutralizaTildes(st) {
+        const dic = {"á":"a", "é":"e", "í":"i", "ó":"o", "ú":"u", "ñ": "n", "ü":"u"}
+        let ret = "";
+        for (let i=0; i<st.length; i++) {
+            let ch = st.substr(i,1).toLowerCase();
+            ret += dic[ch] || ch;
+        }
+        return ret;
     }
 }
 

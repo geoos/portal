@@ -6,6 +6,13 @@ class MapTypePage extends ZCustomController {
 
     refreshMaps() {
         let mapConfig = window.geoos.user.config.mapConfig;
+        let currentMap = window.geoos.baseMaps.find(m  => m.code == mapConfig.selectedMap);
+        if (currentMap && currentMap.includeLabels) {
+            this.edNamesLayer.checked = false;
+            this.edNamesLayer.hide();
+        } else {
+            this.edNamesLayer.show();
+        }
         let nCol=0;
         let html = window.geoos.baseMaps.reduce((html, map) => {
             if (!nCol) html += "<tr class='mt-2' style='height: 170px;'>";
@@ -27,6 +34,10 @@ class MapTypePage extends ZCustomController {
         $(this.mapsContainer.view).find(".map-icon").click(e => {
             let code = $(e.currentTarget).data("code");
             window.geoos.mapPanel.resetBaseMap(code);
+            let mapDef = window.geoos.baseMaps.find(m => m.code == code);
+            if (mapDef.includeLabels) {
+                window.geoos.mapPanel.resetNamesLayer(false);
+            }
             this.refreshMaps();
             window.geoos.user.saveConfig();
         });

@@ -38,6 +38,7 @@ class SelVariables extends ZCustomController {
                     if (this.options.variables[code + "-avg"] === undefined) this.options.variables[code + "-avg"] = true;
                     if (this.options.variables[code + "-min"] === undefined) this.options.variables[code + "-min"] = false;
                     if (this.options.variables[code + "-max"] === undefined) this.options.variables[code + "-max"] = false;
+                    if (this.options.variables[code + "-n"] === undefined) this.options.variables[code + "-n"] = false;
                 } else {
                     console.error("No se encontró la variable " + code);
                 }                    
@@ -82,6 +83,10 @@ class SelVariables extends ZCustomController {
                             <li data-code='${v.code}-max' class='var-selector wizard-radio mt-1'>
                                 <i class='far ${this.options.variables[v.code + "-max"]?"fa-check-square":"fa-square"}'></i>
                                 Valor Máximo en el Grupo
+                            </li>
+                            <li data-code='${v.code}-n' class='var-selector wizard-radio mt-1'>
+                                <i class='far ${this.options.variables[v.code + "-n"]?"fa-check-square":"fa-square"}'></i>
+                                N° Muestras en el Grupo
                             </li>
                         </ul>
                     </li>

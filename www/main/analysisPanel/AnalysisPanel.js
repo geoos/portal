@@ -101,7 +101,6 @@ class AnalysisPanel extends ZCustomController {
         if (this.mainPanel && this.mainPanel.doResize) this.mainPanel.doResize()
         let pos = $(this.mainArea.view).position();
         let mainSize = this.mainArea.size;
-        console.log("position", pos);
         $(this.analysisWorking.view).css({left:pos.left, top:pos.top, width:mainSize.width, height:mainSize.height})
     }
 

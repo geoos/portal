@@ -98,7 +98,10 @@ class AddStationsPanel extends ZCustomController {
             }
             if (passFilter) filtered.push(station);
         }
-        if (textFilter) filtered = filtered.filter(l => (l.name.toLowerCase().indexOf(textFilter.toLowerCase()) >= 0))
+        if (textFilter) {
+            textFilter = window.geoos.neutralizaTildes(textFilter);
+            filtered = filtered.filter(l => (window.geoos.neutralizaTildes(l.name).indexOf(textFilter) >= 0));
+        }
         return filtered;
     }
     refresh() {
@@ -377,7 +380,6 @@ class AddStationsPanel extends ZCustomController {
     }
 
     refreshInfo(layer) {
-        console.log("variable", layer);
         this.infoVarCode = layer.code;
         this.lblStationName.text = layer.name;
         let provider = window.geoos.providers.find(p => p.code == layer.providers[0]);

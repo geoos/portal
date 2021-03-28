@@ -23,18 +23,24 @@ class ZDateTimePicker extends ZController {
             //pickerPosition: "top-left"
         });
         this.$view.on("dp.change", () => {
+            /*
             if (this.ignoreNextChange) {
                 this.ignoreNextChange = false;
                 return;
             }
+            */
             this.triggerEvent("change", [this.value])
         })
     }
 
     set value(dt) {
-        this.ignoreNextChange = true;
-        this.$view.data("DateTimePicker").date(dt);
-        this.$view.addClass("is-filled");
+        //this.ignoreNextChange = true;
+        let v = this.$view.data("DateTimePicker").date();
+        // Actualizar (e informar evento) sólo si efectivamente cambia
+        if (dt && v && dt.valueOf() != v.valueOf()) {
+            this.$view.data("DateTimePicker").date(dt);
+            this.$view.addClass("is-filled");
+        }
     }
     get value() {
         if (!this.$view.data("DateTimePicker").date()) return null;
@@ -48,7 +54,7 @@ class ZInlineDatePicker extends ZController {
         this.$view = $(this.view);
         this.format = this.$view.data("z-format") || "DD/MM/YYYY";
         this.locale = this.$view.data("z-locale") || window.language || "es";
-        this.$view.datetimepicker({
+        this.dp = this.$view.datetimepicker({
             inline:true,
             locale:this.locale,
             format:this.format,
@@ -69,21 +75,25 @@ class ZInlineDatePicker extends ZController {
             //pickerPosition: "top-left"
         });
         this.$view.on("dp.change", () => {
+            /*
             if (this.ignoreNextChange) {
                 this.ignoreNextChange = false;
+                console.log("change ignorado")
                 return;
             }
+            */
             this.triggerEvent("change", this.value)
         })
-        this.$view.on("dp.click", () => {
-            console.log("click")
-        });
     }
 
     set value(dt) {
-        this.ignoreNextChange = true;
-        this.$view.data("DateTimePicker").date(dt);
-        this.$view.addClass("is-filled");
+        //this.ignoreNextChange = true;
+        let v = this.$view.data("DateTimePicker").date();
+        // Actualizar (e informar evento) sólo si efectivamente cambia
+        if (dt && v && dt.valueOf() != v.valueOf()) {
+            this.$view.data("DateTimePicker").date(dt);
+            this.$view.addClass("is-filled");
+        }
     }
     get value() {
         if (!this.$view.data("DateTimePicker").date()) return null;

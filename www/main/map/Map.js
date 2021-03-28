@@ -1,10 +1,13 @@
 class Map extends ZCustomController {
     onThis_init() {
         window.geoos.mapPanel = this;
+        let southWest = L.latLng(-89.98155760646617, -180);
+        let northEast = L.latLng(89.99346179538875, 180);
         this.map = L.map(this.mapContainer.id, {
             zoomControl:false, 
             attributionControl:false,
-            minZoom:3, maxZoom:12
+            minZoom:3, maxZoom:12,
+            maxBounds:[southWest, northEast]
         }).setView([-33.034454, -71.592093], 6);
 
         this.map.on("click", e => {
@@ -24,6 +27,17 @@ class Map extends ZCustomController {
             this.currentPoint = {lat:lat, lng:lng, x:point.x, y:point.y};
             window.geoos.events.trigger("map", "move", this.currentPoint);
         });
+
+        // Limitar desplazamiento en el mapa
+        /*
+        let southWest = L.latLng(-89.98155760646617, -180);
+        let northEast = L.latLng(89.99346179538875, 180);
+        let bounds = L.latLngBounds(southWest, northEast);
+        map.setMaxBounds(bounds);
+        map.on('drag', _ => {
+            map.panInsideBounds(bounds, { animate: false });
+        });
+        */
 
         let mapConfig = window.geoos.user.config.mapConfig;
         let baseMap = window.geoos.baseMaps.find(m => m.code == mapConfig.selectedMap)

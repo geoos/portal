@@ -38,6 +38,20 @@ class Time extends ZCustomController {
             this.refreshTime();
         });
         this.cntSubSelector.hide();
+
+        // Esconder date & time on click outside
+        window.addEventListener('click', e => {
+            if (this.ignoreNextClick) {
+                this.ignoreNextClick = false;
+                return;
+            }
+            if (this.showingDate) {
+                if (!this.datePicker.view.contains(e.target)) this.toggleDate();
+            }   
+            if (this.showingTime) {
+                if (!this.timePicker.view.contains(e.target)) this.toggleTime();
+            }
+        });
     }
 
     onSlider_changing(v) {
@@ -71,6 +85,9 @@ class Time extends ZCustomController {
 
     get t1() {return this.t0?this.t0.clone().add(this.slider.pixelsRange / pixelsPerHour, "hours").startOf("day"):null}
 
+    callAdjustTime() {
+        setTimeout(_ => this.adjustTime(), 300);
+    }
     adjustTime() {
         this.t0 = moment.tz(window.geoos.time, window.timeZone).startOf("day").subtract(1, "day");
         let pixels = parseInt((window.geoos.time - this.t0.valueOf()) / 1000 / 60 / 60) * pixelsPerHour;
@@ -87,7 +104,9 @@ class Time extends ZCustomController {
         let bot = 0;
         if (window.geoos.analysisPanel && window.geoos.analysisPanel.open) {
             if (window.geoos.analysisPanel.status == "min") {
+                let wasVisible = $(this.daysBar.view).is(":visible");
                 this.daysBar.show();
+                if (!wasVisible) this.callAdjustTime();
                 bot = 25;    
             } else if (window.geoos.analysisPanel.status == "normal") {
                 this.daysBar.hide();
@@ -100,7 +119,9 @@ class Time extends ZCustomController {
                 bot = height - 95;
             }
         } else {
+            let wasVisible = $(this.daysBar.view).is(":visible");
             this.daysBar.show();
+            if (!wasVisible) this.callAdjustTime();
         }
         this.cntCol1.view.style.bottom = (78 + bot) + "px";
         this.timePickerContainer.view.style.bottom = (110 + bot) + "px";
@@ -110,6 +131,19 @@ class Time extends ZCustomController {
         this.daysBar.view.style.bottom = (10 + bot) + "px";
         this.cntColRight.view.style.bottom = (78 + bot) + "px";
         this.cntSubSelector.view.style.bottom = (108 + bot) + "px";
+        // Ajustar panel de fecha y de hora según posición de los selectores y estado de analisis
+        let arriba = true;
+        if (window.geoos.analysisPanel && window.geoos.analysisPanel.open && window.geoos.analysisPanel.status != "min") {
+            arriba = false;
+        }
+        let y = $(window.geoos.timePanel.cntCol2.view).position().top;
+        if (arriba) {
+            $(window.geoos.timePanel.datePicker.view).css({top:(y - 200) + "px"})
+            $(window.geoos.timePanel.timePickerContainer.view).css({top:(y - 200) + "px"})
+        } else {
+            $(window.geoos.timePanel.datePicker.view).css({top:(y + 34) + "px"})
+            $(window.geoos.timePanel.timePickerContainer.view).css({top:(y + 34) + "px"})
+        }
         this.repaint();
     }
     repaint() {
@@ -162,8 +196,14 @@ class Time extends ZCustomController {
         m.hours(g.hours()); m.minutes(g.minutes()); m = m.startOf("minute");
         this.callSetTime(m.valueOf(), true, false, true);
     }
-    onLblDate_click() {this.toggleDate()}
-    onCmdCalendar_click() {this.toggleDate()}
+    onLblDate_click() {
+        this.ignoreNextClick = true;
+        this.toggleDate()
+    }
+    onCmdCalendar_click() {
+        this.ignoreNextClick = true;
+        this.toggleDate()
+    }
 
     toggleTime() {
         if (this.showingTime) this.timePickerContainer.hide();
@@ -174,8 +214,14 @@ class Time extends ZCustomController {
         this.datePicker.value = d.clone().startOf("day");
         this.callSetTime(d.valueOf(), true, true, false);
     }
-    onLblTime_click() {this.toggleTime()}
-    onCmdCclock_click() {this.toggleTime()}
+    onLblTime_click() {
+        this.ignoreNextClick = true;
+        this.toggleTime()
+    }
+    onCmdClock_click() {
+        this.ignoreNextClick = true;
+        this.toggleTime()
+    }
 
     onCmdNextDay_click() {window.geoos.moment = window.geoos.moment.add(1, "day")}
     onCmdPrevDay_click() {window.geoos.moment = window.geoos.moment.subtract(1, "day")}
