@@ -900,3 +900,24 @@ a:hover {
 .btn-wizard-next:hover {background-color: #6042cb;}
 .btn-wizard-next:focus {background-color: #6042cb;}
 .btn-wizard-next:disabled {background-color: #6042cb;}
+
+.tool-assigned-cell {
+    width: 33%;
+    height: 50px;
+    border: 1px solid gray;
+}
+.tool-assigned-cell.active {
+    border: 1px solid white;
+}
+.tool-assigned-cell img {        
+    height: 22px;    
+}
+.tool-available-cell {
+    width: 33%;
+    height: 50px;
+    border: 1px solid gray;
+    cursor: pointer;
+}
+.tool-available-cell img {        
+    height: 22px;    
+}

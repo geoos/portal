@@ -203,6 +203,8 @@ class Top extends ZCustomController {
         this.setWizardTool(3, window.geoos.user.config.toolsConfig.tool3)
     }
     setWizardTool(index, toolCode) {
+        let toolDef = GEOOSTool.getToolDef(toolCode);
+        if (!toolDef) toolCode = null;
         let div = this["opWizard" + index];
         let img = div.find("img");
         // remove img styles
@@ -222,6 +224,9 @@ class Top extends ZCustomController {
             img.src = "img/top-icons/empty.svg";
             span.textContent = "Próximamente";
         }
+    }
+    onWizardExpander_click() {
+        this.showDialog("./WConfigTools");
     }
 }
 ZVC.export(Top)

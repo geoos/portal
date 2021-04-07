@@ -16,9 +16,11 @@ class GEOOS {
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
         this.events.on("map", "click", async p => await this.unselectObject())
+        await this.inicializaPlugins();
     }
 
     get baseMaps() {return this.config.maps}
+    get pluginConfigs() {return this.config.plugins}
     get regions() {return this.config.groups.regions}
     get subjects() {return this.config.groups.subjects}
     get types() {return this.config.groups.types}
@@ -580,6 +582,74 @@ class GEOOS {
             ret += dic[ch] || ch;
         }
         return ret;
+    }
+
+    get plugins() {return Object.keys(this._plugins).map(code => (this._plugins(code)))}
+    getPlugin(code) {return this._plugins[code]}
+
+    async inicializaPlugins() {
+        this._plugins = {};
+        let headers = new Headers();
+        headers.append('pragma', 'no-cache');
+        headers.append('cache-control', 'no-cache');
+        for (let pc of this.pluginConfigs) {
+            try {
+                let jsResponse = await fetch(pc + "/plugin.js", {headers:headers});
+                if (jsResponse.status != 200) throw "HTTP code " + jsResponse.status + " returned by '" + pc + "/plugin.js'"
+                let jsCode = await jsResponse.text();
+                let pi = eval(jsCode);
+                if (!pi || !pi instanceof GEOOSPlugIn) throw "No plugin object returned by '" + pc + "/plugin.js'"
+                pi.basePath = pc;
+                this._plugins[pi.code] = pi;
+                await this.inicializaPlugin(pi);
+            } catch(error) {
+                console.error(error);
+                console.error("Cannot initialize Plugin at '" + pc + "/plugin.js'");
+            }
+        }
+    }
+    async inicializaPlugin(pi) {
+        let includes = [].concat(pi.includeFiles);
+        await this.leeArchivosPlugin(pi, includes);
+    }
+
+    leeArchivosPlugin(pi, list) {
+        return new Promise((resolve, reject) => this.leeSiguienteArchivo(pi, list, resolve, reject))
+    }    
+    leeSiguienteArchivo(pi, list, resolve, reject) {
+        if (!list || !list.length) {
+            resolve();
+            return;
+        }
+        if (list[0].endsWith(".js")) {
+            let script = document.createElement('script');
+            script.onload = _ => {
+                list.splice(0,1);
+                this.leeSiguienteArchivo(pi, list, resolve, reject);
+            };
+            script.onerror = error => {
+                console.error("Error reading '" + list[0] + "'", error);
+            }
+            script.src = pi.basePath + "/" + list[0];
+            document.head.appendChild(script);
+            console.log("  -> " + list[0])
+        } else if (list[0].endsWith(".css")) {
+            let link = document.createElement('link');
+            link.setAttribute('rel', 'stylesheet');
+            link.setAttribute('type', 'text/css');
+            link.setAttribute('href', pi.basePath + "/" + list[0]);
+            link.onload = _ => {                
+                list.splice(0,1);
+                this.leeSiguienteArchivo(pi, list, resolve, reject);
+            };
+            link.onerror = error => {
+                console.error("Error reading '" + list[0] + "'", error);
+            }
+            document.head.appendChild(link);
+            console.log("  -> " + list[0])
+        } else {
+            console.error("Archivos del tipo de '" + list[0] + "' no manejado");
+        }
     }
 }
 
