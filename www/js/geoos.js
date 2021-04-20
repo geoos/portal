@@ -11,12 +11,17 @@ class GEOOS {
     }
 
     async init() {
+        console.log("geoos-init");
         this.config = await zPost("getPortalConfig.geoos");
+        console.log("geoos-init-1");
         await this.buildMetadata();
+        console.log("geoos-init-2");
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
+        console.log("geoos-init-3");
         this.events.on("map", "click", async p => await this.unselectObject())
         await this.inicializaPlugins();
+        console.log("geoos-init-4");
     }
 
     get baseMaps() {return this.config.maps}
@@ -143,6 +148,10 @@ class GEOOS {
                                 .then(_ => resolve()).catch(err => reject(err))
                         }
                     })
+            }
+            if (!nPending) {
+                this.finishBuildMetadata();
+                resolve();
             }
         })        
     }
