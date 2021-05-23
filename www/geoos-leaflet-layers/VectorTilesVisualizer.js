@@ -157,9 +157,10 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
             feature.geometry.forEach(geom => {
                 let object = null;
                 if (type == 1) {
+                    let p = geom;
                     style.x = this.toX(tile.x0 + p[0] * tile.tileWidth / this.extent);
                     style.y = this.toY(tile.y0 + p[1] * tile.tileHeight / this.extent);
-                    let circle = new Konva.Circle(style)
+                    let circle = new Konva.Circle(style)                    
                     group.add(circle);
                     empty = false;
                     object = circle;

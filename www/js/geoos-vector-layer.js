@@ -65,7 +65,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
 
         // Styles
-        let getFeatureStyle = f => ({stroke:"black", strokeWidth:1});
+        let getFeatureStyle = f => ({stroke:"black", strokeWidth:1, radius:5});
         if (this.file.options && this.file.options.getFeatureStyle) {
             try {
                 getFeatureStyle = eval(this.file.options.getFeatureStyle);
@@ -82,7 +82,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 console.error(err);
             }
         }
-        let getSelectedFeatureStyle = f => ({stroke:"blue", strokeWidth:1.2, fill:"rgba(50, 50, 250, 0.4)"});
+        let getSelectedFeatureStyle = f => ({stroke:"blue", strokeWidth:1.2, fill:"rgba(50, 50, 250, 0.4)", radius:5});
         if (this.file.options && this.file.options.getSelectedFeatureStyle) {
             try {
                 getSelectedFeatureStyle = eval(this.file.options.getSelectedFeatureStyle);
