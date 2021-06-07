@@ -103,7 +103,7 @@ class MyPanel extends ZCustomController {
                 } else {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
-                html += `  <i class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
+                html += `  <i class="layer-activator far fa-lg fa-${layer.active?"check-circle":"circle"} mr-2 float-left"></i>`;
                 html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span></div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
@@ -286,9 +286,9 @@ class MyPanel extends ZCustomController {
         let layer = window.geoos.getGroup(groupId).getLayer(layerId);
         await layer.toggleActive();
         if (layer.active) {
-            activator.removeClass("fa-square").addClass("fa-check-square");
+            activator.removeClass("fa-circle").addClass("fa-check-circle");
         } else {
-            activator.removeClass("fa-check-square").addClass("fa-square");
+            activator.removeClass("fa-check-circle").addClass("fa-circle");
         }
     }
 
