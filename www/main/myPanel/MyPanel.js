@@ -84,7 +84,7 @@ class MyPanel extends ZCustomController {
         for (let group of window.geoos.groups) {
             let groupSelected = selection.type == "group" && selection.element.id == group.id;
             html += `<div class="my-panel-group ${group.active?"group-active":"group-inactive"}" data-group-id="${group.id}">`;
-            html += `  <i class="group-expander fas fa-lg fa-folder${group.expanded?"-open":""} mr-2 float-left" style="width:24px;"></i>`;
+            html += `  <i class="group-expander fas fa-lg fa-chevron-right${group.expanded?"-open":""} mr-2 float-left" style="width:24px;"></i>`;
             html += `  <i class="group-expander fas fa-lg fa-chevron-right ${group.expanded?" expanded":""} mr-2 float-left"></i>`;
             html += `  <i class="group-activator far fa-lg fa-${group.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
             html += `  <div class="group-name"><span ${groupSelected?" class='my-panel-selected-name'":""}>${group.name}</span></div>`;
@@ -232,7 +232,7 @@ class MyPanel extends ZCustomController {
             layersDiv.animate({height:0}, 200, _ => {
                 group.expanded = false;
                 layersDiv.hide();
-                $(groupDiv.children()[0]).removeClass("fa-folder-open").addClass("fa-folder");
+                //$(groupDiv.children()[0]).removeClass("fa-folder-open").addClass("fa-folder");
             })
         } else {
             layersDiv.show();
@@ -241,7 +241,7 @@ class MyPanel extends ZCustomController {
             layersDiv.animate({height:group.savedHeight}, 200, _ => {
                 group.expanded = true;
                 layersDiv.css({height:""})
-                $(groupDiv.children()[0]).removeClass("fa-folder").addClass("fa-folder-open");
+                //$(groupDiv.children()[0]).removeClass("fa-folder").addClass("fa-folder-open");
             })
         }
     }
@@ -417,6 +417,10 @@ class MyPanel extends ZCustomController {
                     document.execCommand('copy');
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
+                }else if (code == "duplicate" || code == "favo") {
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
                 }
             }
         })
@@ -479,6 +483,10 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
+                }else if (code == "duplicate" || code=="favo") {
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
                 }
             }
         })
