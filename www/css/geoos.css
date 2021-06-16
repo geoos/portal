@@ -288,7 +288,8 @@ a:hover {
     border-right: 1px solid white;
 }
 .wizard-expander img {    
-    margin-top: 20px;
+    margin-top: 11px;
+    margin-right: 5px;
 }
 .top-action {
     height: 56px;
@@ -475,6 +476,9 @@ a:hover {
 .my-panel-layer .layer-activator {
     cursor: pointer;
     margin-top: 4px;
+    color: white;
+    box-shadow: 0 0 0 2px #6042cb;
+    /* background-color: #6042cb; */
 }
 .my-panel-layer-items {
     margin-left: 50px;
@@ -920,4 +924,9 @@ a:hover {
 }
 .tool-available-cell img {        
     height: 22px;    
+}
+
+.radio-butt{
+    color: white;
+    background-color: #6042cb;
 }
