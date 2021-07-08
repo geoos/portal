@@ -30,8 +30,13 @@ class TimeSerieMain extends ZCustomController {
                 this.variables.push(this.watcher1);
                 title = this.watcher1.name;
                 //if (variable.niveles && variable.niveles.length > 1) title += " [" + variable.niveles[variable.nivel].descripcion + "]";
+                let serieType = "spline";
+                console.log("variable1", this.watcher1.variable);
+                if (this.watcher1.variable && this.watcher1.variable.options && this.watcher1.variable.options.defaults) {
+                    if (this.watcher1.variable.options.defaults.serieType) serieType = this.watcher1.variable.options.defaults.serieType;
+                }
                 series.push({
-                    type:"spline",
+                    type:serieType,
                     name:title,
                     data:this.analyzer.data1.serie,
                     turboThreshold: 0
@@ -53,9 +58,13 @@ class TimeSerieMain extends ZCustomController {
                 } else {
                     subtitle = "v/s " + this.watcher2.name;
                     //if (variable.niveles && variable.niveles.length > 1) subtitle += " [" + variable.niveles[variable.nivel].descripcion + "]";
-                }                
+                }
+                let serieType = "spline";
+                if (this.watcher2.variable && this.watcher2.variable.options && this.watcher2.variable.options.defaults) {
+                    if (this.watcher2.variable.options.defaults.serieType) serieType = this.watcher2.variable.options.defaults.serieType;
+                }
                 series.push({
-                    type:"spline",
+                    type:serieType,
                     //name:variable.nombre + (variable.niveles && variable.niveles.length > 1?variable.niveles[variable.nivel]:""),
                     name:this.watcher2.name,
                     data:this.analyzer.data2.serie,
