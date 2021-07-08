@@ -89,9 +89,7 @@ class GEOOSQuery {
     getLegendColorHTML() {
         let html = "";
         html += `<div class="row mt-1">`;
-        html += `  <div id="selLegend${this.id}" class="col" style="cursor: pointer;" >`;
-        html += `    <i class="far ${this.legend?"fa-check-square":"fa-square"} mr-2 float-left mt-1"></i>`;
-        html += `    <span class="float-left mt-1">Leyendas</span>`;
+        html += `  <div id="selLegend$        console.log("icon", icon);t-left mt-1">Leyendas</span>`;
         html += `  </div>`;
         html += `  <div id="selColor${this.id}" class="col" style="cursor: pointer;" >`;
         html += `    <i class="far ${this.color?"fa-check-circle":"fa-circle"} mr-2 float-left mt-1"></i>`;
@@ -115,7 +113,8 @@ class RasterQuery extends GEOOSQuery {
 
     constructor(geoServer, dataSet, variable, format, level) {
         super({
-            type:"raster", name:variable.name, code:variable.code, icon:"img/icons/point.svg"
+            //type:"raster", name:variable.name, code:variable.code, icon:"img/icons/point.svg"
+            type:"raster", name:variable.name, code:variable.code, icon:"img/icons/empty.png"
         });
         this.variable = variable;
         this.format = format;

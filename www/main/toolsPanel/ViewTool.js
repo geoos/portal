@@ -267,6 +267,14 @@ class ViewTool extends ZCustomController {
         });
     }
 
+    onCmdInfoTool_click() {
+        this.showDialog("common/WInfo", {
+            subtitle:"ADVERTENCIA", 
+            message:"Si no logras visualizar el analisis generado, puedes probar activando la 'aceleración de hardware' en tu navegador.",
+            message2:"Para más información visita las preguntas frequentes." 
+        });
+    }
+
     onViewLoader_startWorking() {this.viewWorking.show()}
     onViewLoader_finishWorking() {this.viewWorking.hide()}
 }
