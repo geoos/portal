@@ -5,6 +5,8 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
 
     onAttached() {
         super.onAttached();
+        this.canvas.style["pointer-events"] = "none";
+        document.body.appendChild(this.canvas);
     }
 
     getColor(v) {
@@ -15,9 +17,10 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
     get speed() {return this.options.getSpeed?this.options.getSpeed():0.7}
     get lineWidth() {return this.options.getLineWidth?this.options.getLineWidth():1}
     
-    destroy() {
+    destroy() {    
         if (this.windy) this.windy.stop();
         this.windy = null;
+        this.canvas.remove();
         super.destroy();
     }
 
@@ -37,15 +40,22 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
     }
 
     clearCanvas() {
-        let ctx = this.stageCanvas.getContext("2d");
-        ctx.clearRect(0, 0, this.stageCanvas.width, this.stageCanvas.height);        
+        let canvas = this.canvas; // this.stageCanvas
+        let ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);        
     }
 
+    /*
     redraw() {
+        console.log("DBG:redraw");
         this.paintCanvas();
     }
+    */
 
     paintCanvas() {
+        this.canvas.style.left = this.stageCanvas.style.left;
+        this.canvas.style.top = this.stageCanvas.style.top;
+        this.canvas.style["z-index"] = this.stageLayer.lPane.style["z-index"];
         //this.clearCanvas();    
         if (!this.box || !this.rowsU) return;
         if (this.windy) this.windy.stop();
@@ -75,9 +85,9 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
             },
             data:this.rowsV.reduce((list, array) => (list.concat(array)), [])
         }]
+        let canvas = this.canvas; // this.stageCanvas
         this.windy = new Windy({
-            canvas:this.stageCanvas,
-            //canvas:this.canvas,
+            canvas:canvas,
             map:window.geoos.map,
             data:windyGridData,
             maxVelocity:this.max,

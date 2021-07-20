@@ -38,7 +38,9 @@ class KonvaLeafletLayer {
     }
     get lOptions() {return this.leafletLayer.options}
     get lPane() {return this.map.getPane(this.lOptions.pane)}
-    get canvas() {return this.container.querySelector("canvas")}
+    get canvas() {
+        return this.container.querySelector("canvas")
+    }
 
     addTo(map) {
         this.leafletLayer.addTo(map);
