@@ -3,6 +3,7 @@ class AddPanel extends ZCustomController {
         window.geoos.addPanel = this;
         this.open = false;
         this.infoOpen = false;
+        this.favoAdded = false;
         this.infoVarCode = null;
         this.infoContent.hide();
         this.infoPanel.hide();
@@ -24,6 +25,7 @@ class AddPanel extends ZCustomController {
         }, {
             code:"regions", name:"Filtrar por Zona o Región", data:window.geoos.regions
         }]
+        console.log("window geoos:", window.geoos);
         await this.refreshLayerType();
     }
 
@@ -107,7 +109,7 @@ class AddPanel extends ZCustomController {
         }
         return filtered;
     }
-    refresh() {
+    async refresh() {
         let htmlSections = "";
         for (let section of this.sections) {
             let firstSection = !htmlSections;
@@ -265,7 +267,18 @@ class AddPanel extends ZCustomController {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
             let variable = this.filteredLayers.find(v => v.code == code);
-            console.log("favo-variable", variable);
+            if(!this.favoAdded){
+                let variable = this.filteredLayers.find(v => v.code == code);
+                console.log("favo-variable", variable);
+                img.attr("src", "img/icons/favo-active.svg");
+                //se traspasa a la otra vista
+                window.geoos.addFavLayers(variable)
+                this.favoAdded = true;
+                
+            }else{
+                img.attr("src", "img/icons/favo.svg");
+                this.favoAdded = false;
+            }
             return false;
         });
         $(this.variablesContainer.view).find(".add-panel-variable").click(e => {
@@ -302,8 +315,8 @@ class AddPanel extends ZCustomController {
     onCmdCancelLayers_click() {this.toggle()}
     onCmdAddLayers_click(){
         this.toggle();
-        //window.geoos.addLayers(this.filteredLayers.filter(l => (l.selected)));
         window.geoos.addLayers(this.layers.filter(l => (l.selected)));
+        console.log("sel", this.layers.filter(l => (l.selected)));
         window.geoos.openMyPanel();
     }
 

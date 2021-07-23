@@ -91,6 +91,7 @@ class MyPanel extends ZCustomController {
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
             html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;
             for (let layer of group.layers) {
+                console.log("capa en panel:", layer);
                 let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
                 let layerItems = layer.getItems();
                 let layerName = layer.name;
@@ -417,7 +418,11 @@ class MyPanel extends ZCustomController {
                     document.execCommand('copy');
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
-                }else if (code == "duplicate" || code == "favo") {
+                }else if (code == "favo") {
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
+                }else if (code == "duplicate") {
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})
@@ -483,7 +488,13 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
-                }else if (code == "duplicate" || code=="favo") {
+                }else if (code=="favo") {
+
+                    
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
+                }else if (code == "duplicate") {
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})

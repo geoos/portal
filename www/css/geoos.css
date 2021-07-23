@@ -477,8 +477,6 @@ a:hover {
     cursor: pointer;
     margin-top: 4px;
     color: white;
-    box-shadow: 0 0 0 2px #6042cb;
-    /* background-color: #6042cb; */
 }
 .my-panel-layer-items {
     margin-left: 50px;
@@ -510,7 +508,11 @@ a:hover {
     margin-top: 3px;
     margin-right: 8px;
 }
-
+.favorite-layer{
+    cursor: pointer;
+    margin-top: 4px;
+    color: white;
+}
 .group-name span {
     padding: 5px;
 }

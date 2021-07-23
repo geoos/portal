@@ -8,6 +8,7 @@ class GEOOS {
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());        
         this.user = new GEOOSUser();
+        this.favLayers = [];
     }
 
     async init() {
@@ -90,6 +91,7 @@ class GEOOS {
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
         this.userConfigPanel.close();
         this.userHelpPanel.close();
+        this.userMarksPanel.close();
         this.rightHelper.close();
 
         this.toolsPanel.toggle("min");
@@ -404,6 +406,11 @@ class GEOOS {
             group.addLayer(geoosLayer);
         }
         await this.events.trigger("portal", "layersAdded", group)
+    }
+
+    async addFavLayers(layers){
+        this.favLayers.push(layers);
+        await this.events.trigger("portal", "favLayersAdded");
     }
 
     async unselect() {
