@@ -9,6 +9,7 @@ class GEOOS {
         window.addEventListener("resize", _ => this.triggerResize());        
         this.user = new GEOOSUser();
         this.favLayers = [];
+        this.favStations = [];
     }
 
     async init() {
@@ -69,6 +70,7 @@ class GEOOS {
             this.events.trigger("portal", "resize", this.calculatePortalSize())
         }, 300)
     }
+
     calculatePortalSize() {
         let width = document.documentElement.clientWidth;
         let height = document.documentElement.clientHeight;
@@ -243,6 +245,66 @@ class GEOOS {
         }
     }
 
+    async getLayers(){
+        let layers = [];
+        for (let geoServer of this.geoServers) {
+            for (let dataSet of geoServer.dataSets) {
+                if (dataSet.type == "raster") {
+                    for (let variable of dataSet.variables) {
+                        layers.push({
+                            type:"raster",
+                            geoServer:geoServer, dataSet:dataSet,
+                            providers:[dataSet.provider],
+                            subjects:variable.options.subjects || [],
+                            regions:variable.options.regions || [],
+                            types:variable.options.types || [],
+                            variable:variable,
+                            code:dataSet.code + "." + variable.code, 
+                            name:variable.name
+                        })
+                    }
+                }else if (dataSet.type == "vector") {
+                    for (let file of dataSet.files) {
+                        layers.push({
+                            type:"vector",
+                            name:file.commonName,
+                            geoServer:geoServer,
+                            dataSet:dataSet,
+                            providers:[dataSet.provider],
+                            subjects:file.options.subjects || [],
+                            regions:file.options.regions || [],
+                            types:file.options.types || [],
+                            file:file,
+                            code:dataSet.code + "." + file.name 
+                        })
+                    }
+                }
+            }
+        }
+        let stations = this.getAddedStations();
+        let added = {};
+        for (let station of stations) {
+            for (let varCode of station.variables) {
+                if (!added[varCode]) {
+                    let v = await station.server.client.getVariable(varCode);
+                    v.options = v.options || {};
+                    layers.push({
+                        type:"minz", name:v.name, path:"estacion", variable:v,
+                        zRepoServer:station.server,
+                        providers:[v.options.provider],
+                        subjects:v.options.subjects || [],
+                        regions:v.options.regions || [],
+                        types:v.options.types || [],
+                        code:v.code
+                    })
+                    added[varCode] = true;
+                }
+            }
+        }
+        layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
+        return layers;
+    }
+
     async getAvailableLayers(type, dimCode) {
         let layers = [];
         if (type == "variables") {
@@ -407,10 +469,47 @@ class GEOOS {
         }
         await this.events.trigger("portal", "layersAdded", group)
     }
+    async addLayer(layer, inGroup) {
+        let group = inGroup || this.getActiveGroup();
+        let geoosLayer = GEOOSLayer.create(layer);
+        group.addLayer(geoosLayer);
+        await this.events.trigger("portal", "layerAdded", group)
+    }
 
-    async addFavLayers(layers){
-        this.favLayers.push(layers);
-        await this.events.trigger("portal", "favLayersAdded");
+    async addFavLayers(layer){
+        let found = this.favLayers.find(element => element.code===layer.code)
+        if(!found){
+            this.favLayers.push(layer);
+            await this.events.trigger("portal", "favLayerAdded");
+        }else return;
+    }
+
+    async addFavStations(station){
+        let found = this.favStations.find(element => element.code===station.code)
+        if(!found){
+            this.favStations.push(station);
+            await this.events.trigger("portal", "favStationAdded");
+        }else return;
+    }
+
+    async deleteFavLayers(layerId){
+        let found = this.favLayers.findIndex(element => element.code==layerId)
+        if(found != -1){
+            if(this.favLayers.length > 1){
+                this.favLayers.splice(found,1);
+            }else this.favLayers = [];
+            //await this.events.trigger("portal", "favStationDeleted");
+        }
+    }
+
+    async deleteFavStations(stationId){
+        let found = this.favStations.findIndex(element => element.code==stationId)
+        if(found != -1){
+            if(this.favStations.length > 1){
+                this.favStations.splice(found,1);
+            }else this.favStations = [];
+            //await this.events.trigger("portal", "favStationDeleted");
+        }
     }
 
     async unselect() {
@@ -475,6 +574,7 @@ class GEOOS {
             this.events.trigger("portal", "layersRemoved", g)
         }
     }
+
     removeStations(list) {
         let g = this.getActiveGroup();
         let l = g.getStationsLayer();
@@ -485,6 +585,7 @@ class GEOOS {
             this.events.trigger("portal", "layersRemoved", g)
         }
     }
+
     isStationAdded(code) {
         if (!this.getActiveGroup()) return false;
         let l = this.getActiveGroup().getStationsLayer();

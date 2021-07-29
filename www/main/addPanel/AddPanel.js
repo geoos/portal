@@ -316,7 +316,7 @@ class AddPanel extends ZCustomController {
     onCmdAddLayers_click(){
         this.toggle();
         window.geoos.addLayers(this.layers.filter(l => (l.selected)));
-        console.log("sel", this.layers.filter(l => (l.selected)));
+        //console.log("sel", this.layers.filter(l => (l.selected)));
         window.geoos.openMyPanel();
     }
 

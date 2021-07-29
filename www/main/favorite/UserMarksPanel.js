@@ -9,8 +9,10 @@ class UserMarksPanel extends ZCustomController {
         window.geoos.events.on("top", "deactivateAction", action => {
             if (action == "favo" && this.open) this.toggle();
         })
-        //window.geoos.events.on("portal", "favLayersAdded", _ => this.refresh());
-
+        window.geoos.events.on("portal", "favLayerAdded", _ => this.favLayers.refresh());
+        window.geoos.events.on("portal", "favLayerAdded", _ => this.favLayers.refresh());
+        window.geoos.events.on("portal", "favStationAdded", _ => this.favStations.refresh());
+        window.geoos.events.on("portal", "favStationDeleted", _ => this.favStations.refresh());
     }
 
     async doResize() {        
@@ -42,8 +44,10 @@ class UserMarksPanel extends ZCustomController {
 
     async refresh(){
         /* console.log("llego"); */
-        console.log("favo", window.geoos.favLayers);
+        if(window.geoos.favLayers.length>0) console.log("favo", window.geoos.favLayers);
+        if(window.geoos.favStations.length>0) console.log("favo", window.geoos.favStations);
         this.favLayers.refresh();
+        this.favStations.refresh();
     }
 }
 ZVC.export(UserMarksPanel);

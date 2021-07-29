@@ -508,6 +508,13 @@ a:hover {
     margin-top: 3px;
     margin-right: 8px;
 }
+/*.user-object-addpanel .user-object-deleter{
+    cursor: pointer; 
+     margin-top:-12px; 
+    font-size:12px;  
+    margin-right:6px; 
+} */
+
 .favorite-layer{
     cursor: pointer;
     margin-top: 4px;
@@ -517,7 +524,7 @@ a:hover {
     padding: 5px;
 }
 .layer-name span {
-    margin-left: 44px;
+    /* margin-left: 44px; */
     margin-right: 30px;
     display: block;
     margin-top: -5px;
