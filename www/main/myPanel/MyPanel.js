@@ -483,7 +483,7 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
-                }else if (code == "duplicate" || code=="favo") {
+                } else if (code == "duplicate" || code=="favo") {
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})

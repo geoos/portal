@@ -133,6 +133,8 @@ class GEOOSGroup {
             return this.layers.find(l => (l instanceof GEOOSRasterLayer && l.variable.code == layerConfig.variable.code))?true:false;
         } else if (layerConfig.type == "vector") {
             return this.layers.find(l => (l instanceof GEOOSVectorLayer && l.file.name == layerConfig.file.name))?true:false;
+        } else if (layerConfig.type == "tiles") {
+            return this.layers.find(l => (l instanceof GEOOSTilesLayer && l.map.name == layerConfig.map.name))?true:false;
         } else if (layerConfig.type == "stations") {
             return this.getStationsLayer()?true:false;
         } else if (layerConfig.type == "minz") {
@@ -165,6 +167,14 @@ class GEOOSLayer {
                 dataSet: layerConfig.dataSet
             }
             return new GEOOSVectorLayer(config);
+        } else if (layerConfig.type == "tiles") {
+            let config = {
+                name: layerConfig.name,
+                map: layerConfig.map,
+                geoServer: layerConfig.geoServer,
+                dataSet: layerConfig.dataSet
+            }
+            return new GEOOSTilesLayer(config);
         } else if (layerConfig.type == "stations") {
             let config = {
                 name: layerConfig.name,
@@ -208,6 +218,8 @@ class GEOOSLayer {
             return GEOOSRasterLayer.deserialize(s, config);
         } else if (s.type == "vector") {
             return GEOOSVectorLayer.deserialize(s, config);
+        } else if (s.type == "tiles") {
+            return GEOOSTilesLayer.deserialize(s, config);
         } else if (s.type == "stations") {
             return GEOOSStationsLayer.deserialize(s, config);
         } else if (s.type == "user-objects") {

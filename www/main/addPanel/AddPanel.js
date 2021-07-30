@@ -13,8 +13,8 @@ class AddPanel extends ZCustomController {
         }, {
             code:"vector", name:"Puntos o Áreas de Interés"
         }, {
-            code:"tiles", name:"Imágenes Satelitales o Precalculadas"
-        }], "raster")
+            code:"tiles", name:"Capas de Imágenes"
+        }], "variables")
         this.sections = [{
             code:"subjects", name:"Filtrar por Tema", data:window.geoos.subjects
         }, {

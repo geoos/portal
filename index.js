@@ -28,7 +28,7 @@ async function startHTTPServer() {
             let port = webServerConfig.http.port;
             httpServer = http.createServer(app);
             httpServer.listen(port, "0.0.0.0", _ => {
-                console.log("[GEOOS HTTP Server 0.63] Listenning at Port " + port);
+                console.log("[GEOOS HTTP Server 0.65] Listenning at Port " + port);
             });
         }
     } catch(error) {

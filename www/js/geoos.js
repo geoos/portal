@@ -15,6 +15,7 @@ class GEOOS {
         this.config = await zPost("getPortalConfig.geoos");
         console.log("geoos-init-1");
         await this.buildMetadata();
+        console.log("geoServer", this.geoServers);
         console.log("geoos-init-2");
         this.scalesFactory = new ScalesFactory();
         await this.scalesFactory.init();
@@ -279,6 +280,27 @@ class GEOOS {
                                 types:file.options.types || [],
                                 file:file,
                                 code:dataSet.code + "." + file.name 
+                            })
+                        }
+                    }
+                }
+            }
+        } else if (type == "tiles") {
+            for (let geoServer of this.geoServers) {
+                for (let dataSet of geoServer.dataSets) {
+                    if (dataSet.type == "tiles") {
+                        for (let map of dataSet.maps) {
+                            layers.push({
+                                type:"tiles",
+                                name:map.commonName,
+                                geoServer:geoServer,
+                                dataSet:dataSet,
+                                providers:[dataSet.provider],
+                                subjects:map.options.subjects || [],
+                                regions:map.options.regions || [],
+                                types:map.options.types || [],
+                                map:map,
+                                code:dataSet.code + "." + map.name 
                             })
                         }
                     }
