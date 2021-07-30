@@ -92,7 +92,7 @@ class GEOOSQuery {
         html += `  <div id="selLegend$        console.log("icon", icon);t-left mt-1">Leyendas</span>`;
         html += `  </div>`;
         html += `  <div id="selColor${this.id}" class="col" style="cursor: pointer;" >`;
-        html += `    <i class="far ${this.color?"fa-check-circle":"fa-circle"} mr-2 float-left mt-1"></i>`;
+        html += `    <i class="far ${this.color?"fa-dot-circle":"fa-circle"} mr-2 float-left mt-1"></i>`;
         html += `    <span class="float-left mt-1">Colorear</span>`;
         html += `  </div>`;
         html += `</div>`;

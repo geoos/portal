@@ -288,7 +288,8 @@ a:hover {
     border-right: 1px solid white;
 }
 .wizard-expander img {    
-    margin-top: 20px;
+    margin-top: 11px;
+    margin-right: 5px;
 }
 .top-action {
     height: 56px;
@@ -475,6 +476,7 @@ a:hover {
 .my-panel-layer .layer-activator {
     cursor: pointer;
     margin-top: 4px;
+    color: white;
 }
 .my-panel-layer-items {
     margin-left: 50px;
@@ -506,12 +508,23 @@ a:hover {
     margin-top: 3px;
     margin-right: 8px;
 }
+/*.user-object-addpanel .user-object-deleter{
+    cursor: pointer; 
+     margin-top:-12px; 
+    font-size:12px;  
+    margin-right:6px; 
+} */
 
+.favorite-layer{
+    cursor: pointer;
+    margin-top: 4px;
+    color: white;
+}
 .group-name span {
     padding: 5px;
 }
 .layer-name span {
-    margin-left: 44px;
+    /* margin-left: 44px; */
     margin-right: 30px;
     display: block;
     margin-top: -5px;
@@ -920,4 +933,9 @@ a:hover {
 }
 .tool-available-cell img {        
     height: 22px;    
+}
+
+.radio-butt{
+    color: white;
+    background-color: #6042cb;
 }

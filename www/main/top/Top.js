@@ -23,13 +23,7 @@ class Top extends ZCustomController {
             this.toggleAction(icon);
         })
         this.refreshTools();
-        /*
-        window.geoos.events.on("top", "activateAction", id => {
-            if (id == "help") {
-                this.showDialog("main/help/WHelp", {}, _ =>this.toggleAction("help"), _ => this.toggleAction("help"))
-            }
-        });
-        */
+
     }
 
     doResize(size) {
@@ -225,7 +219,8 @@ class Top extends ZCustomController {
             span.textContent = "Próximamente";
         }
     }
-    onWizardExpander_click() {
+    onOpWizardExpander_click() {
+        console.log("color", opWizardExpander);
         this.showDialog("./WConfigTools");
     }
 }

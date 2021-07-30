@@ -6,6 +6,7 @@ class AddStationsPanel extends ZCustomController {
         this.infoStationCode = null;
         this.stationsInfoContent.hide();
         this.stationsInfoPanel.hide();
+        this.favoAdded = false;
         this.hide();
         window.geoos.events.on("top", "clickStations", _ => this.toggle())
         let dataProveedores = Object.keys(window.geoos.estaciones.proveedores)
@@ -289,7 +290,19 @@ class AddStationsPanel extends ZCustomController {
         $(this.stationsContainer.view).find(".favo").click(e => {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
-            let station = this.filteredStations.find(v => v.code == code);
+            //agregar a favoritos
+            if(!this.favoAdded){
+                let station = this.filteredStations.find(v => v.code == code);
+                console.log("favo-station", station);
+                img.attr("src", "img/icons/favo-active.svg");
+                //se traspasa a la otra vista
+                window.geoos.addFavStations(station)
+                this.favoAdded = true;
+                
+            }else{
+                img.attr("src", "img/icons/favo.svg");
+                this.favoAdded = false;
+            }
             return false;
         });
         $(this.stationsContainer.view).find(".download").click(e => {

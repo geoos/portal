@@ -13,7 +13,7 @@ class CheckBox extends ZCustomController {
             //i.classList.remove("fa-square");
             //i.classList.add("fa-square");
             i.classList.remove("fa-circle");
-            i.classList.add("fa-check-circle");
+            i.classList.add("fa-dot-circle");
             this._checked =true;
         } else {
             //i.classList.remove("fa-check-square");

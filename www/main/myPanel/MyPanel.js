@@ -91,6 +91,7 @@ class MyPanel extends ZCustomController {
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
             html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;
             for (let layer of group.layers) {
+                console.log("capa en panel:", layer);
                 let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
                 let layerItems = layer.getItems();
                 let layerName = layer.name;
@@ -103,7 +104,7 @@ class MyPanel extends ZCustomController {
                 } else {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
-                html += `  <i class="layer-activator far fa-lg fa-${layer.active?"check-circle":"circle"} mr-2 float-left"></i>`;
+                html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
                 html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span></div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
@@ -286,9 +287,9 @@ class MyPanel extends ZCustomController {
         let layer = window.geoos.getGroup(groupId).getLayer(layerId);
         await layer.toggleActive();
         if (layer.active) {
-            activator.removeClass("fa-circle").addClass("fa-check-circle");
+            activator.removeClass("fa-circle").addClass("fa-dot-circle");
         } else {
-            activator.removeClass("fa-check-circle").addClass("fa-circle");
+            activator.removeClass("fa-dot-circle").addClass("fa-circle");
         }
     }
 
@@ -417,7 +418,11 @@ class MyPanel extends ZCustomController {
                     document.execCommand('copy');
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
-                }else if (code == "duplicate" || code == "favo") {
+                }else if (code == "favo") {
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
+                }else if (code == "duplicate") {
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})
@@ -483,7 +488,11 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
-                } else if (code == "duplicate" || code=="favo") {
+                } else if (code=="favo") {                    
+                    this.showDialog("common/WInProgress", {
+                        subtitle:"Esta sección está en proceso de contrucción",
+                        message:"¡Disculpe las molestias!"})
+                } else if (code == "duplicate") {
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})
