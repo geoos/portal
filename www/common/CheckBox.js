@@ -10,16 +10,16 @@ class CheckBox extends ZCustomController {
     set checked(c) {
         let i = this.find("i");
         if (c) {            
-            //i.classList.remove("fa-square");
-            //i.classList.add("fa-square");
-            i.classList.remove("fa-circle");
-            i.classList.add("fa-dot-circle");
+            i.classList.remove("fa-square");
+            i.classList.add("fa-check-square");
+            //i.classList.remove("fa-circle");
+            //i.classList.add("fa-dot-circle");
             this._checked =true;
         } else {
-            //i.classList.remove("fa-check-square");
-            //i.classList.add("fa-square");
-            i.classList.remove("fa-cirlce");
-            i.classList.add("fa-circle");
+            i.classList.remove("fa-check-square");
+            i.classList.add("fa-square");
+            //i.classList.remove("fa-cirlce");
+            //i.classList.add("fa-circle");
             this._checked =false;
         }
     }

@@ -1,0 +1,90 @@
+<div class="container-fluid pt-2">    
+    <div id="registrarse">
+        <hr style="background-color: white;" />    
+        <h6>Registrarse</h6>
+        <div>
+            Si ya se ha registrado en GEOOS con su dirección de correo electrónico, puede
+            <a id="cmdLogin" class="btn btn-sm btn-link">Iniciar Sesión</a>
+        </div>
+        <div class="ml-2">
+            <div class="row">
+                <div class="col-4">
+                    <label class="mt-1">Dirección E-mail</label>
+                </div>
+                <div class="col-8">
+                    <input id="edEmail" type="email" class="form-control form-control-sm" data-z-autochange-delay="300"/>
+                </div>
+            </div>
+            <div id="enviarCodigo" class="row mt-2">
+                <div class="col-8 text-small">
+                    <span id="lblMensajeEnviar">Se le enviará un código de 6 dígitos para verificar su dirección de correo electrónico.</span>
+                </div>
+                <div class="col-4 text-center">
+                    <button id="cmdEnviarCodigo" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                        <i class="fa fas fa-envelope mr-2"></i>
+                        Enviar Código
+                    </button>
+                    <i id="working" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+                </div>
+            </div>
+        </div>
+        <div id="codigoEnviado">
+            <hr style="background-color: white;" />
+            <h6>Completar Datos Básicos</h6>
+            <div class="ml-2">
+                <div class="row">
+                    <div class="col-8">
+                        <label class="mt-1">Código Recibido (*)</label>
+                    </div>
+                    <div class="col-4">
+                        <input id="edCodigoRegistro" type="text" class="ml-auto form-control form-control-sm" maxlength="6" minlength="6" style="width: 90px;" />
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-4">
+                        <label class="mt-1">Nombre (*)</label>
+                    </div>
+                    <div class="col-8">
+                        <input id="edNombre" type="text" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-4">
+                        <label class="mt-1">Institución</label>
+                    </div>
+                    <div class="col-8">
+                        <input id="edInstitucion" type="text" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-4">
+                        <label class="mt-1">Contraseña (*)</label>
+                    </div>
+                    <div class="col-8">
+                        <input id="edPwd" type="password" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-4">
+                        <label class="mt-1">Repetir Contraseña (*)</label>
+                    </div>
+                    <div class="col-8">
+                        <input id="edPwd2" type="password" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-8">
+                        <span>La contraseña se almacena encriptada en nuestros servidores. Si la olvida podrá crear una nueva, pero no recuperarla.</span>
+                    </div>
+                    <div class="col-4 text-center">
+                        <button id="cmdRegistrarse" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                            <i class="fa fas fa-clipboard-check mr-2"></i>
+                            Registrarse
+                        </button>
+                        <i id="working2" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

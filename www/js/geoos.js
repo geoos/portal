@@ -93,6 +93,7 @@ class GEOOS {
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
         this.userConfigPanel.close();
+        this.userAccountPanel.close();
         this.userHelpPanel.close();
         this.userMarksPanel.close();
         this.rightHelper.close();
@@ -789,6 +790,18 @@ class GEOOS {
         } else {
             console.error("Archivos del tipo de '" + list[0] + "' no manejado");
         }
+    }
+
+    login(sesion) {
+        this.userSession = sesion;
+        window.zSecurityToken = sesion.token;
+    }
+    logout() {
+        this.userSession = null;
+        window.zSecurityToken = null;
+    }
+    saveSesion(sesion) {
+        this.userSession = sesion;        
     }
 }
 
