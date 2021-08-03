@@ -17,13 +17,16 @@ class UserAccountPanel extends ZCustomController {
                 window.geoos.login(sesion);
                 this.session.load("./Logged");
                 this.tabUserAccountPanel.showTab("profile");
+                window.geoos.triggerLogged();
             } catch(error) {
                 console.error(error);
                 this.session.load("./Login");
                 localStorage.removeItem("session");
+                window.geoos.triggerNotLogged();
             }
         } else {
             this.session.load("./Login");
+            window.geoos.triggerNotLogged();
         }        
     }
     doResize() {        
@@ -66,10 +69,12 @@ class UserAccountPanel extends ZCustomController {
     async onSession_login() {
         await this.session.load("./Logged")
         this.tabUserAccountPanel.showTab("profile");
+        window.geoos.triggerLogged();
     }
     async onSession_logout() {
         await this.session.load("./Login")
         this.tabUserAccountPanel.hideTab("profile");
+        window.geoos.triggerNotLogged();
     }
 
     onTabUserAccountPanel_change(tab) {

@@ -794,7 +794,7 @@ class GEOOS {
 
     login(sesion) {
         this.userSession = sesion;
-        window.zSecurityToken = sesion.token;
+        window.zSecurityToken = sesion.token;        
     }
     logout() {
         this.userSession = null;
@@ -802,6 +802,19 @@ class GEOOS {
     }
     saveSesion(sesion) {
         this.userSession = sesion;        
+    }
+    triggerLogged() {
+        setTimeout(async _ => {
+            let userConfig = await zPost("getUserConfig.geoos");
+            this.user.setServerConfig(userConfig);
+            await this.events.trigger("portal", "userConfigChanged");
+        }, 200);
+    }
+    triggerNotLogged() {
+        setTimeout(async _ => {
+            this.user.setLocalConfig();
+            await this.events.trigger("portal", "userConfigChanged");
+        }, 200);
     }
 }
 
