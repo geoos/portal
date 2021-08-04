@@ -7,7 +7,7 @@ class Register extends ZCustomController {
         this.working2.hide();
         this.codigoEnviado.hide();
         this.cmdEnviarCodigo.disable();
-        if (options && options.email) this.edEmail.value = email;
+        if (options && options.email) this.edEmail.value = options.email;
     }
 
     emailValido(email) {
@@ -24,7 +24,7 @@ class Register extends ZCustomController {
     onCmdLogin_click() {
         let email = this.edEmail.value.trim();
         let pwd = this.edPwd.value.trim();
-        this.triggerEvent("toLogin", {email, pwd});
+        this.triggerEvent("to_Login", email);
     }
     async onCmdEnviarCodigo_click() {
         try {
@@ -36,7 +36,8 @@ class Register extends ZCustomController {
             this.lblMensajeEnviar.text = mensajeReenviar;
         } catch(error) {
             console.error(error);
-            this.showDialog("common/WError", {message:"Se produjo un error y el correo no pudo ser enviado. Por favor inténtelo más tarde"})
+            //this.showDialog("common/WError", {message:"Se produjo un error y el correo no pudo ser enviado. Por favor inténtelo más tarde"})
+            this.showDialog("common/WError", {message:error.toString()})
         } finally {
             this.cmdEnviarCodigo.show();
             this.working.hide();

@@ -29,7 +29,8 @@ class WOlvidoPwd extends ZDialog {
             this.edEmail.disable();
         } catch(error) {
             console.error(error);
-            this.showDialog("common/WError", {message:"Se produjo un error y el correo no pudo ser enviado. Por favor inténtelo más tarde"})
+            //this.showDialog("common/WError", {message:"Se produjo un error y el correo no pudo ser enviado. Por favor inténtelo más tarde"})
+            this.showDialog("common/WError", {message:error.toString()})
         } finally {
             this.cmdEnviarCodigo.show();
             this.working.hide();

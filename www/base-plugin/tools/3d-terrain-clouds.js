@@ -85,7 +85,7 @@ class Tool3DTerrainClouds extends GEOOSTool {
             d.grid = null;
         })
         let promises = [
-            this.loadTerrain(), this.loadCloudsLevel(0), this.loadCloudsLevel(1), this.loadCloudsLevel(2)
+            this.loadTerrain(), this.loadCloudsLevel(1), this.loadCloudsLevel(2), this.loadCloudsLevel(3)
         ];
         Promise.all(promises)
             .then(_ => {
@@ -128,11 +128,11 @@ class Tool3DTerrainClouds extends GEOOSTool {
             let {promise, controller} = variable.query({
                 format:"grid", level:level, n:b.n, s:b.s, w:b.w, e:b.e
             });
-            this.data[level+1].aborter = controller;
+            this.data[level].aborter = controller;
             promise
                 .then(res => {
-                    this.data[level+1].aborter = null;
-                    this.data[level+1].grid = res;
+                    this.data[level].aborter = null;
+                    this.data[level].grid = res;
                     resolve();
                 }).catch(err => {
                     console.error(err)
