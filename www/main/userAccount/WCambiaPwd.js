@@ -1,6 +1,9 @@
 class WCambiaPwd extends ZDialog {
     onThis_init(options) {
-
+        $(this.view).find(".mostrador")
+            .on("mousedown", e => $(e.currentTarget).parent().parent().children()[0].type = "text")
+            .on("mouseup", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
+            .on("mouseout", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
     }
 
     async onCmdOk_click() {
@@ -18,6 +21,6 @@ class WCambiaPwd extends ZDialog {
         }
     }
     onCmdCancel_click() {this.close()}
-    onCmdClose_click() {this.close()}
+    onCmdClose_click() {this.close()}    
 }
 ZVC.export(WCambiaPwd);

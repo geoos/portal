@@ -8,6 +8,10 @@ class Login extends ZCustomController {
         }, 300);
         if (options && options.email) this.edEmail.value = options.email;
         if (options && options.pwd) this.edPwd.value = options.pwd;
+        $(this.view).find(".mostrador")
+            .on("mousedown", e => $(e.currentTarget).parent().parent().children()[0].type = "text")
+            .on("mouseup", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
+            .on("mouseout", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
     }
 
     onCmdRegister_click() {

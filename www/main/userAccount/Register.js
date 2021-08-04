@@ -8,6 +8,10 @@ class Register extends ZCustomController {
         this.codigoEnviado.hide();
         this.cmdEnviarCodigo.disable();
         if (options && options.email) this.edEmail.value = options.email;
+        $(this.view).find(".mostrador")
+            .on("mousedown", e => $(e.currentTarget).parent().parent().children()[0].type = "text")
+            .on("mouseup", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
+            .on("mouseout", e => $(e.currentTarget).parent().parent().children()[0].type = "password")
     }
 
     emailValido(email) {
