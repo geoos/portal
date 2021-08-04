@@ -23,12 +23,30 @@ async function startHTTPServer() {
         
         app.post("/*.*", (req, res) => zServer.resolve(req, res));     
 
+        app.get("/fotoPerfil/:email", async (req, res) => {
+            let email = req.params.email;
+            let foto = await portal.getFotoPerfil(email);
+            if (foto) {
+                let regex = /^data:.+\/(.+);base64,(.*)$/;
+                let matches = foto.match(regex);
+                let contentType = matches[1];
+                let data = matches[2];
+                let buffer = Buffer.from(data, 'base64');
+                res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+                res.setHeader('Content-Type', "image/" + contentType);
+                res.status(200);
+                res.send(buffer);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+
         let webServerConfig = config.getWebServerConfig();
         if (webServerConfig.http) {
             let port = webServerConfig.http.port;
             httpServer = http.createServer(app);
             httpServer.listen(port, "0.0.0.0", _ => {
-                console.log("[GEOOS HTTP Server 0.63] Listenning at Port " + port);
+                console.log("[GEOOS HTTP Server 0.72] Listenning at Port " + port);
             });
         }
     } catch(error) {

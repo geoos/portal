@@ -22,8 +22,10 @@ class Top extends ZCustomController {
             let icon = t.data("z-icon");
             this.toggleAction(icon);
         })
-        this.refreshTools();
-
+        // refreshTools is called after login, autoLogin or not logged
+        // triggered by event
+        window.geoos.events.on("portal", "userConfigChanged", _ => this.refreshTools());
+        // this.refreshTools();
     }
 
     doResize(size) {

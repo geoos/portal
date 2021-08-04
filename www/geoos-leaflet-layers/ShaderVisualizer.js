@@ -98,7 +98,13 @@ class ShaderVisualizer extends KonvaCanvasVisualizer {
         this.update();
     }
     paintCanvas() {
-        if (!this.box || !this.rows) return;
+        if (!this.box || !this.rows) {
+            const gl = this.gl;
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            console.log("shader borrado");
+            return;
+        }
         const nrows = this.nrows, ncols = this.ncols;
         const rows = this.rows;
         const bounds = this.map.getBounds();

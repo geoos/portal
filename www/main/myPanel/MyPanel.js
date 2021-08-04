@@ -424,9 +424,7 @@ class MyPanel extends ZCustomController {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})
                 }else if (code == "duplicate") {
-                    this.showDialog("common/WInProgress", {
-                        subtitle:"Esta sección está en proceso de contrucción",
-                        message:"¡Disculpe las molestias!"})
+                    this.groupDuplicate(group);
                 }
             }
         })
@@ -459,17 +457,23 @@ class MyPanel extends ZCustomController {
         let group = window.geoos.getGroup(groupId);
         let layerId = layerDiv.data("layer-id");
         let layer = group.getLayer(layerId);
-        let z = new ZPop(opener, [{
-            code:"duplicate", icon:"far fa-copy", label:"Duplicar Capa", 
-        }, {
-            code:"sep", icon:"-", label:"-", 
-        }, {
-            code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
-        }, {
-            code:"sep", icon:"-", label:"-", 
-        }, {
-            code:"delete", icon:"far fa-trash-alt", label:"Eliminar la Capa", 
-        }], {
+        let items = [{
+                code:"duplicate", icon:"far fa-copy", label:"Duplicar Capa", 
+            }, {
+                code:"sep", icon:"-", label:"-", 
+            }, {
+                code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
+            }, {
+                code:"sep", icon:"-", label:"-", 
+            }, {
+                code:"delete", icon:"far fa-trash-alt", label:"Eliminar la Capa", 
+            }
+        ];
+        if (layer instanceof GEOOSStationsLayer) {
+            // La capa de estaciones no se puede duplicar
+            items.splice(0,2);
+        }
+        let z = new ZPop(opener, items, {
             vMargin:10,
             onClick:(code, item) => {
                 if (code == "delete") {
@@ -489,16 +493,12 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
-                }else if (code=="favo") {
-
-                    
+                } else if (code=="favo") {                    
                     this.showDialog("common/WInProgress", {
                         subtitle:"Esta sección está en proceso de contrucción",
                         message:"¡Disculpe las molestias!"})
-                }else if (code == "duplicate") {
-                    this.showDialog("common/WInProgress", {
-                        subtitle:"Esta sección está en proceso de contrucción",
-                        message:"¡Disculpe las molestias!"})
+                } else if (code == "duplicate") {
+                    this.layerDuplicate(layer);
                 }
             }
         })
@@ -549,5 +549,38 @@ class MyPanel extends ZCustomController {
     userObjectRename(userObject) {
         $(this.myContainer.view).find(".my-panel-user-object[data-code='" + userObject.id + "'] .user-object-name span").text(userObject.name);
     }
+    layerDuplicate(layer) {
+        let s = layer.serialize();
+        s.id = generateId();
+        let n = 0, name;
+        do {
+            n++;
+            name = s.name + " [" + n + "]";
+        } while(window.geoos.getActiveGroup().layers.find(l => l.name == name));
+        s.name = name;
+        let newLayer = GEOOSLayer.deserialize(s);
+        window.geoos.getActiveGroup().addLayer(newLayer);
+        this.refresh();
+    }
+    groupDuplicate(group) {
+        let s = group.serialize();
+        console.log("s", s);
+        s.id = generateId();
+        let n = 0, name;
+        do {
+            n++;
+            name = s.name + " [" + n + "]";
+        } while(window.geoos.getActiveGroup().layers.find(l => l.name == name));
+        s.name = name;
+        // Regenerar id de las capas
+        s.layers.forEach(layer => {
+            layer.id = generateId();
+        })
+        let newGroup = GEOOSGroup.deserialize(s);
+        newGroup.active = false;
+        console.log("newGroup", newGroup);
+        window.geoos.addExistingGroup(newGroup);
+        this.refresh();
+    }    
 }
 ZVC.export(MyPanel);

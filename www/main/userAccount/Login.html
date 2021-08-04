@@ -1,0 +1,45 @@
+<div class="container-fluid pt-2">    
+    <div id="login">
+        <hr style="background-color: white;" />    
+        <h6>Iniciar Sesión</h6>
+        <div>
+            Si no ha creado su cuenta en GEOOS, puede
+            <a id="cmdRegister" class="btn btn-sm btn-link">Registrarse Aquí.</a>
+            Una vez que se registre e inicie sesión, podrá almacenar sus favoritos. <br />
+            Si olvidó su Contraseña, haga <a id="cmdOlvidoPwd" class="btn btn-sm btn-link">Click Aquí</a>
+        </div>
+        <hr style="background-color: white;" />    
+        <div class="ml-2">
+            <div class="row">
+                <div class="col-4">
+                    <label class="mt-1">Dirección E-mail</label>
+                </div>
+                <div class="col-8">
+                    <input id="edEmail" type="email" class="form-control form-control-sm" data-z-autochange-delay="300"/>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Contraseña (*)</label>
+                </div>
+                <div class="col-8">
+                    <input id="edPwd" type="password" class="form-control form-control-sm" />
+                </div>
+            </div>
+            <div id="rowClipOutOfRange" class="row mt-1">
+                <div class="col-12">
+                    <div id="edRecordarme" data-z-component="common/CheckBox" data-z-label="Recordarme en este Equipo"></div>
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-12 text-center">
+                    <button id="cmdLogin" type="button" class="btn btn-sm btn-secondary geoos-panel-ok ml-auto">
+                        <i class="fa fas fa-sign-in-alt mr-2"></i>
+                        Iniciar Sesión
+                    </button>
+                    <i id="working" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>

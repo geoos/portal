@@ -1,0 +1,59 @@
+<div class="container-fluid pt-2">    
+    <div id="registrarse">
+        <hr style="background-color: white;" />    
+        <h6>Datos del Usuario</h6>
+        <div class="ml-2">
+            <div class="row">
+                <div class="col-4">
+                    <label class="mt-1">Dirección E-mail</label>
+                </div>
+                <div class="col-8">
+                    <span id="edEmail" type="email" readonly="readonly" class="label"></span>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Nombre (*)</label>
+                </div>
+                <div class="col-8">
+                    <input id="edNombre" type="text" class="form-control form-control-sm" />
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <label class="mt-1">Institución</label>
+                </div>
+                <div class="col-8">
+                    <input id="edInstitucion" type="text" class="form-control form-control-sm" />
+                </div>
+            </div>
+            <hr style="background-color: white;" />    
+            <div style="width: 0; height: 0; overflow: hidden;">
+                <input id="edFileInput" type="file" accept="image" />
+            </div>
+            <div class="row mt-1">
+                <div class="col-4">
+                    <span id="lblHelpFoto">Arrastre una foto o haga click en la imagen</span>
+                    <br />
+                    <a id="cmdEliminarFoto" class="pl-0 btn btn-sm btn-link">Eliminar Foto</a>
+                </div>
+                <div class="col-8">
+                    <div id="fotoContainer" data-z-clickable="true" style="margin-left:55px; width: 200px; height: 200px; cursor: pointer;"> 
+                        <img id="fotoInicial" width="128px" height="128px" style="margin: 36px;" src="img/anonimo.svg" />
+                    </div>
+                </div>
+            </div>
+            <hr style="background-color: white;" />    
+            <div class="row my-2">
+                <div class="col-12 text-center">
+                    <a id="cmdPwd" class="btn btn-sm btn-link float-left">Cambiar Contraseña</a>
+                    <button id="cmdSave" type="button" class="btn btn-sm btn-secondary geoos-panel-ok ml-auto">
+                        <i class="fa fas fa-save mr-2"></i>
+                        Grabar Cambios
+                    </button>
+                    <i id="working" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+                </div>
+            </div>
+        </div>        
+    </div>
+</div>
