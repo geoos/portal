@@ -84,12 +84,12 @@ class MyPanel extends ZCustomController {
         for (let group of window.geoos.groups) {
             let groupSelected = selection.type == "group" && selection.element.id == group.id;
             html += `<div class="my-panel-group ${group.active?"group-active":"group-inactive"}" data-group-id="${group.id}">`;
-            html += `  <i class="group-expander fas fa-lg fa-chevron-right${group.expanded?"-open":""} mr-2 float-left" style="width:24px;"></i>`;
+            //html += `  <i class="group-expander fas fa-lg fa-chevron-right${group.expanded?" -open":""} mr-2 float-left" style="width:24px;"></i>`;
             html += `  <i class="group-expander fas fa-lg fa-chevron-right ${group.expanded?" expanded":""} mr-2 float-left"></i>`;
             html += `  <i class="group-activator far fa-lg fa-${group.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
             html += `  <div class="group-name"><span ${groupSelected?" class='my-panel-selected-name'":""}>${group.name}</span></div>`;
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
-            html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;
+            html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;   
             for (let layer of group.layers) {
                 console.log("capa en panel:", layer);
                 let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
@@ -104,7 +104,7 @@ class MyPanel extends ZCustomController {
                 } else {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
-                html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"dot-circle":"circle"} mr-2 float-left"></i>`;
+                html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
                 html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span></div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
@@ -229,16 +229,17 @@ class MyPanel extends ZCustomController {
         let group = window.geoos.getGroup(groupId);
         if (group.expanded) {
             group.savedHeight = layersDiv.height();
-            $(groupDiv.children()[1]).removeClass("expanded");
+            $(groupDiv.children()[0]).removeClass("expanded");
             layersDiv.animate({height:0}, 200, _ => {
                 group.expanded = false;
                 layersDiv.hide();
                 //$(groupDiv.children()[0]).removeClass("fa-folder-open").addClass("fa-folder");
+                //$(groupDiv.children()[0]).removeClass("fa-folder-expanded").addClass("fa-folder");
             })
         } else {
             layersDiv.show();
             layersDiv.height(0);
-            $(groupDiv.children()[1]).addClass("expanded");
+            $(groupDiv.children()[0]).addClass("expanded");
             layersDiv.animate({height:group.savedHeight}, 200, _ => {
                 group.expanded = true;
                 layersDiv.css({height:""})
@@ -287,9 +288,9 @@ class MyPanel extends ZCustomController {
         let layer = window.geoos.getGroup(groupId).getLayer(layerId);
         await layer.toggleActive();
         if (layer.active) {
-            activator.removeClass("fa-circle").addClass("fa-dot-circle");
+            activator.removeClass("fa-square").addClass("fa-check-square");
         } else {
-            activator.removeClass("fa-dot-circle").addClass("fa-circle");
+            activator.removeClass("fa-check-square").addClass("fa-square");
         }
     }
 
