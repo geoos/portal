@@ -197,6 +197,7 @@ class LegendsVisualizer extends KonvaLeafletVisualizer {
         this.update();
     }
     drawContextLegend() {
+        if (!this.contextLegend) return;
         let l1_x = 60, l1_y = 30, l2_x = 70;
         let p0 = this.toCanvas({lat:this.contextLegend.lat, lng:this.contextLegend.lng})
         let pc = this.toCanvas(window.geoos.center);
