@@ -1,10 +1,20 @@
 class MapTypePage extends ZCustomController {
     onThis_init() {
-        this.refreshMaps();
-        this.edNamesLayer.checked = window.geoos.user.config.mapConfig.namesLayer;
+        window.geoos.events.on("portal", "userConfigChanged", _ => {
+            this.refreshMaps();
+            this.edNamesLayer.checked = window.geoos.user.config.mapConfig.namesLayer;
+            let code = window.geoos.user.config.mapConfig.selectedMap;
+            window.geoos.mapPanel.resetBaseMap(code);
+            let mapDef = window.geoos.baseMaps.find(m => m.code == code);
+            if (mapDef.includeLabels) {
+                window.geoos.mapPanel.resetNamesLayer(window.geoos.user.config.mapConfig.namesLayer);
+            }
+        });
+        //this.refreshMaps();
+        //this.edNamesLayer.checked = window.geoos.user.config.mapConfig.namesLayer;
     }
 
-    refreshMaps() {
+    refreshMaps() {        
         let mapConfig = window.geoos.user.config.mapConfig;
         let currentMap = window.geoos.baseMaps.find(m  => m.code == mapConfig.selectedMap);
         if (currentMap && currentMap.includeLabels) {
@@ -47,5 +57,6 @@ class MapTypePage extends ZCustomController {
         window.geoos.mapPanel.resetNamesLayer(this.edNamesLayer.checked);
         window.geoos.user.saveConfig();
     }
+
 }
 ZVC.export(MapTypePage)
