@@ -3,7 +3,6 @@ class AddPanel extends ZCustomController {
         window.geoos.addPanel = this;
         this.open = false;
         this.infoOpen = false;
-        this.favoAdded = false;
         this.infoVarCode = null;
         this.infoContent.hide();
         this.infoPanel.hide();
@@ -267,17 +266,16 @@ class AddPanel extends ZCustomController {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
             let variable = this.filteredLayers.find(v => v.code == code);
-            if(!this.favoAdded){
+            if(!window.geoos.isFavorite(code, "layer")){
                 let variable = this.filteredLayers.find(v => v.code == code);
                 console.log("favo-variable", variable);
                 img.attr("src", "img/icons/favo-active.svg");
                 //se traspasa a la otra vista
                 window.geoos.addFavLayers(variable)
-                this.favoAdded = true;
                 
             }else{
+                window.geoos.deleteFavLayers(code)
                 img.attr("src", "img/icons/favo.svg");
-                this.favoAdded = false;
             }
             return false;
         });

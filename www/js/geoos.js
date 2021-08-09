@@ -10,6 +10,7 @@ class GEOOS {
         this.user = new GEOOSUser();
         this.favLayers = [];
         this.favStations = [];
+        this.favGroups = [];
     }
 
     async init() {
@@ -515,6 +516,32 @@ class GEOOS {
         }else return;
     }
 
+    addFavGroups(group){
+        let found = this.favGroups.find(element => element.code===group.code)
+        if(!found){
+            this.favStations.push(group);
+        }else return;
+    }
+
+    isFavorite(code, type){
+        if(type == "station"){
+            let found = this.favStations.find(element => element.code===code)
+            if(found){
+                return true;
+            }else return false;
+        }else if(type == "layer"){
+            let found = this.favLayers.find(element => element.code===code)
+            if(found){
+                return true;
+            }else return false;
+        }else if(type == "group"){
+            let found = this.favGroups.find(element => element.code===code)
+            if(found){
+                return true;
+            }else return false;
+        }
+    }
+
     async deleteFavLayers(layerId){
         let found = this.favLayers.findIndex(element => element.code==layerId)
         if(found != -1){
@@ -531,6 +558,16 @@ class GEOOS {
             if(this.favStations.length > 1){
                 this.favStations.splice(found,1);
             }else this.favStations = [];
+            //await this.events.trigger("portal", "favStationDeleted");
+        }
+    }
+
+    deleteFavGroups(groupId){
+        let found = this.favGroups.findIndex(element => element.code==groupId)
+        if(found != -1){
+            if(this.favGroups.length > 1){
+                this.favGroups.splice(found,1);
+            }else this.favGroups = [];
             //await this.events.trigger("portal", "favStationDeleted");
         }
     }
@@ -615,6 +652,7 @@ class GEOOS {
         if (!l) return false;
         return l.containsStation(code);
     }
+
     toggleStation(code) {
         if (this.isStationAdded(code)) this.removeStation(code);
         else this.addStation(code);

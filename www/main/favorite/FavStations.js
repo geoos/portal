@@ -45,7 +45,7 @@ class FavStations extends ZCustomController {
                 html += `    <div class="col" data-station-id="${station.code}">`;
                 html += `      <i class=" station-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>`;
                 //html += `      <i class=" station-activator inactive fas fa-layer-group ml-1 float-right" style="cursor: pointer;"></i>`;
-                html += `      <img class="station-activator inactive added" style="height: 16px;" src="img/icons/variable-added.svg" />`;
+                html += `      <img class="station-activator" style="height: 16px;" src="img/icons/variable-added.svg" />`;
 
                 html += `    </div>`;
                 html += `  </div>`;
@@ -63,9 +63,8 @@ class FavStations extends ZCustomController {
         let activator = $(e.currentTarget);
         let stationDiv = activator.parent();
         let stationId = stationDiv.data("station-id");
-        //window.geoos.toggleStation(stationId);
-        //this.refresh();
-        //this.refreshResume();
+        window.geoos.toggleStation(stationId);
+        this.refresh();
 
     }
 
