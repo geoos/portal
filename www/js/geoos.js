@@ -517,9 +517,10 @@ class GEOOS {
     }
 
     addFavGroups(group){
-        let found = this.favGroups.find(element => element.code===group.code)
+        let groupCopy = $.extend( true, {}, group );
+        let found = this.favGroups.find(element => element.id===groupCopy.id)
         if(!found){
-            this.favStations.push(group);
+            this.favGroups.push(groupCopy);
         }else return;
     }
 
@@ -535,7 +536,7 @@ class GEOOS {
                 return true;
             }else return false;
         }else if(type == "group"){
-            let found = this.favGroups.find(element => element.code===code)
+            let found = this.favGroups.find(element => element.id===id)
             if(found){
                 return true;
             }else return false;
@@ -563,7 +564,7 @@ class GEOOS {
     }
 
     deleteFavGroups(groupId){
-        let found = this.favGroups.findIndex(element => element.code==groupId)
+        let found = this.favGroups.findIndex(element => element.id==groupId)
         if(found != -1){
             if(this.favGroups.length > 1){
                 this.favGroups.splice(found,1);
@@ -571,6 +572,25 @@ class GEOOS {
             //await this.events.trigger("portal", "favStationDeleted");
         }
     }
+
+    deleteFavLayerGroups(groupId, layerId){
+        let found = this.favGroups.findIndex(element => element.id==groupId)
+        if(found != -1){
+            let group =  this.favGroups[found];
+            console.log("grup", group);
+            let layerpos = group.layers.findIndex(el => el.id==layerId)
+            console.log("layerpos", layerpos);
+            if(layerpos != -1 && group.layers.length>1){
+                group.layers.splice(layerpos, 1);
+            }else if(layerpos != -1){
+                console.log("aca 2" );
+                if(this.favGroups.length > 1){
+                    this.favGroups.splice(found,1);
+                }else this.favGroups = [];
+            }
+        }
+    }
+
 
     async unselect() {
         if (!this.selection.type) return;

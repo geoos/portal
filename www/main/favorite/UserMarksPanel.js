@@ -44,10 +44,18 @@ class UserMarksPanel extends ZCustomController {
 
     async refresh(){
         /* console.log("llego"); */
-        if(window.geoos.favLayers.length>0) console.log("favo", window.geoos.favLayers);
-        if(window.geoos.favStations.length>0) console.log("favo", window.geoos.favStations);
-        this.favLayers.refresh();
-        this.favStations.refresh();
+        if(window.geoos.favLayers.length>0) {
+            //console.log("favo layer", window.geoos.favLayers);
+            this.favLayers.refresh();
+        }
+        if(window.geoos.favStations.length>0) {
+            //console.log("favo stat", window.geoos.favStations);
+            this.favStations.refresh();
+        }
+        if(window.geoos.favGroups.length>0) {
+            console.log("favo group", window.geoos.favGroups);
+            this.favPanel.refresh();
+        }
     }
 }
 ZVC.export(UserMarksPanel);

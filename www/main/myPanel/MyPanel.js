@@ -405,6 +405,7 @@ class MyPanel extends ZCustomController {
                     let s = group.serialize();
                     s.mapView = window.geoos.mapPanel.serialize();
                     s.toolsStatus = window.geoos.toolsPanel.status;
+                    console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
                     /*
                     s = JSON.stringify(s);
@@ -420,9 +421,19 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 }else if (code == "favo") {
-                    this.showDialog("common/WInProgress", {
-                        subtitle:"Esta sección está en proceso de contrucción",
-                        message:"¡Disculpe las molestias!"})
+                    //agregar a favoritos
+                    if(!window.geoos.isFavorite(groupId, "group")){
+                        console.log("favo-groups", group);
+                        //se traspasa a la otra vista
+                        window.geoos.addFavGroups(group)
+                        
+                    }else{
+                        console.log("no entro,",groupId);
+                        window.geoos.deleteFavGroups(groupId)
+                        img.attr("src", "img/icons/favo.svg");
+                    }
+                    return false;
+
                 }else if (code == "duplicate") {
                     this.groupDuplicate(group);
                 }
