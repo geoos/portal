@@ -210,6 +210,7 @@ class GEOOSUserObject {
     getChildren() {return []}
     getFinalObject(interactionObject) {return this}
     moved(userObjectsVisualizer, interactionObject, childObject) {throw "Moved not overriten"}
+    positioned(lat, lng, childObject) {throw "Positioned not overriten"}
     getInteractionObjectInfo(interactionObject) {throw "getInteractionObjectInfo not overriten"}
 
     async refresh() {
@@ -301,6 +302,14 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
         return new GEOOSUserObjectPoint(s.id, s.name, s.lat, s.lng, parentObject);
     }
 
+    getPropertyPanels() {
+        return [{
+            code:"point-object-properties", name:"Propiedades del Punto", path:"./userObjects/PointObjectProperties"
+        }, {
+            code:"user-object-watchers", name:"Observar Variables", path:"./userObjects/UOWatchers"
+        }]
+    }
+
     serialize() {
         let s = super.serialize();
         s.lat = this.lat;
@@ -315,6 +324,17 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
             this.parentObject.moved(userObjectsVisualizer, interObject, this);
         } else {
             window.geoos.events.trigger("userObject", "moved", this.id);
+            this.refreshWatchers();
+        }
+    }
+    positioned(lat, lng) {
+        this.lat = lat;
+        this.lng = lng;
+        if (this.parentObject) {
+            this.parentObject.positioned(lat, lng, this);
+        } else {
+            window.geoos.events.trigger("userObject", "moved", this.id);
+            this.layer.refresh();
             this.refreshWatchers();
         }
     }
@@ -454,6 +474,29 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
             p.refreshWatchers();
         });
         window.geoos.events.trigger("userObject", "moved", this.id);
+        this.refreshWatchers();
+    }
+
+    positioned(lat, lng, point) {
+        if (point) {
+            let idx = this.points.indexOf(point);
+            let [p0, p1, p2, p3] = this.points;
+            switch (idx) {
+                case 0: p1.lat = p0.lat; p2.lng = p0.lng; break;
+                case 1: p0.lat = p1.lat; p3.lng = p1.lng; break;
+                case 2: p3.lat = p2.lat; p0.lng = p2.lng; break;
+                case 3: p2.lat = p3.lat; p1.lng = p3.lng; break;
+            }
+        } else {
+            throw "Can't position area";
+        }
+        // Trigger actions for area and points
+        this.points.forEach(p => {
+            window.geoos.events.trigger("userObject", "moved", p.id)
+            p.refreshWatchers();
+        });
+        window.geoos.events.trigger("userObject", "moved", this.id);
+        this.layer.refresh();
         this.refreshWatchers();
     }
 

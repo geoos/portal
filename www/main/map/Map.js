@@ -156,5 +156,14 @@ class Map extends ZCustomController {
     adjustOpacity(layer) {
         document.getElementById("ly-" + layer.id).style.opacity = layer.opacity / 100;
     }
+
+    zoomIn() {
+        let z = this.map.getZoom();
+        if (z < 12) this.map.setZoom(z + 1);
+    }
+    zoomOut() {
+        let z = this.map.getZoom();
+        if (z > 3) this.map.setZoom(z - 1);
+    }
 }
 ZVC.export(Map);

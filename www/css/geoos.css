@@ -939,3 +939,16 @@ a:hover {
     color: white;
     background-color: #6042cb;
 }
+
+.zoom-panel {
+    border-radius: 6px;
+    z-index: 400;
+    padding: 4px;
+    color: white;
+    background-color: #6042cb;
+    position: absolute;
+    width: 30px;
+    height: 60px;
+    top: 80px;
+    right: 36px;
+}

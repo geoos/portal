@@ -31,7 +31,7 @@ class TimeSerieMain extends ZCustomController {
                 title = this.watcher1.name;
                 //if (variable.niveles && variable.niveles.length > 1) title += " [" + variable.niveles[variable.nivel].descripcion + "]";
                 let serieType = "spline";
-                console.log("variable1", this.watcher1.variable);
+                //console.log("variable1", this.watcher1.variable);
                 if (this.watcher1.variable && this.watcher1.variable.options && this.watcher1.variable.options.defaults) {
                     if (this.watcher1.variable.options.defaults.serieType) serieType = this.watcher1.variable.options.defaults.serieType;
                 }
@@ -60,6 +60,7 @@ class TimeSerieMain extends ZCustomController {
                     //if (variable.niveles && variable.niveles.length > 1) subtitle += " [" + variable.niveles[variable.nivel].descripcion + "]";
                 }
                 let serieType = "spline";
+                //console.log("variable2", this.watcher2.variable);
                 if (this.watcher2.variable && this.watcher2.variable.options && this.watcher2.variable.options.defaults) {
                     if (this.watcher2.variable.options.defaults.serieType) serieType = this.watcher2.variable.options.defaults.serieType;
                 }
