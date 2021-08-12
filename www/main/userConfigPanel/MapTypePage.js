@@ -10,8 +10,6 @@ class MapTypePage extends ZCustomController {
                 window.geoos.mapPanel.resetNamesLayer(window.geoos.user.config.mapConfig.namesLayer);
             }
         });
-        //this.refreshMaps();
-        //this.edNamesLayer.checked = window.geoos.user.config.mapConfig.namesLayer;
     }
 
     refreshMaps() {        

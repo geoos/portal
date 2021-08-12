@@ -54,6 +54,7 @@ class GEOOSGroup {
 
     get name() {return this.config.name}
     set name(n) {this.config.name = n}
+    
 
     async activate() {
         this.active = true

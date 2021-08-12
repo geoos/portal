@@ -1,11 +1,17 @@
 class FavStations extends ZCustomController {
     async onThis_init() {
-        //this.layers = window.geoos.favStations;
+        this.stations = await window.geoos.getStations();
+        window.geoos.events.on("portal", "userConfigChanged", _ => {
+            this.refresh();
+            this.applyConfig(true);
+        });
     }
+
+    get config() {return window.geoos.user.config.favorites}
 
     refresh() {
         //if (!this.open) return;
-        let selection = window.geoos.selection;
+        //let selection = window.geoos.selection;
         this.filteredStations = window.geoos.favStations;
         let providers = this.filteredStations.reduce((map, s) => {
             map[s.proveedor] = true;
@@ -22,13 +28,13 @@ class FavStations extends ZCustomController {
         let html = ``;
         //muestra los proveedores de las estaciones
         for (let provider of providersList) {
-            let {nStationsProvider, nSelected} = this.filteredStations.reduce((map, s) => {
+            /* let {nStationsProvider, nSelected} = this.filteredStations.reduce((map, s) => {
                 if (s.proveedor == provider.code) {
                     map.nStationsProvider++;
                     if (window.geoos.isStationAdded(s.code)) map.nSelected++;
                 }
                 return map;
-            }, {nStationsProvider:0, nSelected:0});
+            }, {nStationsProvider:0, nSelected:0}); */
             html += `
             <div class="add-panel-proveedor" data-code="${provider.code}">
                 <i class="far fa-lg float-left mr-2"></i>
@@ -36,7 +42,7 @@ class FavStations extends ZCustomController {
             </div>`;
             for (let station of this.filteredStations.filter(s => s.proveedor == provider.code)) {
             //for (let station of window.geoos.favStations) { 
-                let stationSelected = selection.type == "station" && selection.element.id == station.id;
+                //let stationSelected = selection.type == "station" && selection.element.id == station.id;
                 let stationName = station.name;
                 //muestra las estaciones
                 html += `  <div class="row"  style="max-width:420px;">`;
@@ -65,7 +71,7 @@ class FavStations extends ZCustomController {
         let stationId = stationDiv.data("station-id");
         window.geoos.toggleStation(stationId);
         this.refresh();
-
+        window.geoos.openMyPanel();
     }
 
     async stationDeleter_click(e){
@@ -75,6 +81,10 @@ class FavStations extends ZCustomController {
         console.log("stationId: ", stationId);
         window.geoos.deleteFavStations(stationId);
         this.refresh();
+    }
+
+    applyConfig(onlyShow) {
+        if (!onlyShow) window.geoos.user.saveConfig();
     }
 }
 ZVC.export(FavStations);

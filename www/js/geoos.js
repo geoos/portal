@@ -8,9 +8,6 @@ class GEOOS {
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());        
         this.user = new GEOOSUser();
-        this.favLayers = [];
-        this.favStations = [];
-        this.favGroups = [];
     }
 
     async init() {
@@ -106,6 +103,10 @@ class GEOOS {
     }
     closeMyPanel() {
         if (this.myPanel.open) this.myPanel.toggle();
+    }
+
+    openFavorites() {
+        if (!this.userMarksPanel.open) this.userMarksPanel.toggle();
     }
 
     buildMetadata() {
@@ -308,6 +309,32 @@ class GEOOS {
         return layers;
     }
 
+    async getStations(){
+        let layers = [];
+        let stations = this.getAddedStations();
+        let added = {};
+        for (let station of stations) {
+            for (let varCode of station.variables) {
+                if (!added[varCode]) {
+                    let v = await station.server.client.getVariable(varCode);
+                    v.options = v.options || {};
+                    layers.push({
+                        type:"minz", name:v.name, path:"estacion", variable:v,
+                        zRepoServer:station.server,
+                        providers:[v.options.provider],
+                        subjects:v.options.subjects || [],
+                        regions:v.options.regions || [],
+                        types:v.options.types || [],
+                        code:v.code
+                    })
+                    added[varCode] = true;
+                }
+            }
+        }
+        layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
+        return layers;
+    }
+
     async getAvailableLayers(type, dimCode) {
         let layers = [];
         if (type == "variables") {
@@ -434,6 +461,7 @@ class GEOOS {
     }
 
     getGroup(id) {return this.groups.find(g => g.id == id)}
+    getGroupByName(groupName) { return this.groups.find(g => g.config.name == groupName) }
     getActiveGroup() {return this.groups.find(g => (g.active))}
     addGroup(config) {
         let g = new GEOOSGroup(config);
@@ -500,56 +528,78 @@ class GEOOS {
         await this.events.trigger("portal", "layerAdded", group)
     }
 
-    async addFavLayers(layer){
-        let found = this.favLayers.find(element => element.code===layer.code)
+     async addFavLayers(code){
+        //let config = this.user.config.favorites;
+        let found = this.user.config.favorites.layers.find(element => element.code===code)
         if(!found){
-            this.favLayers.push(layer);
-            await this.events.trigger("portal", "favLayerAdded");
+            this.user.config.favorites.layers.push(code);
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
+        }else return;
+    } 
+
+    async addFavStations(code){
+        let found = this.user.config.favorites.stations.find(element => element.code===code)
+        if(!found){
+            this.user.config.favorites.stations.push(code);
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
         }else return;
     }
 
-    async addFavStations(station){
-        let found = this.favStations.find(element => element.code===station.code)
-        if(!found){
-            this.favStations.push(station);
-            await this.events.trigger("portal", "favStationAdded");
-        }else return;
-    }
-
-    addFavGroups(group){
-        let groupCopy = $.extend( true, {}, group );
-        let found = this.favGroups.find(element => element.id===groupCopy.id)
-        if(!found){
-            this.favGroups.push(groupCopy);
-        }else return;
+    async addFavGroups(group){
+        //let groupCopy = $.extend( true, {}, group );
+        //let found = this.user.config.favorites.groups.find(element => element.id===code)
+        //if(!found){
+            this.user.config.favorites.groups.push(group);
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
+        //}else return;
     }
 
     isFavorite(code, type){
-        if(type == "station"){
-            let found = this.favStations.find(element => element.code===code)
-            if(found){
-                return true;
-            }else return false;
-        }else if(type == "layer"){
-            let found = this.favLayers.find(element => element.code===code)
-            if(found){
-                return true;
-            }else return false;
-        }else if(type == "group"){
-            let found = this.favGroups.find(element => element.id===id)
-            if(found){
-                return true;
-            }else return false;
-        }
+        //console.log("code:", code,type);
+        /* if(!this.user.config.favorites){
+            return false;
+        }else{ */
+            let favorite = this.user.config.favorites;
+            //console.log("favorite:", favorite);
+            if(type == "station"){
+                let found = favorite.stations.find(element => element===code)
+                if(found){
+                    //console.log("1");
+                    return true;
+                }else return false;
+            }else if(type == "layer"){
+                let found = favorite.layers.find(element => element===code)
+                if(found){
+                    return true;
+                }else return false;
+            }else if(type == "group"){
+                let found = favorite.groups.find(element => element===code)
+                if(found){
+                    return true;
+                }else return false;
+            }
+        //}
+        //return false;
     }
 
     async deleteFavLayers(layerId){
-        let found = this.favLayers.findIndex(element => element.code==layerId)
+        let favorite = this.user.config.favorites;
+        let found = favorite.layers.findIndex(element => element==layerId)
+        console.log("favorite delete", favorite.layers);
         if(found != -1){
-            if(this.favLayers.length > 1){
-                this.favLayers.splice(found,1);
-            }else this.favLayers = [];
-            //await this.events.trigger("portal", "favStationDeleted");
+            console.log("1");
+            if(favorite.layers.length > 1){
+                console.log("2");
+                this.user.config.favorites.layers.splice(found,1);
+            }else {
+                console.log("3");
+                this.user.config.favorites.layers = [];
+            }
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
         }
     }
 
@@ -559,24 +609,32 @@ class GEOOS {
             if(this.favStations.length > 1){
                 this.favStations.splice(found,1);
             }else this.favStations = [];
-            //await this.events.trigger("portal", "favStationDeleted");
+            await this.events.trigger("portal", "userConfigChanged");
         }
     }
 
-    deleteFavGroups(groupId){
-        let found = this.favGroups.findIndex(element => element.id==groupId)
+    async deleteFavGroups(groupId){
+        let favorite = this.user.config.favorites;
+        let found = favorite.groups.findIndex(element => element.id==groupId)
+        console.log("favorite delete", favorite.groups);
         if(found != -1){
-            if(this.favGroups.length > 1){
-                this.favGroups.splice(found,1);
-            }else this.favGroups = [];
-            //await this.events.trigger("portal", "favStationDeleted");
+            console.log("1");
+            if(favorite.groups.length > 1){
+                console.log("2");
+                this.user.config.favorites.groups.splice(found,1);
+            }else {
+                console.log("3");
+                this.user.config.favorites.groups = [];
+            }
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
         }
     }
 
-    deleteFavLayerGroups(groupId, layerId){
-        let found = this.favGroups.findIndex(element => element.id==groupId)
+    async deleteFavLayerGroups(groupId, layerId){
+        let found = this.user.config.favorites.groups.findIndex(element => element.id==groupId)
         if(found != -1){
-            let group =  this.favGroups[found];
+            let group =  this.user.config.favorites.groups[found];
             console.log("grup", group);
             let layerpos = group.layers.findIndex(el => el.id==layerId)
             console.log("layerpos", layerpos);
@@ -584,10 +642,12 @@ class GEOOS {
                 group.layers.splice(layerpos, 1);
             }else if(layerpos != -1){
                 console.log("aca 2" );
-                if(this.favGroups.length > 1){
-                    this.favGroups.splice(found,1);
-                }else this.favGroups = [];
+                if(this.user.config.favorites.groups.length > 1){
+                    this.user.config.favorites.groups.splice(found,1);
+                }else this.user.config.favorites.groups = [];
             }
+            this.user.saveConfig();
+            await this.events.trigger("portal", "userConfigChanged");
         }
     }
 

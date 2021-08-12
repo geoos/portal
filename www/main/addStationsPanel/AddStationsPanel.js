@@ -295,7 +295,7 @@ class AddStationsPanel extends ZCustomController {
                 console.log("favo-station", station);
                 img.attr("src", "img/icons/favo-active.svg");
                 //se traspasa a la otra vista
-                window.geoos.addFavStations(station)
+                window.geoos.addFavStations(code)
                 
             }else{
                 //console.log("no entro,",code);

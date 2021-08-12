@@ -25,6 +25,7 @@ class GridPage extends ZCustomController {
         });
     }
     refresh() {
+        console.log("config", window.geoos.user.config);
         this.edShowGrid.checked = this.config.show;
         this.edStep1.value = this.config.step1;
         this.refreshSecondary();
