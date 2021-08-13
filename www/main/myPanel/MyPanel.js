@@ -424,9 +424,9 @@ class MyPanel extends ZCustomController {
                     let groupName = group.config.name;
                     let s = group.serialize();
                     //agregar a favoritos
-                    if(!window.geoos.isFavorite(groupName, "group")){
+                    if(!window.geoos.isFavorite(groupId, "group")){
+                        console.log("group add", group);
                         let s = group.serialize();
-                        console.log("grupo map:", s);
                         window.geoos.addFavGroups(s);
                         window.geoos.openFavorites();
                     }else{

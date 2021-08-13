@@ -538,10 +538,10 @@ class GEOOS {
         }else return;
     } 
 
-    async addFavStations(code){
-        let found = this.user.config.favorites.stations.find(element => element.code===code)
+    async addFavStations(station){
+        let found = this.user.config.favorites.stations.find(element => element.code===station.code)
         if(!found){
-            this.user.config.favorites.stations.push(code);
+            this.user.config.favorites.stations.push(station);
             this.user.saveConfig();
             await this.events.trigger("portal", "userConfigChanged");
         }else return;
@@ -565,7 +565,7 @@ class GEOOS {
             let favorite = this.user.config.favorites;
             //console.log("favorite:", favorite);
             if(type == "station"){
-                let found = favorite.stations.find(element => element===code)
+                let found = favorite.stations.find(element => element.code===code)
                 if(found){
                     //console.log("1");
                     return true;
@@ -576,7 +576,7 @@ class GEOOS {
                     return true;
                 }else return false;
             }else if(type == "group"){
-                let found = favorite.groups.find(element => element===code)
+                let found = favorite.groups.find(element => element.id===code)
                 if(found){
                     return true;
                 }else return false;
@@ -604,11 +604,12 @@ class GEOOS {
     }
 
     async deleteFavStations(stationId){
-        let found = this.favStations.findIndex(element => element.code==stationId)
+        let found = this.user.config.favorites.stations.findIndex(element => element.code==stationId)
         if(found != -1){
-            if(this.favStations.length > 1){
-                this.favStations.splice(found,1);
-            }else this.favStations = [];
+            if(this.user.config.favorites.stations.length > 1){
+                this.user.config.favorites.stations.splice(found,1);
+            }else this.user.config.favorites.stations = [];
+            this.user.saveConfig();
             await this.events.trigger("portal", "userConfigChanged");
         }
     }
@@ -635,7 +636,6 @@ class GEOOS {
         let found = this.user.config.favorites.groups.findIndex(element => element.id==groupId)
         if(found != -1){
             let group =  this.user.config.favorites.groups[found];
-            console.log("grup", group);
             let layerpos = group.layers.findIndex(el => el.id==layerId)
             console.log("layerpos", layerpos);
             if(layerpos != -1 && group.layers.length>1){

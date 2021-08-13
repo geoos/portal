@@ -11,7 +11,6 @@ class FavGroups extends ZCustomController {
 
     refresh() {
         this.groups = this.config.groups;
-        console.log("grupos: ", this.groups);
         let html = ``;
         for (let serializedGroup of this.groups) {
             let group = GEOOSGroup.deserialize(serializedGroup);
@@ -20,7 +19,7 @@ class FavGroups extends ZCustomController {
             //let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
             let groupName = group.config.name;
             html += `  <div class="row fav-panel-group"  style="max-width:420px;">`;
-            html += `    <div class="col-1"><i  class="group-activator fas fa-star mr-2 float-left"></i></div>`;
+            html += `    <div class="col-1"><i  class="group-activator fas mr-2 float-left"></i></div>`;
             html += `    <div class="col-9"><span class="favorite-selected-name"}><h5>${groupName}</h5></span></div>`;
             html += `    <div class="col" data-group-id="${group.id}">`;
             //html += `    <div class="col" data-group-id="${group.id}">`;
@@ -29,8 +28,9 @@ class FavGroups extends ZCustomController {
             html += `    </div>`;
             for (let layer of group.layers) {
                 let layerName = layer.name;
-                let layerId = layer.config.dataSet.code + "." + layer.variable.code;
-                html += `    <div class="col-1"><i  class="layer-activator fas fa-star ml-3 float-left"></i></div>`;
+                //let layerId = layer.config.dataSet.code + "." + layer.variable.code;
+                let layerId = layer.id;
+                html += `    <div class="col-1"><i  class="layer-activator fas ml-3 float-left"></i></div>`;
                 html += `    <div class="col-9"><span class="favorite-selected-name"}>${layerName}</span></div>`;
                 html += `    <div class="col" data-layer-id="${layerId}" data-group-id="${group.id}">`;
                 html += `      <i class=" layer-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>`;
