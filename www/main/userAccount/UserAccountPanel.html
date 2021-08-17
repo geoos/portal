@@ -4,16 +4,21 @@
         <span>Cuenta del Usuario</span>
         <span id="cmdCloseUserAccount" class="geoos-panel-close ml-auto" data-z-clickable="true"></span>
     </div>
+    
     <div id="userAccountContent" class="container-fluid pb-2">
         <ul id="tabUserAccountPanel" class="nav nav-tabs justify-content-end" role="tablist">
             <li class="nav-item">
-              <a id="tabSession" class="nav-link active" data-toggle="tab" href="#session" role="tab" aria-selected="false">Sesión</a>
+              <a id="tabSession" class="nav-link active" data-toggle="tab" href="#session" role="tab" aria-selected="false">Ingresar</a>
             </li>
             <li class="nav-item">
-              <a id="tabProfile" class="nav-link" data-toggle="tab" href="#profile" role="tab" aria-selected="false">Perfil</a>
+                <a id="tabProfile" class="nav-link" data-toggle="tab" href="#profile" role="tab" aria-selected="false">Perfil</a>
+            </li>
+            <li class="nav-item">
+                <a id="tabRegister" class="nav-link" data-toggle="tab" href="#register" role="tab" aria-selected="false">Registrarse</a>
             </li>
         </ul>
         <div id="tabUserAccountTabContent" class="tab-content p-2">
+            <div id="register" class="tab-pane fade show" data-z-load="./Register" role="tabpanel" style="overflow-y: auto;"> </div>
             <div id="session" class="tab-pane fade active show" data-z-load="common/Empty" role="tabpanel" style="overflow-y: auto;"></div>
             <div id="profile" class="tab-pane fade" data-z-component="./Profile" role="tabpanel" style="overflow-y: auto;"></div>
         </div>

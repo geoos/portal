@@ -1,35 +1,34 @@
 <div class="container-fluid pt-2">    
     <div id="login">
-        <hr style="background-color: white;" />    
+        <!-- <hr style="background-color: white;" />    
         <h6>Iniciar Sesión</h6>
         <div>
             Si no ha creado su cuenta en GEOOS, puede
             <a id="cmdRegister" class="btn btn-sm btn-link">Registrarse Aquí.</a>
             Una vez que se registre e inicie sesión, podrá almacenar sus favoritos. <br />
             Si olvidó su Contraseña, haga <a id="cmdOlvidoPwd" class="btn btn-sm btn-link">Click Aquí</a>
+        </div> -->
+        <div class="row mb-2">
+            <div class="col text-center">
+                <img src="img/Logo_GEOOs_260.png" height="110px" />
+            </div>
         </div>
         <hr style="background-color: white;" />    
         <div class="ml-2">
             <div class="row">
-                <div class="col-4">
-                    <label class="mt-1">Dirección E-mail</label>
-                </div>
-                <div class="col-8">
-                    <input id="edEmail" type="email" class="form-control form-control-sm" data-z-autochange-delay="300"/>
+                <div class="form-group col-12 ">
+                    <label for="edEmail">Correo</label>
+                    <input type="email" class="form-control" id="edEmail" data-z-autochange-delay="300">
                 </div>
             </div>
-            <div class="row mt-1">
-                <div class="col-4">
-                    <label class="mt-1">Contraseña (*)</label>
-                </div>
-                <div class="col-8">
-                    <div class="input-group">
-                        <input id="edPwd" type="password" class="form-control form-control-sm" />
-                        <div class="input-group-append">
-                            <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
+            <div class="form-group">
+                <label for="edPwd" class="mt-1">Contraseña (*)</label>
+                <div class="input-group">
+                    <input id="edPwd" type="password" class="form-control form-control-sm" />
+                    <div class="input-group-append">
+                        <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -39,7 +38,12 @@
                 </div>
             </div>
             <div class="row my-2">
-                <div class="col-12 text-center">
+                <div class="col-12 mr-1">
+                    <a id="cmdOlvidoPwd" class="link-light">¿Olvidaste tu contraseña?</a>
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-9 text-center">
                     <button id="cmdLogin" type="button" class="btn btn-sm btn-secondary geoos-panel-ok ml-auto">
                         <i class="fa fas fa-sign-in-alt mr-2"></i>
                         Iniciar Sesión

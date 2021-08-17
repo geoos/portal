@@ -1,6 +1,8 @@
 let mensajeEnviar = "Se le enviará un código de 6 dígitos para verificar su dirección de correo electrónico.";
 let mensajeReenviar = "Espere unos minutos que el código llegeue a su correo. Para enviar nuevamente, use el botón de envío. Sólo el último código enviado será válido.";
 
+
+
 class Register extends ZCustomController {
     onThis_init(options) {
         this.working.hide();
@@ -22,6 +24,7 @@ class Register extends ZCustomController {
     onEdEmail_change() {
         this.lblMensajeEnviar.text = mensajeEnviar;
         this.codigoEnviado.hide();
+        console.log("email: ", this.edEmail.value);
         if (this.emailValido(this.edEmail.value.trim())) this.cmdEnviarCodigo.enable();
         else this.cmdEnviarCodigo.disable();
     }
@@ -36,6 +39,7 @@ class Register extends ZCustomController {
             this.cmdEnviarCodigo.hide();
             this.working.show();
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
+            this.codigoInicial.hide()
             this.codigoEnviado.show();
             this.lblMensajeEnviar.text = mensajeReenviar;
         } catch(error) {
