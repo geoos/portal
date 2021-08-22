@@ -22,6 +22,17 @@ class Top extends ZCustomController {
             let icon = t.data("z-icon");
             this.toggleAction(icon);
         })
+        $(this.rightBar.view).find(".top-option").click(e => {
+            let t = $(e.currentTarget);
+            let id = t[0].id;
+            this.toggleOption(id);
+        });
+        $(this.rightBar.view).find(".wizard-expander").click(e => {
+            let t = $(e.currentTarget);
+            let icon = t.data("z-icon");
+            console.log("id", icon);
+            this.toggleAction(icon);
+        });
         // refreshTools is called after login, autoLogin or not logged
         // triggered by event
         window.geoos.events.on("portal", "userConfigChanged", _ => this.refreshTools());
@@ -138,7 +149,11 @@ class Top extends ZCustomController {
         $(this.view).find("#" + id).removeClass("active");
     }
     toggleOption(id) {
-        if ($(this.view).find("#" + id).hasClass("active")) this.deactivateOption(id); else this.activateOption(id);
+        if ($(this.view).find("#" + id).hasClass("active")) {
+            this.deactivateOption(id); 
+        }else {
+            this.activateOption(id);
+        }
     }
 
     isActionActive(id) {

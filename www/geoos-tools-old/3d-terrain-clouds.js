@@ -40,6 +40,9 @@ class Tool3DTerrainClouds extends GEOOSTool {
 
     async activate() {
         super.activate();
+
+        console.log("activar panel");
+        window.geoos.topPanel.activateOption("opWizard2");
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
         window.geoos.events.on("userObject", "moved", this.objectMoveListener);
     }

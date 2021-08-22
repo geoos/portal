@@ -405,7 +405,7 @@ class MyPanel extends ZCustomController {
                     let s = group.serialize();
                     s.mapView = window.geoos.mapPanel.serialize();
                     s.toolsStatus = window.geoos.toolsPanel.status;
-                    console.log("grupo map:", s);
+                    //console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
                     /*
                     s = JSON.stringify(s);
