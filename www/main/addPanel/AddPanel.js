@@ -108,6 +108,7 @@ class AddPanel extends ZCustomController {
         }
         return filtered;
     }
+
     async refresh() {
         let htmlSections = "";
         for (let section of this.sections) {
@@ -267,12 +268,10 @@ class AddPanel extends ZCustomController {
             let code = img.parent().data("code");
             let variable = this.filteredLayers.find(v => v.code == code);
             if(!window.geoos.isFavorite(code, "layer")){
-                let variable = this.filteredLayers.find(v => v.code == code);
                 console.log("favo-variable", variable);
                 img.attr("src", "img/icons/favo-active.svg");
                 //se traspasa a la otra vista
-                window.geoos.addFavLayers(variable)
-                
+                window.geoos.addFavLayers(code)  
             }else{
                 window.geoos.deleteFavLayers(code)
                 img.attr("src", "img/icons/favo.svg");
@@ -288,6 +287,8 @@ class AddPanel extends ZCustomController {
         })
         this.refreshResume();
     }
+
+    
 
     refreshResume() {
         //let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);

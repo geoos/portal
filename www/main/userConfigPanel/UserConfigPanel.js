@@ -19,7 +19,9 @@ class UserConfigPanel extends ZCustomController {
         this.gridPage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
     }
 
-    onCmdCloseUserConfig_click() {window.geoos.topPanel.deactivateAction("configure")}
+    onCmdCloseUserConfig_click() {
+        window.geoos.topPanel.deactivateAction("configure")
+    }
     close() {
         if (this.open) window.geoos.topPanel.deactivateAction("configure")
     }

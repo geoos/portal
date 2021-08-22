@@ -11,6 +11,11 @@ class GEOOSUser {
                     color1:"#000000", width1:1, step1:10,
                     color2:"#000000", width2:0.2, step2:5
                 }
+            },
+            favorites:{
+                layers:[],
+                groups:[],
+                stations:[]
             }
         }
     }

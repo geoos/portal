@@ -292,10 +292,10 @@ class AddStationsPanel extends ZCustomController {
             //agregar a favoritos
             if(!window.geoos.isFavorite(code, "station")){
                 let station = this.filteredStations.find(v => v.code == code);
-                console.log("favo-station", station);
                 img.attr("src", "img/icons/favo-active.svg");
-                //se traspasa a la otra vista
-                window.geoos.addFavStations(station)
+                console.log("station add", station)
+                window.geoos.addFavStations(station);
+                //window.geoos.openFavorites();
                 
             }else{
                 //console.log("no entro,",code);

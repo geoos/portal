@@ -421,16 +421,17 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 }else if (code == "favo") {
+                    let groupName = group.config.name;
+                    let s = group.serialize();
                     //agregar a favoritos
                     if(!window.geoos.isFavorite(groupId, "group")){
-                        console.log("favo-groups", group);
-                        //se traspasa a la otra vista
-                        window.geoos.addFavGroups(group)
-                        
+                        console.log("group add", group);
+                        let s = group.serialize();
+                        window.geoos.addFavGroups(s);
+                        window.geoos.openFavorites();
                     }else{
-                        console.log("no entro,",groupId);
-                        window.geoos.deleteFavGroups(groupId)
-                        img.attr("src", "img/icons/favo.svg");
+                        window.geoos.deleteFavGroups(s);
+                        window.geoos.openFavorites();
                     }
                     return false;
 
@@ -504,10 +505,27 @@ class MyPanel extends ZCustomController {
                             });    
                         }
                     })
-                } else if (code=="favo") {                    
-                    this.showDialog("common/WInProgress", {
-                        subtitle:"Esta sección está en proceso de contrucción",
-                        message:"¡Disculpe las molestias!"})
+                } else if (code=="favo") {   
+                    let name = "Capas de Mi Panel";
+                    let found = window.geoos.user.config.favorites.groups.find(g => g.config.name == name);
+                    if(found) {
+                        let desGroup = GEOOSGroup.deserialize(found);
+                        desGroup.addLayer(layer);
+                        let s = desGroup.serialize();
+                        window.geoos.deleteFavGroups(s.id);
+                        window.geoos.addFavGroups(s);
+                        window.geoos.openFavorites();
+                        
+                    }else{
+                        //codName = name, idx=Math.random();
+                        let g = new GEOOSGroup(name);
+                        g = GEOOSGroup.deserialize(g);
+                        g.name="Capas de Mi Panel";
+                        g.addLayer(layer);
+                        let s = g.serialize();
+                        window.geoos.addFavGroups(s);
+                        window.geoos.openFavorites();
+                    }                 
                 } else if (code == "duplicate") {
                     this.layerDuplicate(layer);
                 }
