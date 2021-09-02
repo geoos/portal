@@ -14,7 +14,7 @@ class Logged extends ZCustomController {
         if (window.geoos.userSession.usuario.tieneFoto) {
             this.fotoPerfil.view.src = "fotoPerfil/" + window.geoos.userSession.usuario.email;
         } else {
-            this.fotoPerfil.view.src = "img/anonimo.svg";
+            this.fotoPerfil.view.src = "img/usuario.svg";
         }
     }
 

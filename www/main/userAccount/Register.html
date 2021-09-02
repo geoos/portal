@@ -1,6 +1,6 @@
 <div class="container-fluid pt-2">    
     <div id="registrarse">
-        <hr style="background-color: white;" />    
+          
   <!--       <h6>Registrarse</h6>
         <div>
             Si ya se ha registrado en GEOOS con su dirección de correo electrónico, puede
@@ -11,20 +11,27 @@
                 <img src="img/Logo_GEOOs_260.png" height="110px" />
             </div>
         </div>
+        <hr style="background-color: white;" />  
         <div class="ml-2" id="codigoInicial">
-            <div class="row">
-                <div class="col-4">
-                    <label class="mt-1">Dirección E-mail</label>
+            
+            <div id="enviarCodigo" class="row">
+                <div class="col-12 text-small">
+                    <span id="lblMensajeEnviar"><b>Se le enviará un código de 6 dígitos para verificar su dirección de correo electrónico.</b></span>
                 </div>
-                <div class="col-8">
-                    <input id="edEmail" type="email" class="form-control form-control-sm" data-z-autochange-delay="300"/>
+                
+            </div>
+            <div class="row mt-2">
+                <div class="col-4">
+                    <label class="mt-1"><b>Dirección E-mail: </b></label>
                 </div>
             </div>
-            <div id="enviarCodigo" class="row mt-2">
-                <div class="col-8 text-small">
-                    <span id="lblMensajeEnviar">Se le enviará un código de 6 dígitos para verificar su dirección de correo electrónico.</span>
+            <div class="row mt-2">
+                <div class="col">
+                    <input id="edEmail" type="email" class="form-control form-control-sm" data-z-autochange-delay="300" style="border-radius:8px ;" />
                 </div>
-                <div class="col-4 text-center">
+            </div>
+            <div class="row mt-2">
+                <div class="col text-center">
                     <button id="cmdEnviarCodigo" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
                         <i class="fa fas fa-envelope mr-2"></i>
                         Enviar Código
@@ -44,14 +51,6 @@
                         <input id="edCodigoRegistro" type="text" class="ml-auto form-control form-control-sm" maxlength="6" minlength="6" style="width: 90px;" />
                     </div>
                 </div>
-               <!--  <div class="row mt-1">
-                    <div class="col-4">
-                        <label class="mt-1">Nombre (*)</label>
-                    </div>
-                    <div class="col-8">
-                        <input id="edNombre" type="text" class="form-control form-control-sm" />
-                    </div>
-                </div> -->
                 <div class="row">
                     <div class="form-group col-12 ">
                         <label for="edNombre">Nombre (*)</label>
@@ -59,35 +58,13 @@
                     </div>
                 </div>
                 
-                <!-- <div class="row mt-1">
-                    <div class="col-4">
-                        <label class="mt-1">Institución</label>
-                    </div>
-                    <div class="col-8">
-                        <input id="edInstitucion" type="text" class="form-control form-control-sm" />
-                    </div>
-                </div> -->
                 <div class="row">
                     <div class="form-group col-12 ">
                         <label for="edInstitucion">Institución</label>
                         <input type="text" class="form-control" id="edInstitucion" data-z-autochange-delay="300">
                     </div>
                 </div>
-                <!-- <div class="row mt-1">
-                    <div class="col-4">
-                        <label class="mt-1">Contraseña (*)</label>
-                    </div>
-                    <div class="col-8">
-                        <div class="input-group">
-                            <input id="edPwd" type="password" class="form-control form-control-sm" />
-                            <div class="input-group-append">
-                                <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+
                 <div class="form-group">
                     <label for="edPwd" class="mt-1">Contraseña (*)</label>
                     <div class="input-group">
@@ -99,21 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="row mt-1">
-                    <div class="col-4">
-                        <label class="mt-1">Repetir Contraseña (*)</label>
-                    </div>
-                    <div class="col-8">
-                        <div class="input-group">
-                            <input id="edPwd2" type="password" class="form-control form-control-sm" />
-                            <div class="input-group-append">
-                                <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
+ 
                 <div class="form-group">
                     <label for="edPwd2" class="mt-1">Contraseña (*)</label>
                     <div class="input-group">

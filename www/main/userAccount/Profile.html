@@ -1,7 +1,22 @@
 <div class="container-fluid pt-2">    
     <div id="profile">
-        <hr style="background-color: white;" />    
-        <h6>Datos del Usuario</h6>
+        <hr style="background-color: white;" /> 
+        <h6><b>Datos del Usuario</b></h6>   
+        <div style="width: 0; height: 0; overflow: hidden;">
+            <input id="edFileInput" type="file" accept="image" />
+        </div>
+        <div class="row mt-1">
+            <a id="cmdEliminarFoto" class="pl-0 btn btn-sm btn-link">Eliminar Foto</a>
+        </div>
+        <div class="row mt-1">
+            <div id="fotoContainer" data-z-clickable="true" style="margin:auto; width: 200px; height: 200px;position: relative; cursor: pointer;"> 
+                <img id="fotoInicial" width="128px" height="128px" style="margin:auto;margin-top: 20px; display: block;" src="img/usuario.svg" />
+                <i class="fas fa-camera fa-2x" style="position: absolute; bottom:60px; left:130px;"></i>
+            </div>
+        </div>
+
+
+        <hr style="background-color: white;" />  
         <div class="ml-2">
             <div class="row">
                 <div class="col-4">
@@ -27,22 +42,12 @@
                     <input id="edInstitucion" type="text" class="form-control form-control-sm" />
                 </div>
             </div>
-            <hr style="background-color: white;" />    
-            <div style="width: 0; height: 0; overflow: hidden;">
-                <input id="edFileInput" type="file" accept="image" />
-            </div>
-            <div class="row mt-1">
-                <div class="col-4">
-                    <span id="lblHelpFoto">Arrastre una foto o haga click en la imagen</span>
-                    <br />
-                    <a id="cmdEliminarFoto" class="pl-0 btn btn-sm btn-link">Eliminar Foto</a>
-                </div>
-                <div class="col-8">
-                    <div id="fotoContainer" data-z-clickable="true" style="margin-left:55px; width: 200px; height: 200px; cursor: pointer;"> 
-                        <img id="fotoInicial" width="128px" height="128px" style="margin: 36px;" src="img/anonimo.svg" />
-                    </div>
-                </div>
-            </div>
+              
+            
+
+
+
+
             <hr style="background-color: white;" />    
             <div class="row my-2">
                 <div class="col-12 text-center">
