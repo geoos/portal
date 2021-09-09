@@ -39,7 +39,9 @@ class RasterVisualizer {
         this.working = true;
         this.layer.startWorking();
     }
-    finishWorking() {
+    finishWorking(dataTime, error) {
+        this.lastDataTime = dataTime?dataTime:null;
+        this.lastError = error?error:null;
         this.working = false;
         this.layer.finishWorking();
     }

@@ -462,6 +462,10 @@ a:hover {
     text-decoration: underline;
     cursor: pointer;
 }
+.my-panel-layer .layer-state {
+    font-size: small;
+    margin-left: 50px;
+}
 .layer-expander {
     cursor: pointer;
     transition: 0.3s ease-in-out;

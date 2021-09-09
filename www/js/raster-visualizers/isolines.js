@@ -74,7 +74,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
         promise
             .then(ret => {
                 this.aborter = null;
-                this.finishWorking();
+                this.finishWorking(ret.foundTime.msUTC);
                 if (this.autoIncrement) this.config.increment = ret.increment;
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGeoJson(ret.geoJson, ret.markers.length < 1000?ret.markers:null);
@@ -84,7 +84,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
                 this.aborter = null;
                 if (err != "aborted" && err.toString().indexOf("abort") < 0) {
                     console.error(err);
-                    this.finishWorking();
+                    this.finishWorking(null, err.toString());
                 }
                 visualizer.setGeoJson(null);
                 if (cb) cb(err);

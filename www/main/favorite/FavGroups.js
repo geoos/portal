@@ -7,7 +7,12 @@ class FavGroups extends ZCustomController {
         });
     }
 
-    get config() {return window.geoos.user.config.favorites}
+    get config() {
+        if (!window.geoos.user.config.favorites) window.geoos.user.config.favorites = {
+            groups:[], layers:[], stations:[]
+        }; 
+        return window.geoos.user.config.favorites
+    }
 
     refresh() {
         this.groups = this.config.groups;
