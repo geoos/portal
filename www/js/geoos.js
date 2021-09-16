@@ -2,6 +2,8 @@ class GEOOS {
     constructor() {
         this.events = new GEOOSEvents();
         this.groups = [];
+        this.stationSelected = [];
+        this.stationUnselected = [];
         this.selection = {type:null}
         moment.locale("es")
         this._time = Date.now();
@@ -558,44 +560,32 @@ class GEOOS {
     }
 
     isFavorite(code, type){
-        //console.log("code:", code,type);
-        /* if(!this.user.config.favorites){
-            return false;
-        }else{ */
-            let favorite = this.user.config.favorites;
-            //console.log("favorite:", favorite);
-            if(type == "station"){
-                let found = favorite.stations.find(element => element.code===code)
-                if(found){
-                    //console.log("1");
-                    return true;
-                }else return false;
-            }else if(type == "layer"){
-                let found = favorite.layers.find(element => element===code)
-                if(found){
-                    return true;
-                }else return false;
-            }else if(type == "group"){
-                let found = favorite.groups.find(element => element.id===code)
-                if(found){
-                    return true;
-                }else return false;
-            }
-        //}
-        //return false;
+        let favorite = this.user.config.favorites;
+        if(type == "station"){
+            let found = favorite.stations.find(element => element.code===code)
+            if(found){
+                return true;
+            }else return false;
+        }else if(type == "layer"){
+            let found = favorite.layers.find(element => element===code)
+            if(found){
+                return true;
+            }else return false;
+        }else if(type == "group"){
+            let found = favorite.groups.find(element => element.id===code)
+            if(found){
+                return true;
+            }else return false;
+        }
     }
 
     async deleteFavLayers(layerId){
         let favorite = this.user.config.favorites;
         let found = favorite.layers.findIndex(element => element==layerId)
-        console.log("favorite delete", favorite.layers);
         if(found != -1){
-            console.log("1");
             if(favorite.layers.length > 1){
-                console.log("2");
                 this.user.config.favorites.layers.splice(found,1);
             }else {
-                console.log("3");
                 this.user.config.favorites.layers = [];
             }
             this.user.saveConfig();
@@ -617,14 +607,10 @@ class GEOOS {
     async deleteFavGroups(groupId){
         let favorite = this.user.config.favorites;
         let found = favorite.groups.findIndex(element => element.id==groupId)
-        console.log("favorite delete", favorite.groups);
         if(found != -1){
-            console.log("1");
             if(favorite.groups.length > 1){
-                console.log("2");
                 this.user.config.favorites.groups.splice(found,1);
             }else {
-                console.log("3");
                 this.user.config.favorites.groups = [];
             }
             this.user.saveConfig();
@@ -637,11 +623,9 @@ class GEOOS {
         if(found != -1){
             let group =  this.user.config.favorites.groups[found];
             let layerpos = group.layers.findIndex(el => el.id==layerId)
-            console.log("layerpos", layerpos);
             if(layerpos != -1 && group.layers.length>1){
                 group.layers.splice(layerpos, 1);
             }else if(layerpos != -1){
-                console.log("aca 2" );
                 if(this.user.config.favorites.groups.length > 1){
                     this.user.config.favorites.groups.splice(found,1);
                 }else this.user.config.favorites.groups = [];
@@ -705,7 +689,7 @@ class GEOOS {
         l.addStations(list);
     }
     removeStation(code) {
-        let g = this.getActiveGroup();
+        let g = this.getActiveGroup();  
         let l = g.getStationsLayer();
         if (!l) throw "No hay capa de estaciones";
         l.removeStation(code);
@@ -732,6 +716,35 @@ class GEOOS {
         if (!l) return false;
         return l.containsStation(code);
     }
+    selectStation(code){
+        let found = this.stationSelected.findIndex(s => s==code);
+        if(found!=-1 && this.stationSelected.length == 1){
+            this.unselectStation(code, 2);
+            this.stationSelected = [];
+        }else if(found!=-1) {
+            this.unselectStation(code, 2)
+            this.stationSelected.splice(found, 1);
+        }else{
+            this.stationSelected.push(code)
+            this.unselectStation(code, 1)
+        } 
+    }
+    unselectStation(code, type){
+        let found = this.stationUnselected.findIndex(s => s==code);
+        if(found!=-1 && type == 1){
+            if (this.stationUnselected.length == 1) this.stationUnselected = [];
+            else this.stationUnselected.splice(found, 1);
+        }else if (found==-1 && type == 2){
+            this.stationUnselected.push(code);
+        }
+    }
+    unselStations(){
+        this.stationUnselected = [];
+    }
+
+    isStationSelected(code){
+        if(this.stationSelected.find(s => s==code)) return true;
+    }
 
     toggleStation(code) {
         if (this.isStationAdded(code)) this.removeStation(code);
@@ -743,7 +756,6 @@ class GEOOS {
         if (!l) return [];
         return l.getStations();
     }
-
     getUserObjects() {
         let g = this.getActiveGroup();
         let l = g.getUserObjectsLayer();

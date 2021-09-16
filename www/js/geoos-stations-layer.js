@@ -48,6 +48,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
         if (!silent) this.refresh();        
     }
     addStations(list) {
+        console.log("list", list);
         list.forEach(s => this.addStation(s, true));
         this.refresh();
     }
@@ -56,6 +57,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
         if (idx < 0) throw "No se encontró la estación " + code;
         this.points.splice(idx, 1);
         if (!silent) this.refresh();
+        console.log("en station layer", this.points);
     } 
     removeStations(list) {
         list.forEach(s => this.removeStation(s, true));
