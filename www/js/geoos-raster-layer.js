@@ -113,6 +113,5 @@ class GEOOSRasterLayer extends GEOOSLayer {
             }
         }
         return stEstado || "Sin Información";
-        return "No implementado";
     }
 }
