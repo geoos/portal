@@ -106,15 +106,26 @@ class ToolsPanel extends ZCustomController {
         } else if (this.status == "max") {
             this.cmdCloseTools.removeClass("disabled");
             this.cmdOpenTools.addClass("disabled");
+            
         }        
     }
     async onCmdOpenTools_click() {
-        if (this.status == "min") await this.toggle("normal");
-        else if (this.status == "normal") await this.toggle("max");
+        const element = document.querySelector("#cmdOpenTools");
+        if(!element.classList.contains("disabled")){
+            console.log("enabled");
+            if (this.status == "min") await this.toggle("normal");
+            else if (this.status == "normal") await this.toggle("max");
+        }
+        
     }
     async onCmdCloseTools_click() {
         if (this.status == "max") await this.toggle("normal");
-        else if (this.status == "normal") await this.toggle("min");
+        else if (this.status == "normal") {
+            window.geoos.topPanel.deactivateOption("opWizard1");
+            window.geoos.topPanel.deactivateOption("opWizard2");
+            window.geoos.topPanel.deactivateOption("opWizard3");
+            await this.toggle("min");
+        }
     }
 
     async loadEmpty() {

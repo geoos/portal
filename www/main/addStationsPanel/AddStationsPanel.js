@@ -163,7 +163,6 @@ class AddStationsPanel extends ZCustomController {
                 items.animate({height:0}, 300, _ => {
                     items.hide();
                     section.open = false;
-                    //caption.find("i").removeClass("fa-chevron-up").addClass("fa-chevron-down")
                 })
             } else {
                 items.css({height:0});
@@ -171,7 +170,6 @@ class AddStationsPanel extends ZCustomController {
                 caption.find("i").addClass("expanded");
                 items.animate({height:section.filteredData.length * 22}, 300, _ => {
                     section.open = true;
-                    //caption.find("i").removeClass("fa-chevron-down").addClass("fa-chevron-up")
                 })
             }
         })
@@ -252,9 +250,10 @@ class AddStationsPanel extends ZCustomController {
                 </div>
             `;
             for (let station of this.filteredStations.filter(s => s.proveedor == provider.code)) {
+                /* <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i> */
                 htmlStations += `
                     <div class="add-panel-variable ml-4" data-code="${station.code}">
-                        <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                        <i class="far fa-lg ${window.geoos.isStationSelected(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i>
                         ${station.name}
                         <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoStationCode==station.code?"-active":""}.svg" />
                         <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
@@ -295,7 +294,6 @@ class AddStationsPanel extends ZCustomController {
                 img.attr("src", "img/icons/favo-active.svg");
                 console.log("station add", station)
                 window.geoos.addFavStations(station);
-                //window.geoos.openFavorites();
                 
             }else{
                 //console.log("no entro,",code);
@@ -317,7 +315,7 @@ class AddStationsPanel extends ZCustomController {
         $(this.stationsContainer.view).find(".add-panel-variable").click(e => {
             let div = $(e.currentTarget);
             let code = div.data("code");
-            window.geoos.toggleStation(code);
+            window.geoos.selectStation(code);
             this.refresh();
             this.refreshResume();
         })
@@ -346,14 +344,44 @@ class AddStationsPanel extends ZCustomController {
     }
 
     refreshResume() {
-        let nSelected = window.geoos.getAddedStations().length;
+        let nSelected = window.geoos.stationSelected.length;
         if (!nSelected) {
             this.lblStationsCountResume.text = "No hay estaciones seleccionadas";
+            if(window.geoos.getAddedStations().length < 1) this.cmdAccept.disable();
+            else  this.cmdAccept.enable();
         } else if (nSelected == 1) {
             this.lblStationsCountResume.text = "Una estación seleccionada";
+            this.cmdAccept.enable();
         } else {
             this.lblStationsCountResume.text = nSelected + " estaciones seleccionadas";
+            this.cmdAccept.enable();
         }
+    }
+
+    onCmdCancelStations_click() {this.toggle()}
+    onCmdAccept_click(){
+        
+        let sel = window.geoos.stationSelected;
+        if (sel.length) {
+            for(let i=0; i<sel.length; i++){
+                if(!window.geoos.isStationAdded(sel[i])) window.geoos.addStation(sel[i]);
+            } 
+        }
+
+        let unSel = window.geoos.stationUnselected;
+        if (unSel.length) {
+            console.log("1");
+            for (let un of unSel){
+                console.log("2");
+                if(window.geoos.isStationAdded(un)){
+                    console.log("elimina", un);
+                    window.geoos.removeStation(un);
+                }
+            }
+        }
+        console.log("3");
+        window.geoos.stationUnselected = [];
+        window.geoos.openMyPanel();
     }
 
     onEdStationsNameFilter_change() {

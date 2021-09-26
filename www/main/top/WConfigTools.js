@@ -72,7 +72,13 @@ class WConfigTools extends ZDialog {
         this.refrescaTool(n, this.draggedCode);
     }
 
-    onCmdCloseInfoWindow_click() {this.close()}
-    onCmdCancel_click() {this.close()}
+    onCmdCloseInfoWindow_click() {
+        window.geoos.topPanel.toggleAction("wizardExpander");
+        this.close()
+    }
+    onCmdCancel_click() {
+        window.geoos.topPanel.toggleAction("wizardExpander");
+        this.close()
+    }
 }
 ZVC.export(WConfigTools);

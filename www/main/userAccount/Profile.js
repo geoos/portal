@@ -113,7 +113,7 @@ class Profile extends ZCustomController {
             this.croppie = null;
         }
         this.eliminaFoto = true;
-        this.fotoInicial.view.src = "img/anonimo.svg";
+        this.fotoInicial.view.src = "img/usuario.svg";
         this.fotoInicial.show();
     }
 }
