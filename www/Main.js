@@ -39,7 +39,7 @@ class Main extends ZCustomController {
                 console.error("Group is not correctly serialized", err);
             }
         }
-        if (!initialGroup) initialGroup = window.geoos.addGroup({name:"Mis Capas"});
+        if (!initialGroup) initialGroup = window.geoos.addGroup({name:"Grupo 1"});
         if (initialView) {
             window.geoos.mapPanel.deserialize(initialView);
             if (!toolsStatus || toolsStatus == "min") {
