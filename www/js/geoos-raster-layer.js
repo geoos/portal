@@ -78,4 +78,40 @@ class GEOOSRasterLayer extends GEOOSLayer {
         });
         await (Promise.all(promises))
     }
+
+    getDataState() {
+        // Resumir estado de datos de los visualizadores activos
+        if (this.isWorking) return "Consultando ...";
+        //let n = this.visualizers.reduce((sum, v) => (v.active?sum+1:sum), 0);
+        // Obtener los tiempos de los datos de cada visualizador activo. 
+        let {tiempos, errores} = this.visualizers.reduce((listas, v) => {
+            if (v.active) {
+                listas.tiempos.push(v.lastDataTime);
+                listas.errores.push(v.lastError);
+            }
+            return listas;
+        }, {tiempos:[], errores:[]});
+        let stErrores = null;
+        for (let error of errores) {
+            if (error) {
+                if (error.toLowerCase() == "no data") error = "No hay Datos";
+                if (!stErrores) stErrores = error;
+                else {
+                    if (stErrores.indexOf(error) < 0) stErrores += ", " + error;
+                }
+            }
+        }
+        if (stErrores) return stErrores;
+        let stEstado = null;
+        for (let tiempo of tiempos) {
+            if (tiempo > 0) {
+                let fmt = moment.tz(tiempo, window.timeZone).format("YYYY-MM-DD HH:mm");
+                if (!stEstado) stEstado = "Datos para " + fmt;
+                else {
+                    if (stEstado.indexOf(fmt) < 0) stEstado += ", " + fmt;
+                }
+            }
+        }
+        return stEstado || "Sin Información";
+    }
 }

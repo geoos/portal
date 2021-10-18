@@ -98,13 +98,14 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
                         let watching = [];
                         for (let w of uo.watchers) {
                             let r = uo.watcherResults[w.id];
-                            if (!r.aborter && r.results && r.results.length) {
+                            let color, label;
+                            if (r.aborter) {color = "orange"; label = w.name + ": ...";}
+                            else if (!r.results) {color = "orange"; label = w.name + ": S/D"}
+                            else {
                                 let v = r.results[0];
-                                watching.push({
-                                    label:w.name + ":" + window.geoos.formatNumber(v.resultado, w.decimals, w.unit),
-                                    color:"white"
-                                });   
+                                color = "white"; label = w.name + ":" + window.geoos.formatNumber(v.resultado, w.decimals, w.unit)
                             }
+                            watching.push({label, color});   
                         }
                         if (watching.length) {
                             let center = uo.getCenter();
@@ -284,6 +285,7 @@ class GEOOSUserObject {
             r.aborter = null;
         } catch(error) {            
             console.error(error);
+            r.aborter = null;
             this.layer.finishWorking();
             return;
         }

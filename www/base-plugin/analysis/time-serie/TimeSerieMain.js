@@ -26,6 +26,7 @@ class TimeSerieMain extends ZCustomController {
             let series = [];
             let yAxis = [];
             this.variables = [];
+            this.timeRanges = [];            
             if (this.watcher1 && this.analyzer.data1.serie) {
                 this.variables.push(this.watcher1);
                 title = this.watcher1.name;
@@ -39,8 +40,9 @@ class TimeSerieMain extends ZCustomController {
                     type:serieType,
                     name:title,
                     data:this.analyzer.data1.serie,
-                    turboThreshold: 0
+                    turboThreshold: 0                    
                 });
+                this.timeRanges.push(this.watcher1.timeRange);
                 yAxis.push({id:"primary", title:{text:this.watcher1.unit}});
             }
             if (this.watcher2 && this.analyzer.data2.serie) {
@@ -72,6 +74,7 @@ class TimeSerieMain extends ZCustomController {
                     turboThreshold: 0,
                     yAxis:useSecondaryAxes?"secondary":"primary"
                 })
+                this.timeRanges.push(this.watcher2.timeRange);
             }
             if (!this.chart && series.length) {
                 let self = this;
@@ -171,6 +174,21 @@ class TimeSerieMain extends ZCustomController {
                 series.forEach((serie, i) => this.chart.series[i].setData(serie.data));
                 if (title) this.chart.setTitle({text:title});
                 if (subtitle) this.chart.setSubtitle({text:subtitle});
+            }
+            // Ajustar ancho de columnas de acuerdo a temporalidad de las variables
+            if (this.chart) {
+                let ejeX = this.chart.xAxis[0];
+                series.forEach((serie, i) => {
+                    let s = this.chart.series[i];
+                    if (s.type == "column" && this.timeRanges[i]) {
+                        let x0 = Date.now();
+                        let x1 = x0 + this.timeRanges[i];
+                        let w = parseInt(ejeX.toPixels(x1, true) - ejeX.toPixels(x0, true)) - 2;
+                        if (w > 5) {
+                            s.update({pointWidth:w});
+                        }
+                    }
+                });
             }
             this.triggerEvent("setCaption", "Serie de Tiempo" + (title?" / " + title + (subtitle?(" " + subtitle):""):""));
         } catch(error) {

@@ -9,6 +9,13 @@ const descAcums = {
     "n":"nº muestras", "sum":"acumulado", "avg":"promedio", "min":"mínimo", "max":"máximo"
 }
 const nivelesTemporalidad = ["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M", "1y"];
+const rangosTemporalidad = {
+    "5m":1000 * 60 * 5, "15m":1000 * 60 * 5, "30m":1000 * 60 * 30,
+    "1h":1000 * 60 * 60, "6h":1000 * 60 * 60 * 6, "12h":1000 * 60 * 60 * 12,
+    "1d":1000 * 60 * 60 * 24,
+    "1M":1000 * 60 * 60 * 24 * 30, "3M":1000 * 60 * 60 * 24 * 30 * 3, "4M":1000 * 60 * 60 * 24 * 30 * 4, "6M":1000 * 60 * 60 * 24 * 30 * 6,
+    "1y":1000 * 60 * 60 * 24 * 365
+}
 
 class GEOOSQuery {
     constructor(config) {
@@ -25,6 +32,7 @@ class GEOOSQuery {
     get colorScale() {return {name:"SAGA - 01", clipOutOfRange:false, auto:true, unit:this.unit}}
     get minZTemporality() {throw "minZTemporality not overwritten"}
     get dependsOnTime() {return true}
+    get timeRange() {throw "timeRange not overwritten"}
 
     redondea(value, includeUnit) {
         let pow = Math.pow(10, this.decimals);
@@ -145,6 +153,19 @@ class RasterQuery extends GEOOSQuery {
         return "1y"
     }
     get dependsOnTime() {return this.dataSet.temporality && this.dataSet.temporality != "none"}
+    get timeRange() {
+        let t = this.variable.options.temporality || this.dataSet.temporality;
+        if (!t || t == "none") return 0;
+        let factor;
+        switch (t.unit) {
+            case "minutes": factor = 60; break;
+            case "hours": factor = 60 * 60; break;
+            case "days": factor = 60 * 60 * 24; break;
+            case "months": factor = 60 * 60 * 24 * 30; break;
+            case "years": factor = 60 * 60 * 24 * 365; break;
+        }
+        return 1000 * factor * t.value;
+    }
 
     serialize() {
         return {
@@ -335,6 +356,12 @@ class MinZQuery extends GEOOSQuery {
     get decimals() {return this.variable && this.variable.options && this.variable.options.decimals?this.variable.options.decimals:super.decimals}
     get minZTemporality() {return this.temporality}
     get dependsOnTime() {return true}
+    get timeRange() {
+        let t = this.temporality;
+        console.log("minzQuery Temporality", t);
+        if (!t || t == "none") return 0;
+        return rangosTemporalidad[t];
+    }
 
     get colorScale() {
         if (this.variable.options && this.variable.options.colorScale) return this.variable.options.colorScale;

@@ -98,6 +98,10 @@ class MyPanel extends ZCustomController {
                 if (layer.variable && layer.variable.levels && layer.variable.levels.length) {
                     layerName += " [" + layer.variable.levels[layer.level] + "]";
                 }
+                let layerState = "";
+                if (layer instanceof GEOOSRasterLayer) {
+                    layerState = `<div class="layer-state">${layer.getDataState()}</div>`;
+                }
                 html += `<div class="my-panel-layer" data-layer-id="${layer.id}" data-group-id="${group.id}">`;
                 if (layerItems) {
                     html += `  <i class="layer-expander fas fa-lg fa-chevron-right ${layer.expanded?" expanded":""} mr-2 float-left"></i>`;
@@ -105,7 +109,8 @@ class MyPanel extends ZCustomController {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
                 html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
-                html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span></div>`;
+
+                html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span>${layerState}</div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
                 if (layerItems) {
@@ -534,11 +539,16 @@ class MyPanel extends ZCustomController {
         z.show();
     }
 
+    refreshLayerState(layer) {
+        $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .layer-name .layer-state").text(layer.getDataState());
+    }
     layerStartWorking(layer) {
         $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .fa-spin").show();
+        this.refreshLayerState(layer);
     }
     layerFinishWorking(layer) {
         $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .fa-spin").hide();
+        this.refreshLayerState(layer);
     }
 
     clearSelection() {

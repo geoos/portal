@@ -275,4 +275,6 @@ class GEOOSLayer {
         if (v === undefined || v === null) return "";
         return v.toLocaleString();
     }
+
+    getDataState() {return ""}
 }

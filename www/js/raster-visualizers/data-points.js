@@ -54,7 +54,7 @@ class DataPointsVisualizerHelper extends RasterVisualizer {
         promise
             .then(ret => {
                 this.aborter = null;
-                this.finishWorking();
+                this.finishWorking(ret.foundTime.msUTC);
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
                 if (cb) cb();
@@ -63,7 +63,7 @@ class DataPointsVisualizerHelper extends RasterVisualizer {
                 this.aborter = null;
                 if (err != "aborted" && err.toString().indexOf("abort") < 0) {
                     console.error(err);
-                    this.finishWorking();
+                    this.finishWorking(null, err.toString());
                 }
                 visualizer.setGridData(null, null, null, null);
                 if (cb) cb(err);
