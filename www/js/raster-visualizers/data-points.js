@@ -54,7 +54,7 @@ class DataPointsVisualizerHelper extends RasterVisualizer {
         promise
             .then(ret => {
                 this.aborter = null;
-                this.finishWorking(ret.foundTime.msUTC);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
                 if (cb) cb();

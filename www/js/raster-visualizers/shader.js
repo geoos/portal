@@ -85,7 +85,7 @@ class ShaderRasterVisualizer extends RasterVisualizer {
             .then(ret => {
                 console.log("ret", ret);
                 this.aborter = null;
-                this.finishWorking(ret.foundTime.msUTC);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
