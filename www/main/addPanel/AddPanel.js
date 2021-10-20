@@ -230,10 +230,11 @@ class AddPanel extends ZCustomController {
         let activeGroup = window.geoos.getActiveGroup();
         let htmlVars = "";
         for (let layer of this.filteredLayers) {
+            console.log("layer",layer)
             htmlVars += `
                 <div class="add-panel-variable" data-code="${layer.code}">
                     <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>
-                    ${layer.name}
+                    ${layer.name + " - [" + layer.providers[0] +"]"}
                     <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoVarCode==layer.code?"-active":""}.svg" />
                     <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
                     <img class="add-panel-variable-icon ${(activeGroup && activeGroup.containsLayer(layer))?"":"inactive"} added" style="height: 16px;" src="img/icons/variable-added.svg" />
