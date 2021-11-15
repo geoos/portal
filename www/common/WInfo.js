@@ -1,4 +1,4 @@
-class WConfirm extends ZDialog {
+class WInfo extends ZDialog {
     onThis_init(options) {
         if (options.title) this.title.text = options.title;
         if (options.subtitle) this.subtitle.text = options.subtitle;
@@ -8,4 +8,4 @@ class WConfirm extends ZDialog {
     onCmdCloseInfoWindow_click() {this.cancel()}
     onCmdCancel_click() {this.cancel()}
 }
-ZVC.export(WConfirm);
+ZVC.export(WInfo);

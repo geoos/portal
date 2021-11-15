@@ -836,6 +836,10 @@ a:hover {
 
 /* Dialogs */
 .geoos-dialog {
+    background-color: #1B1B2C;
+    border: 2px solid #bdbdbd
+}
+.geoos-dialog-ask {
     background-color: #392b6f;
     border: 2px solid #bdbdbd
 }
@@ -859,6 +863,21 @@ a:hover {
 .geoos-dialog-close:hover {
     background-image: url(../img/icons/close-active.svg);
 }
+/* Input dialog */
+.input-ask{
+    border: solid 1px #A7A7A7;
+    background-color: #2A3D62;
+    border-radius: 20px; 
+    line-height: 40px; 
+    width: 10%;
+
+    font-size: 1rem;
+    text-align: center;
+    box-sizing: border-box;
+    color: rgb(240, 232, 232);
+}
+
+
 
 /* Paneles */
 .geoos-panel-ok {

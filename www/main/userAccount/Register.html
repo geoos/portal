@@ -1,17 +1,11 @@
 <div class="container-fluid pt-2">    
     <div id="registrarse">
-          
-  <!--       <h6>Registrarse</h6>
-        <div>
-            Si ya se ha registrado en GEOOS con su dirección de correo electrónico, puede
-            <a id="cmdLogin" class="btn btn-sm btn-link">Iniciar Sesión</a>
-        </div> -->
         <div class="row mb-2">
             <div class="col text-center">
                 <img src="img/Logo_GEOOs_260.png" height="110px" />
             </div>
         </div>
-        <hr style="background-color: white;" />  
+        <!-- <hr style="background-color: white;" /> -->  
         <div class="ml-2" id="codigoInicial">
             
             <div id="enviarCodigo" class="row">
@@ -43,63 +37,64 @@
         <div id="codigoEnviado">
             <hr style="background-color: white;" />
             <div class="ml-2">
-                <div class="row">
+                <!-- <div class="row">
                     <div class="col-8">
                         <label class="mt-1">Código Recibido (*)</label>
                     </div>
                     <div class="col-4">
                         <input id="edCodigoRegistro" type="text" class="ml-auto form-control form-control-sm" maxlength="6" minlength="6" style="width: 90px;" />
                     </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-12 ">
-                        <label for="edNombre">Nombre (*)</label>
-                        <input type="text" class="form-control" id="edNombre" data-z-autochange-delay="300">
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="form-group col-12 ">
-                        <label for="edInstitucion">Institución</label>
-                        <input type="text" class="form-control" id="edInstitucion" data-z-autochange-delay="300">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="edPwd" class="mt-1">Contraseña (*)</label>
-                    <div class="input-group">
-                        <input id="edPwd" type="password" class="form-control form-control-sm" />
-                        <div class="input-group-append">
-                            <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                </div> -->
+                <form>
+                    <div class="row">
+                        <div class="form-group col-12 ">
+                            <label for="edNombre">Nombre (*)</label>
+                            <input type="text" class="form-control" id="edNombre" data-z-autochange-delay="300">
                         </div>
                     </div>
-                </div>
- 
-                <div class="form-group">
-                    <label for="edPwd2" class="mt-1">Contraseña (*)</label>
-                    <div class="input-group">
-                        <input id="edPwd2" type="password" class="form-control form-control-sm" />
-                        <div class="input-group-append">
-                            <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                    
+                    <div class="row">
+                        <div class="form-group col-12 ">
+                            <label for="edInstitucion">Institución</label>
+                            <input type="text" class="form-control" id="edInstitucion" data-z-autochange-delay="300">
                         </div>
                     </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-8">
-                        <span>La contraseña se almacena encriptada en nuestros servidores. Si la olvida podrá crear una nueva, pero no recuperarla.</span>
+                    <div class="form-group">
+                        <label for="edPwd" class="mt-1">Contraseña (*)</label>
+                        <div class="input-group">
+                            <input id="edPwd" type="password" class="form-control form-control-sm" />
+                            <div class="input-group-append">
+                                <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-4 text-center">
-                        <button id="cmdRegistrarse" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
-                            <i class="fa fas fa-clipboard-check mr-2"></i>
-                            Registrarse
-                        </button>
-                        <i id="working2" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+    
+                    <div class="form-group">
+                        <label for="edPwd2" class="mt-1">Contraseña (*)</label>
+                        <div class="input-group">
+                            <input id="edPwd2" type="password" class="form-control form-control-sm" />
+                            <div class="input-group-append">
+                                <button class="mostrador btn btn-sm btn-outline-secondary" type="button" style="border-width: 1.1px; border-color: white; ">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="row mt-2">
+                        <div class="col-8">
+                            <span>La contraseña se almacena encriptada en nuestros servidores. Si la olvida podrá crear una nueva, pero no recuperarla.</span>
+                        </div>
+                        <div class="col-4 text-center">
+                            <button id="cmdRegistrarse" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                                <i class="fa fas fa-clipboard-check mr-2"></i>
+                                Registrarse
+                            </button>
+                            <i id="working2" class="fa fas fa-lg fa-spin fa-spinner mt-2"></i>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -2,12 +2,13 @@ let mensajeEnviar = "Se le enviará un código de 6 dígitos para verificar su d
 let mensajeReenviar = "Espere unos minutos que el código llegeue a su correo. Para enviar nuevamente, use el botón de envío. Sólo el último código enviado será válido.";
 
 
-
 class Register extends ZCustomController {
     onThis_init(options) {
+        //window.geoos.userAccountPanel.register = this;
         this.working.hide();
         this.working2.hide();
         this.codigoEnviado.hide();
+        this.codigoInicial.show();
         this.cmdEnviarCodigo.disable();
         if (options && options.email) this.edEmail.value = options.email;
         $(this.view).find(".mostrador")
@@ -24,7 +25,6 @@ class Register extends ZCustomController {
     onEdEmail_change() {
         this.lblMensajeEnviar.text = mensajeEnviar;
         this.codigoEnviado.hide();
-        console.log("email: ", this.edEmail.value);
         if (this.emailValido(this.edEmail.value.trim())) this.cmdEnviarCodigo.enable();
         else this.cmdEnviarCodigo.disable();
     }
@@ -40,6 +40,8 @@ class Register extends ZCustomController {
             this.working.show();
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
             this.codigoInicial.hide()
+            this.showDialog("./WCode");
+            //this.showDialog("common/WCode", {message:error.toString()})
             this.codigoEnviado.show();
             this.lblMensajeEnviar.text = mensajeReenviar;
         } catch(error) {
@@ -61,9 +63,9 @@ class Register extends ZCustomController {
             let pwd2 = this.edPwd2.value.trim();
             if (pwd != pwd2) throw "La contraseña y su repetición son diferentes";
             let email = this.edEmail.value.trim();
-            let codigoRegistro = this.edCodigoRegistro.value.trim();
+            /* let codigoRegistro = this.edCodigoRegistro.value.trim(); */
             if (!this.emailValido(email)) throw "E-mail inválido";
-            if (codigoRegistro.length < 6) throw "El código de registro es inválido";
+            /* if (codigoRegistro.length < 6) throw "El código de registro es inválido"; */
             this.cmdRegistrarse.hide();
             this.working2.show();
             await zPost("registraUsuario.geoos", {

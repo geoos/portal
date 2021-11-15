@@ -1,0 +1,41 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered " role="document">
+        <div class="geoos-dialog-ask modal-content " style="background-color: #1B1B2C">
+            <div class="modal-header">
+                <i id="cmdBackCodeWindow" class="fas fa-arrow-circle-left geoos-panel-close" data-z-clickable="true"></i>
+                <i id="cmdCloseCodeWindow" class="far fa-times-circle geoos-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div class="text-center">
+                    <img src="img/Logo_GEOOs_260.png" height="60px" />
+            </div>
+            <div class="modal-body">
+                <div class="py-3 text-center">
+                    <div >
+                        <h6 id="subtitle" class="heading mt-2" style="font-weight:bold;">
+                            <strong>Verificar Código de Registro</strong>
+                        </h6>
+                    </div>
+                    <div class="mt-4">
+                        <p id="message" class="mb-0">Como medida de seguridad adicional, introduce el código de 6 dígitos que enviamos a tu correo.</p>
+                    </div>
+                    <div id="form" class="mt-4">
+                        <input id="num_1" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}"/>
+                        <input id="num_2" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input id="num_3" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input id="num_4" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input id="num_5" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <input id="num_6" class="input-ask" type="text" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" />
+                        <div class="mt-4">
+                            <!-- <button class="btn btn-sm btn-primary geoos-panel-ok"><b>Confirmar</b></button> -->
+                            <button id="cmdConfirmar" class="btn btn-sm btn-primary"><b>Confirmar</b></button>
+                        </div>
+                        
+                      </div>
+                </div>    
+            </div>
+            <!-- <div class="modal-footer">
+                <button id="cmdCancel" type="button" class="btn btn-secondary geoos-dialog-ok ml-auto mr-auto">Cerrar</button>
+            </div>   -->  
+        </div>
+    </div>
+</div>

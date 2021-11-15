@@ -230,7 +230,7 @@ class AddPanel extends ZCustomController {
         let activeGroup = window.geoos.getActiveGroup();
         let htmlVars = "";
         for (let layer of this.filteredLayers) {
-            console.log("layer",layer)
+            //console.log("layer",layer)
             htmlVars += `
                 <div class="add-panel-variable" data-code="${layer.code}">
                     <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>

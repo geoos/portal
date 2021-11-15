@@ -239,16 +239,16 @@ class AddStationsPanel extends ZCustomController {
             let {nStationsProvider, nSelected} = this.filteredStations.reduce((map, s) => {
                 if (s.proveedor == provider.code) {
                     map.nStationsProvider++;
-                    if (window.geoos.isStationAdded(s.code)) map.nSelected++;
+                    //if (window.geoos.isStationAdded(s.code)) map.nSelected++;
+                    if (window.geoos.isStationSelected(s.code)) map.nSelected++;
                 }
                 return map;
             }, {nStationsProvider:0, nSelected:0});
             htmlStations += `
-                <div class="add-panel-proveedor" data-code="${provider.code}">
-                    <i class="far fa-lg ${nStationsProvider == nSelected?"fa-check-square":"fa-square"} float-left mr-2"></i>
-                    ${provider.name}
-                </div>
-            `;
+            <div class="add-panel-proveedor" data-code="${provider.code}">
+                <i class="far fa-lg ${nStationsProvider == nSelected?"fa-check-square":"fa-square"} float-left mr-2"></i>
+                ${provider.name}
+            </div>`;
             for (let station of this.filteredStations.filter(s => s.proveedor == provider.code)) {
                 /* <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i> */
                 htmlStations += `
@@ -264,6 +264,7 @@ class AddStationsPanel extends ZCustomController {
         }
         this.stationsContainer.html = htmlStations;
         if (this.infoOpen && this.filteredStations.findIndex(l => (l.code == this.infoStationCode)) < 0) this.closeInfo();
+        
         $(this.stationsContainer.view).find(".info").click(e => {
             $(this.stationsContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
             let img = $(e.currentTarget);
@@ -292,11 +293,9 @@ class AddStationsPanel extends ZCustomController {
             if(!window.geoos.isFavorite(code, "station")){
                 let station = this.filteredStations.find(v => v.code == code);
                 img.attr("src", "img/icons/favo-active.svg");
-                console.log("station add", station)
                 window.geoos.addFavStations(station);
                 
             }else{
-                //console.log("no entro,",code);
                 window.geoos.deleteFavStations(code)
                 img.attr("src", "img/icons/favo.svg");
             }
@@ -328,16 +327,26 @@ class AddStationsPanel extends ZCustomController {
                     if (window.geoos.isStationAdded(s.code)) {
                         map.toUnselect.push(s.code);
                     } else {
-                        map.toSelect.push(s.code)
+                        map.toSelect.push(s.code);
                     }
                 }
                 return map;
             }, {toSelect:[], toUnselect:[]});
+            //console.log('select', toSelect);
             if (!toSelect.length) {
-                window.geoos.removeStations(toUnselect)
+                //window.geoos.removeStations(toUnselect)
+                //window.geoos.selectStation(toUnselect);
+                for (const sel of toUnselect){
+                    window.geoos.selectStation(sel);
+                }
             } else {
-                window.geoos.addStations(toSelect)
-            }            
+                //window.geoos.addStations(toSelect);
+                for (const sel of toSelect){
+                    window.geoos.selectStation(sel);
+                }
+                
+            }
+            //console.log("seleccionadas", window.geoos.stationSelected);            
             this.refresh();
         })
         this.refreshResume();        
@@ -360,26 +369,21 @@ class AddStationsPanel extends ZCustomController {
 
     onCmdCancelStations_click() {this.toggle()}
     onCmdAccept_click(){
-        
         let sel = window.geoos.stationSelected;
         if (sel.length) {
             for(let i=0; i<sel.length; i++){
                 if(!window.geoos.isStationAdded(sel[i])) window.geoos.addStation(sel[i]);
             } 
         }
-
         let unSel = window.geoos.stationUnselected;
         if (unSel.length) {
-            console.log("1");
             for (let un of unSel){
-                console.log("2");
                 if(window.geoos.isStationAdded(un)){
-                    console.log("elimina", un);
                     window.geoos.removeStation(un);
                 }
             }
         }
-        console.log("3");
+
         window.geoos.stationUnselected = [];
         window.geoos.openMyPanel();
     }

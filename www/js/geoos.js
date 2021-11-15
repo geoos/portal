@@ -716,6 +716,7 @@ class GEOOS {
         if (!l) return false;
         return l.containsStation(code);
     }
+    
     selectStation(code){
         let found = this.stationSelected.findIndex(s => s==code);
         if(found!=-1 && this.stationSelected.length == 1){
@@ -729,6 +730,7 @@ class GEOOS {
             this.unselectStation(code, 1)
         } 
     }
+
     unselectStation(code, type){
         let found = this.stationUnselected.findIndex(s => s==code);
         if(found!=-1 && type == 1){

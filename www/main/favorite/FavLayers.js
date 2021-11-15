@@ -38,7 +38,7 @@ class FavLayers extends ZCustomController {
         let activator = $(e.currentTarget);
         let layerDiv = activator.parent();
         let layerId = layerDiv.data("layer-id");
-        console.log("layer", layerId);
+        //console.log("layer", layerId);
         let variable = this.layers.find(v => v.code == layerId);
         window.geoos.addLayer(variable);
         window.geoos.openMyPanel();
