@@ -73,7 +73,7 @@ class VectorsRasterVisualizer extends RasterVisualizer {
         promise
             .then(ret => {
                 this.aborter = null;
-                this.finishWorking(ret.foundTime.msUTC);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setVectorData(ret.foundBox, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);

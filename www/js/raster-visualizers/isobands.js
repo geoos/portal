@@ -90,7 +90,7 @@ class IsobandsRasterVisualizer extends RasterVisualizer {
         promise
             .then(ret => {
                 this.aborter = null;
-                this.finishWorking(ret.foundTime.msUTC);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
                 if (this.autoIncrement) this.config.increment = ret.increment;
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);
