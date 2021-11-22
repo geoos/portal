@@ -92,6 +92,7 @@ class GEOOS {
         if (this.searchLocationPanel.open) this.searchLocationPanel.toggle();
         if (this.addStationsPanel.open) this.addStationsPanel.toggle();
         if (this.addObjectPanel.open) this.addObjectPanel.toggle();
+        //if (this.infoBarPanel.open) this.infoBarPanel.toggle();
         this.userConfigPanel.close();
         this.userAccountPanel.close();
         this.userHelpPanel.close();

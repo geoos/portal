@@ -33,6 +33,8 @@ class ColorScaleProperties extends ZCustomController {
     onEdScaleName_change() {
         this.visualizer.colorScaleConfig.name = this.edScaleName.value;
         this.visualizer.updateColorScale();
+        // Dispara evento para refrescar panel de escalas
+        window.geoos.events.trigger("layer", "rename", this.visualizer.layer);
         this.refreshPreview();
     }
     onEdAuto_change() {
@@ -43,17 +45,23 @@ class ColorScaleProperties extends ZCustomController {
     onEdClipOutOfRange_change() {
         this.visualizer.colorScaleConfig.clipOutOfRange = this.edClipOutOfRange.checked;
         this.visualizer.updateColorScale();
+        // Dispara evento para refrescar panel de escalas
+        window.geoos.events.trigger("layer", "rename", this.visualizer.layer);
     }
     onEdMin_change() {
         if (this.checkLimits()) {
             this.visualizer.colorScaleConfig.min = parseFloat(this.edMin.value);
             this.visualizer.updateColorScale();
+            // Dispara evento para refrescar panel de escalas
+            window.geoos.events.trigger("layer", "rename", this.visualizer.layer);
         }
     }
     onEdMax_change() {
         if (this.checkLimits()) {
             this.visualizer.colorScaleConfig.max = parseFloat(this.edMax.value);
             this.visualizer.updateColorScale();
+            // Dispara evento para refrescar panel de escalas
+            window.geoos.events.trigger("layer", "rename", this.visualizer.layer);
         }
     }
 

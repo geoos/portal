@@ -13,8 +13,8 @@ class UserConfigPanel extends ZCustomController {
     doResize() {        
         if (!this.open) return;
         let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
-        let top = (topMenuRect.top + topMenuRect.height - 6);
-        //this.userConfigContent.view.style.height = (window.geoos.size.height - top - 50) + "px";        
+        //let top = (topMenuRect.top + topMenuRect.height - 6);
+        let top = (topMenuRect.top + topMenuRect.height + 10);
         this.mapTypePage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
         this.gridPage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
     }

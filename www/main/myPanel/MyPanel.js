@@ -91,7 +91,6 @@ class MyPanel extends ZCustomController {
             html += `  <i class="group-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
             html += `  <div class="my-panel-layers" ${group.expanded?"":" style='display:none; '"}>`;   
             for (let layer of group.layers) {
-                console.log("capa en panel:", layer);
                 let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
                 let layerItems = layer.getItems();
                 let layerName = layer.name;
@@ -388,6 +387,10 @@ class MyPanel extends ZCustomController {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"delete", icon:"far fa-trash-alt", label:"Eliminar el Grupo", 
+        }, {
+            code:"sep", icon:"-", label:"-", 
+        }, {
+            code:"scalesPanel", icon:"fas fa-palette", label:"Escalas de Colores", 
         }], {
             vMargin:10,
             onClick:async (code, item) => {
@@ -425,7 +428,7 @@ class MyPanel extends ZCustomController {
                     document.execCommand('copy');
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
-                }else if (code == "favo") {
+                } else if (code == "favo") {
                     let groupName = group.config.name;
                     let s = group.serialize();
                     //agregar a favoritos
@@ -440,8 +443,10 @@ class MyPanel extends ZCustomController {
                     }
                     return false;
 
-                }else if (code == "duplicate") {
+                } else if (code == "duplicate") {
                     this.groupDuplicate(group);
+                } else if (code == "scalesPanel") {
+                    window.geoos.infoBarPanel.toggle();
                 }
             }
         })
@@ -621,5 +626,10 @@ class MyPanel extends ZCustomController {
         window.geoos.addExistingGroup(newGroup);
         this.refresh();
     }    
+
+    async selectScaleConfig(layer, visualizer) {
+        await window.geoos.selectElement("visualizer", visualizer);
+        await window.geoos.configPanel.selectColorScale();
+    }
 }
 ZVC.export(MyPanel);

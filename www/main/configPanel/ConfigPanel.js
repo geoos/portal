@@ -114,6 +114,7 @@ class ConfigPanel extends ZCustomController {
         }
         $(this.configPanels.view).animate({opacity:1}, 200);
         $(this.configPanels.view).find(".prop-caption").click(e => {
+            console.log("caption click", e);
             let panelCode = $(e.currentTarget).parent().data("panel-code");
             let panel = this.panels.find(p => p.panelCode == panelCode);
             let $panel = $(panel.view);
@@ -155,6 +156,12 @@ class ConfigPanel extends ZCustomController {
             window.geoos.unselect();
             return;
         }
+    }
+
+    async selectColorScale() {
+        let pScale = $(this.configPanels.view).find(".prop-panel[data-panel-code='color-scale'] .prop-caption");
+        let panelConfig = this.element.panelsConfig["color-scale"];
+        if (panelConfig && !panelConfig.expanded) $(pScale).trigger("click");
     }
 }
 ZVC.export(ConfigPanel);

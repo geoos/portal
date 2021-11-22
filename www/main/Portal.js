@@ -14,6 +14,7 @@ class Portal extends ZCustomController {
             this.userHelpPanel.doResize(size);
             this.userMarksPanel.doResize(size);
             this.rightHelper.doResize(size);
+            this.infoBarPanel.doResize(size);
         });
     }
 }
