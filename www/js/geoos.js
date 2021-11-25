@@ -672,13 +672,23 @@ class GEOOS {
 
     addStation(code) {
         let g = this.getActiveGroup();
-        let l = g.getStationsLayer();
+        let e = this.estaciones.estaciones[code];
+        let p = this.estaciones.proveedores[e.proveedor]
+        console.log("active provider : ", p);
+        let l = g.getStationsLayer(p.code);
         if (!l) {
-            l = g.createStationsLayer();
-            this.events.trigger("portal", "layersAdded", g)
+            l = g.createStationsLayer(p.name, p.code);
+            this.events.trigger("portal", "layersAdded", g);
+        }else if(l.id != p.code){
+            console.log("p.code : ", p.code);
+            console.log("l.id : ", i.id);
+            l = g.createStationsLayer(p.name, p.code);
+            this.events.trigger("portal", "layersAdded", g);
         }
+        console.log("layer: ", l);
         l.addStation(code);
     }
+
     addStations(list) {
         let g = this.getActiveGroup();
         let l = g.getStationsLayer();

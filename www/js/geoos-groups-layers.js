@@ -105,16 +105,24 @@ class GEOOSGroup {
     getLayer(id) {return this.layers.find(l => (l.id == id))}
     getIndexOfLayer(layer) {return this.layers.findIndex(l => (l.id == layer.id))}
 
-    getStationsLayer() {
+    /* getStationsLayer() {
         return this.layers.find(l => (l.id == "stations"));
+    } */
+    getStationsLayer(code) {
+        return this.layers.find(l => (l.id == code));
     }
-    createStationsLayer() {
-        let l = new GEOOSStationsLayer({name:"Estaciones", opacity:100});
+
+    createStationsLayer(providerName, code) {
+        //let l = new GEOOSStationsLayer({name:"Estaciones", opacity:100});
+        let l = new GEOOSStationsLayer({name:providerName, opacity:100, id:code});
         this.addLayer(l)
         return l;
     }
-    removeStationsLayer() {
+    /* removeStationsLayer() {
         this.removeLayer("stations");
+    } */
+    removeStationsLayer(code) {
+        this.removeLayer(code);
     }
 
     getUserObjectsLayer() {
