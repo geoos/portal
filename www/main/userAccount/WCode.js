@@ -11,14 +11,10 @@ class WCode extends ZDialog {
 
     onCmdCloseCodeWindow_click() {
         window.geoos.userAccountPanel.toggle();
-        console.log('panel: ', window.geoos.userAccountPanel);
-        window.geoos.userAccountPanel.register.codigoEnviado.hide();
-        window.geoos.userAccountPanel.register.codigoInicial.show();
-        this.cancel()
+        this.close(0);
     }
     onCmdBackCodeWindow_click() {
-        
-        this.cancel()
+        this.close(1);
     }
 
     onCmdConfirmar_click(){
