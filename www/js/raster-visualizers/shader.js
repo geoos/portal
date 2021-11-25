@@ -83,7 +83,6 @@ class ShaderRasterVisualizer extends RasterVisualizer {
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
             .then(ret => {
-                console.log("ret", ret);
                 this.aborter = null;
                 this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
                 this.colorScale.setRange(ret.min, ret.max);
@@ -107,6 +106,8 @@ class ShaderRasterVisualizer extends RasterVisualizer {
             code:"color-scale", name:"Escala de Colores", path:"./ColorScaleProperties"
         }]
     }
+
+    getColorScale() {return this.colorScale}
 }
 
 RasterVisualizer.registerVisualizerClass("shader", ShaderRasterVisualizer);

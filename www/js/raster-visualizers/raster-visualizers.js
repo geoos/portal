@@ -53,6 +53,8 @@ class RasterVisualizer {
     async deactivate() {
         await this.destroy();
         this.active = false;
+        // Dispara evento para refrescar panel de escalas
+        window.geoos.events.trigger("layer", "rename", this.layer);
     }        
     async toggleActive() {
         if (this.active) await this.deactivate();
@@ -61,4 +63,5 @@ class RasterVisualizer {
 
     async create() {console.warn("Abstract create in visualizer")}
     async destroy() {console.warn("Abstract destroy in visualizer")}
+    getColorScale() {return null}
 }
