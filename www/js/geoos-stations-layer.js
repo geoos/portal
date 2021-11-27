@@ -191,7 +191,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
             })
         }
         panels.push(
-            {code:"stations", name:"Estaciones", path:"./layers/watchers/Stations"}
+            {code:"stations-name", name:"Estaciones", path:"./layers/watchers/Stations"}
         )
         return panels;
     }

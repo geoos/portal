@@ -415,11 +415,6 @@ class MyPanel extends ZCustomController {
                     s.toolsStatus = window.geoos.toolsPanel.status;
                     //console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
-                    /*
-                    s = JSON.stringify(s);
-                    let b = btoa(s);
-                    let url = window.location.href.split('?')[0] + "?group=" + encodeURIComponent(b);
-                    */
                     let url = window.location.href.split('?')[0] + "?group=" + linkToken;
                     const el = document.createElement('textarea');
                     el.value = url;
@@ -429,7 +424,7 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
-                    let groupName = group.config.name;
+                    //let groupName = group.config.name;
                     let s = group.serialize();
                     //agregar a favoritos
                     if(!window.geoos.isFavorite(groupId, "group")){

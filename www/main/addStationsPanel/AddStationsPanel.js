@@ -334,8 +334,6 @@ class AddStationsPanel extends ZCustomController {
             }, {toSelect:[], toUnselect:[]});
             //console.log('select', toSelect);
             if (!toSelect.length) {
-                //window.geoos.removeStations(toUnselect)
-                //window.geoos.selectStation(toUnselect);
                 for (const sel of toUnselect){
                     window.geoos.selectStation(sel);
                 }
@@ -368,6 +366,7 @@ class AddStationsPanel extends ZCustomController {
     }
 
     onCmdCancelStations_click() {this.toggle()}
+
     onCmdAccept_click(){
         let sel = window.geoos.stationSelected;
         if (sel.length) {
