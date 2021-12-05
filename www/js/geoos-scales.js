@@ -56,6 +56,9 @@ class GEOOSColorScale {
     set max(m) {this.config.max = m}
     get unit() {return this.config.unit}
     set unit(u) {this.config.unit = u}
+    get hasLabels() {return false}
+    get minLabel() {return "S/E"}
+    get maxLabel() {return "S/E"}
     setRange(min, max) {
         if (this.auto) {
             this.config.min = min; this.config.max = max;
@@ -248,6 +251,10 @@ class RangesScale extends GEOOSColorScale {
         super(scaleDef, config);
         this.normalizeRanges();
     }
+    get hasLabels() {return this.def.config.labels?true:false}
+    get minLabel() {return this.def.config.labels[0]}
+    get maxLabel() {return this.def.config.labels[this.def.config.labels.length - 1]}
+
     normalizeRanges() {
         let {min, max} = this.def.config.ranges.reduce((acum, r) => {
             let v = r[0]
@@ -256,6 +263,7 @@ class RangesScale extends GEOOSColorScale {
             return acum;
         }, {min:undefined, max:undefined})
         this.ranges = [];
+        /*
         for (let i in this.def.config.ranges) {
             let r = this.def.config.ranges[i];
             let rMin = (i == 0?r[0]:this.def.config.ranges[i - 1][0]);
@@ -265,6 +273,30 @@ class RangesScale extends GEOOSColorScale {
             let rr = {min:rMin, max:rMax, color:r[1]}
             this.ranges.push(rr);
         }
+        */
+        let n = this.def.config.ranges.length;
+        for (let i=0; i < n; i++) {
+            let r = this.def.config.ranges[i];
+            let rMin, rMax;
+            if (i == 0) {
+                rMin = r[0];
+            } else {
+                let r0 = this.def.config.ranges[i-1];
+                rMin =  (r0[0] + r[0]) / 2;
+            }
+            if (i == (n - 1)) {
+                rMax = r[0];
+            } else {
+                let r1 = this.def.config.ranges[i+1];
+                rMax =  (r[0] + r1[0]) / 2;
+            }
+            // normalizar
+            rMin = (rMin - min) / (max - min);
+            rMax = (rMax - min) / (max - min);
+            let rr = {min:rMin, max:rMax, color:r[1]}
+            this.ranges.push(rr);
+        }
+        // console.log("rangos normalizados", this.ranges);
     }   
     getColor(value) {
         let color = "rgba(0,0,0,0)";
@@ -280,7 +312,7 @@ class RangesScale extends GEOOSColorScale {
     }
     binarySearch(v, i, i0, i1) {        
         let r = this.ranges[i];
-        if (v >= r.min && v <= r.max || (i1 - i0) <= 1) return r.color;
+        if (v >= r.min && v < r.max || (i1 - i0) < 1) return r.color;
         if (v < r.min) {
             let newI = parseInt(i0 + (i - i0) / 2);
             if (newI == i) {
@@ -296,6 +328,43 @@ class RangesScale extends GEOOSColorScale {
                 return r.color;
             }
             return this.binarySearch(v, newI, i+1, i1);
+        } else if (isNaN(v)) {
+            return null;
+        } else {
+            console.error("Binary search error .. unhandled condition", r, v);
+            return r.color;
+        }
+    }
+    getLabel(value) {
+        let label = "S/E";
+        if (value !== undefined && this.min < this.max) {
+            let v = (value - this.min) / (this.max - this.min);
+            if (this.clipOutOfRange && (v < 0 || v > 1)) return label;
+            if (v < 0) v = 0;
+            if (v > 1) v = 1;
+            let i = parseInt(this.ranges.length / 2);
+            label = this.binaryLabelSearch(v, i, 0, this.ranges.length - 1);
+        }
+        return label;
+    }
+    binaryLabelSearch(v, i, i0, i1) {        
+        let r = this.ranges[i];
+        if (v >= r.min && v < r.max || (i1 - i0) < 1) return this.def.config.labels[i];
+        if (v < r.min) {
+            let newI = parseInt(i0 + (i - i0) / 2);
+            if (newI == i) {
+                console.error("Binary Label Search error .. invalid lower range");
+                return this.def.config.labels[i];
+            }
+            return this.binaryLabelSearch(v, newI, i0, i-1);
+        } else if (v >= r.max) {
+            let newI = i + (i1 - i) / 2;
+            if (newI != parseInt(newI)) newI = 1 + parseInt(newI);
+            if (newI == i) {
+                console.error("Binary Label Search error .. invalid upper range");
+                return this.def.config.labels[i];
+            }
+            return this.binaryLabelSearch(v, newI, i+1, i1);
         } else if (isNaN(v)) {
             return null;
         } else {

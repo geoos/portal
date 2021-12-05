@@ -129,13 +129,13 @@ class InfoBar extends ZCustomController {
                         </div>                            
                         <div class="row mt-2">
                             <div class="col-4">
-                                <input class="ib-text form-control form-control-sm text-left" disabled value="${this.format(scale.min, layer)}" />
+                                <input class="ib-text form-control form-control-sm text-left" disabled value="${this.format(scale.min, layer)}${scale.hasLabels?": " + scale.minLabel:""}" />
                             </div>
                             <div class="col-4">
                                 <input class="ib-center-text form-control form-control-sm text-center" disabled value="${this.getUnit(layer)}" data-scale-idx="${this.scales.length}" />
                             </div>
                             <div class="col-4">
-                                <input class="ib-text form-control form-control-sm text-right" disabled  value="${this.format(scale.max, layer)}" />
+                                <input class="ib-text form-control form-control-sm text-right" disabled  value="${this.format(scale.max, layer)}${scale.hasLabels?": " + scale.maxLabel:""}" />
                             </div>
                         </div>
                     </div>
@@ -168,7 +168,11 @@ class InfoBar extends ZCustomController {
                 if (x < 0) x = 0;
                 let w = s.clientWidth;
                 let v = scale.min + x / w * (scale.max - scale.min);
-                centerText.value = this.format(v, this.layers[idx]);
+                if (scale.hasLabels) {
+                    centerText.value = this.format(v, this.layers[idx]) + ": " + scale.getLabel(v);
+                } else {
+                    centerText.value = this.format(v, this.layers[idx]);
+                }
             })
         });
         this.infoBarContent.findAll(".ib-scale-config").forEach(i => {
