@@ -4,7 +4,6 @@ let mensajeReenviar = "Espere unos minutos que el código llegeue a su correo. P
 
 class Register extends ZCustomController {
     onThis_init(options) {
-        //window.geoos.userAccountPanel.register = this;
         this.working.hide();
         this.working2.hide();
         this.codigoEnviado.hide();
@@ -40,7 +39,13 @@ class Register extends ZCustomController {
             this.working.show();
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
             this.codigoInicial.hide()
-            this.showDialog("./WCode");
+            this.showDialog("./WCode", {}, async x =>{
+                if(x==0 || x==1){
+                    this.codigoEnviado.hide();
+                    this.codigoInicial.show();
+                }
+                console.log("mostrar:", x);
+            });
             //this.showDialog("common/WCode", {message:error.toString()})
             this.codigoEnviado.show();
             this.lblMensajeEnviar.text = mensajeReenviar;

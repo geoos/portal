@@ -108,7 +108,6 @@ class MyPanel extends ZCustomController {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
                 html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
-
                 html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span>${layerState}</div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
@@ -328,7 +327,7 @@ class MyPanel extends ZCustomController {
         let uo = window.geoos.getUserObject(uoCode);
         if (uo) {
             let opener = $(e.currentTarget);
-            opener.find("span").addClass("my-panel-selected-name")
+            opener.find("span").addClass("my-panel-selected-name");
             await window.geoos.selectElement("user-object", uo);
         }
     }
@@ -338,7 +337,8 @@ class MyPanel extends ZCustomController {
         let uoCode = uoDiv.data("code");
         let uo = window.geoos.getUserObject(uoCode);
         if (uo) {
-            this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar el objeto '" + uo.name + "'?"}, _ => window.geoos.removeUserObject(uo.id))
+            this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar el objeto '" + uo.name + "'?"}, 
+                _ => window.geoos.removeUserObject(uo.id));
         }
     }
     async toggleVisualizer(visualizer) {
@@ -415,11 +415,6 @@ class MyPanel extends ZCustomController {
                     s.toolsStatus = window.geoos.toolsPanel.status;
                     //console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
-                    /*
-                    s = JSON.stringify(s);
-                    let b = btoa(s);
-                    let url = window.location.href.split('?')[0] + "?group=" + encodeURIComponent(b);
-                    */
                     let url = window.location.href.split('?')[0] + "?group=" + linkToken;
                     const el = document.createElement('textarea');
                     el.value = url;
@@ -429,7 +424,7 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
-                    let groupName = group.config.name;
+                    //let groupName = group.config.name;
                     let s = group.serialize();
                     //agregar a favoritos
                     if(!window.geoos.isFavorite(groupId, "group")){

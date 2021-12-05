@@ -1,7 +1,7 @@
 class GEOOSStationsLayer extends GEOOSLayer {
     constructor(config) {
         super(config);
-        this.id = "stations";
+        this.id = config.id?config.id:"stations";
         this.points = [];
         this.watchers = [];
         this.watcherResults = {}
@@ -190,6 +190,9 @@ class GEOOSStationsLayer extends GEOOSLayer {
                 code:"color-scale", name:"Escala de Colores", path:"./layers/watchers/WatchersColorScale"
             })
         }
+        panels.push(
+            {code:"stations-name", name:"Estaciones", path:"./layers/watchers/Stations"}
+        )
         return panels;
     }
 

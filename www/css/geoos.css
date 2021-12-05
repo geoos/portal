@@ -151,6 +151,18 @@ a:hover {
 .geoos-panel-close:hover {
     background-image: url(../img/icons/close-active.svg);
 }
+.geoos-panel-back {
+    float: left;   
+    width: 22px; height: 22px;
+    background-image: url(../img/icons/back.svg);
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+    cursor: pointer;    
+    margin-right: 6px;
+}
+.geoos-panel-back:hover {
+    background-image: url(../img/icons/back-active.svg);
+}
 .geoos-panel-subtitle {
     font-weight: normal;
     font-size: 16px;
