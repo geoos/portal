@@ -56,7 +56,7 @@ class FavGroups extends ZCustomController {
         let activator = $(e.currentTarget);
         let stationDiv = activator.parent();
         let stationId = stationDiv.data("station-id");
-        window.geoos.toggleStation(stationId);
+        window.geoos.openMyPanel();
         this.refresh();
 
     }

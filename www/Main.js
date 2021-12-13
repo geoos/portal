@@ -39,7 +39,28 @@ class Main extends ZCustomController {
                 console.error("Group is not correctly serialized", err);
             }
         }
-        if (!initialGroup) initialGroup = window.geoos.addGroup({name:"Grupo 1"});
+        if (!initialGroup) {
+            //agregar grupo inicial
+            console.log(" I N I C I A L ");
+            initialGroup = window.geoos.addGroup({name:"Grupo Inicial"});
+
+            let layers = await window.geoos.getLayers();
+            console.log("layers:", layers);
+            let wind = layers.find(element => element.code === "noaa-gfs4.WND_10M");
+            let pres = layers.find(element => element.code === "noaa-gfs4.PRMSL");
+            console.log("wind", wind);
+            window.geoos.addLayer(wind, initialGroup);
+            window.geoos.addLayer(pres, initialGroup);
+
+            let s = initialGroup.serialize();
+            //agregar a favoritos
+            console.log("id", initialGroup.id)
+            let found = await window.geoos.user.config.favorites.groups.find(element => element.name==="Grupo Inicial")
+            if(!found){
+            //if(!window.geoos.isFavorite(initialGroup.id, "group")){
+                window.geoos.addFavGroups(s);
+            }
+        }
         if (initialView) {
             window.geoos.mapPanel.deserialize(initialView);
             if (!toolsStatus || toolsStatus == "min") {

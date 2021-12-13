@@ -141,18 +141,18 @@ class MyPanel extends ZCustomController {
         this.myContainer.html = html;
         let $myContainer = $(this.myContainer.view);        
 
-        $myContainer.find(".group-expander").click(e => this.groupExpander_click(e))
-        $myContainer.find(".group-activator").click(e => this.groupActivator_click(e))
-        $myContainer.find(".layer-expander").click(e => this.layerExpander_click(e))
-        $myContainer.find(".layer-activator").click(e => this.layerActivator_click(e))
-        $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e))
-        $myContainer.find(".visualizer-name").click(e => this.visualizerName_click(e))
-        $myContainer.find(".user-object-name").click(e => this.userObjectName_click(e))
-        $myContainer.find(".user-object-deleter").click(e => this.userObjectDeleter_click(e))
-        $myContainer.find(".group-context").click(e => this.groupContext_click(e))
-        $myContainer.find(".layer-context").click(e => this.layerContext_click(e))
-        $myContainer.find(".group-name").click(e => this.groupName_click(e))
-        $myContainer.find(".layer-name").click(e => this.layerName_click(e))
+        $myContainer.find(".group-expander").click(e => this.groupExpander_click(e));
+        $myContainer.find(".group-activator").click(e => this.groupActivator_click(e));
+        $myContainer.find(".layer-expander").click(e => this.layerExpander_click(e));
+        $myContainer.find(".layer-activator").click(e => this.layerActivator_click(e));
+        $myContainer.find(".visualizer-activator").click(e => this.visualizerActivator_click(e));
+        $myContainer.find(".visualizer-name").click(e => this.visualizerName_click(e));
+        $myContainer.find(".user-object-name").click(e => this.userObjectName_click(e));
+        $myContainer.find(".user-object-deleter").click(e => this.userObjectDeleter_click(e));
+        $myContainer.find(".group-context").click(e => this.groupContext_click(e));
+        $myContainer.find(".layer-context").click(e => this.layerContext_click(e));
+        $myContainer.find(".group-name").click(e => this.groupName_click(e));
+        $myContainer.find(".layer-name").click(e => this.layerName_click(e));
 
         $myContainer.find(".layer-name").draggable({
             scroll: false,            
@@ -250,6 +250,7 @@ class MyPanel extends ZCustomController {
             })
         }
     }
+    
     async groupActivator_click(e) {
         let activator = $(e.currentTarget);
         let groupDiv = activator.parent();
@@ -425,7 +426,7 @@ class MyPanel extends ZCustomController {
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
                     //let groupName = group.config.name;
-                    let s = group.serialize();
+                    //let s = group.serialize();
                     //agregar a favoritos
                     if(!window.geoos.isFavorite(groupId, "group")){
                         console.log("group add", group);
