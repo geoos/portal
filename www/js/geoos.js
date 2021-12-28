@@ -6,6 +6,7 @@ class GEOOS {
         this.stationUnselected = [];
         this.selection = {type:null}
         moment.locale("es")
+        this.groupDefault = [];
         this._time = Date.now();
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());        
@@ -466,6 +467,11 @@ class GEOOS {
     getGroup(id) {return this.groups.find(g => g.id == id)}
     getGroupByName(groupName) { return this.groups.find(g => g.config.name == groupName) }
     getActiveGroup() {return this.groups.find(g => (g.active))}
+    getFavoriteGroup(id){
+        let favorite = this.user.config.favorites;
+        console.log("grupos favoritos:", favorite);
+        return favorite.groups.find(g => g.id == id)
+    }
     addGroup(config) {
         let g = new GEOOSGroup(config);
         this.groups.push(g);
@@ -493,6 +499,7 @@ class GEOOS {
             throw error;
         }
     }
+
     async activateGroup(groupId) {
         let g = this.getGroup(groupId);
         if (!g) throw "Can't find group '" + groupId + "'";
@@ -516,6 +523,7 @@ class GEOOS {
         await this.events.trigger("portal", "groupActivated", g)
         this.checkToolsValidity();
     }
+
     async addLayers(layers, inGroup) {
         let group = inGroup || this.getActiveGroup();
         for (let layerDef of layers) {
@@ -551,13 +559,9 @@ class GEOOS {
     }
 
     async addFavGroups(group){
-        //let groupCopy = $.extend( true, {}, group );
-        //let found = this.user.config.favorites.groups.find(element => element.id===code)
-        //if(!found){
-            this.user.config.favorites.groups.push(group);
-            this.user.saveConfig();
-            await this.events.trigger("portal", "userConfigChanged");
-        //}else return;
+        this.user.config.favorites.groups.push(group);
+        this.user.saveConfig();
+        await this.events.trigger("portal", "userConfigChanged");
     }
 
     isFavorite(code, type){
@@ -636,7 +640,6 @@ class GEOOS {
         }
     }
 
-
     async unselect() {
         if (!this.selection.type) return;
         let oldSelection = this.selection;
@@ -664,6 +667,7 @@ class GEOOS {
             await this.events.trigger("map", "objectSelected", this.selectedObject);
         }
     }
+
     async unselectObject() {
         if (!this.selectedObject) return;
         let selected = this.selectedObject;
@@ -958,6 +962,24 @@ class GEOOS {
             this.user.setLocalConfig();
             await this.events.trigger("portal", "userConfigChanged");
         }, 200);
+    }
+    isDefault(group){
+        console.log("grupo entrante", group);
+        console.log("grupo default", this.user.config.default.initGroup);
+        if(group.id === this.user.config.default.initGroup.id) return true;
+        else return false;
+    }
+    addDefault(group){
+        if(!this.user.config.default.initGroup.length){
+            this.user.config.default.initGroup.push(group)}
+        this.user.saveConfig();
+    }
+    deleteDefault(id){
+        if(this.user.config.default.initGroup.find(e => e.id===id)){
+            this.user.config.default.initGroup = []
+            console.log("elimina default");
+        }
+        this.user.saveConfig();
     }
 }
 

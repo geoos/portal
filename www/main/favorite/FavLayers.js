@@ -18,9 +18,9 @@ class FavLayers extends ZCustomController {
             let layer = this.layers.find(element => element.code==code)
             let layerName = layer.name;
             html += `  <div class="row"  style="max-width:420px;">`;
-            html += `    <div class="col-1"><i  class="layer-activator fas fa-star mr-2 float-left"></i></div>`;
-            html += `    <div class="col-9"><span class="favorite-selected-name"}>${layerName}</span></div>`;
-            html += `    <div class="col" data-layer-id="${layer.code}">`;
+            html += `    <div class="col-1 mt-2"><i  class="layer-activator fas fa-star float-left"></i></div>`;
+            html += `    <div class="col-9 mt-2"><span class="favorite-selected-name"}>${layerName}</span></div>`;
+            html += `    <div class="col mt-2" data-layer-id="${layer.code}">`;
             html += `      <i class=" layer-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>`;
             html += `      <i class=" layer-activator fas fa-layer-group ml-1 float-right" style="cursor: pointer;"></i>`;
             html += `    </div>`;

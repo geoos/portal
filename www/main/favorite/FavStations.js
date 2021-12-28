@@ -45,10 +45,10 @@ class FavStations extends ZCustomController {
                 let stationSelected = selection.type == "station" && selection.element.id == station.id;
                 let stationName = station.name;
                 html += `  <div class="row"  style="max-width:420px;">`;
-                html += `    <div class="col-1"><i  class="layer-activator fas fa-star mr-2 float-left"></i></div>`;
-                html += `    <div class="col-9"><span ${stationSelected?" class='favorite-selected-name'":""}>${stationName}</span></div>`;
-                html += `    <div class="col" data-station-id="${station.code}">`;
-                html += `      <i class=" station-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>`;
+                html += `    <div class="col-1 mt-2"><i  class="layer-activator fas fa-star float-left"></i></div>`;
+                html += `    <div class="col-9 mt-2"><span ${stationSelected?" class='favorite-selected-name'":""}>${stationName}</span></div>`;
+                html += `    <div class="col mt-2" data-station-id="${station.code}">`;
+                html += `      <i class=" station-deleter far fa-trash-alt float-right" style="cursor: pointer;"></i>`;
                 html += `      <img class="station-activator" style="height: 16px;" src="img/icons/variable-added.svg" />`;
                 html += `    </div>`;
                 html += `  </div>`;

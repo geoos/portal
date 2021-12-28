@@ -425,8 +425,6 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
-                    //let groupName = group.config.name;
-                    //let s = group.serialize();
                     //agregar a favoritos
                     if(!window.geoos.isFavorite(groupId, "group")){
                         console.log("group add", group);

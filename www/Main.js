@@ -39,16 +39,19 @@ class Main extends ZCustomController {
                 console.error("Group is not correctly serialized", err);
             }
         }
+        if (!this.config.initGroup){
+            console.log("no hay inicial");
+        }else console.log("hay inicial");
         if (!initialGroup) {
             //agregar grupo inicial
             console.log(" I N I C I A L ");
             initialGroup = window.geoos.addGroup({name:"Grupo Inicial"});
+            initialGroup.default = true;
+            console.log("def", initialGroup);
 
             let layers = await window.geoos.getLayers();
-            console.log("layers:", layers);
             let wind = layers.find(element => element.code === "noaa-gfs4.WND_10M");
             let pres = layers.find(element => element.code === "noaa-gfs4.PRMSL");
-            console.log("wind", wind);
             window.geoos.addLayer(wind, initialGroup);
             window.geoos.addLayer(pres, initialGroup);
 
@@ -56,8 +59,8 @@ class Main extends ZCustomController {
             //agregar a favoritos
             console.log("id", initialGroup.id)
             let found = await window.geoos.user.config.favorites.groups.find(element => element.name==="Grupo Inicial")
+            window.geoos.addDefault(s);
             if(!found){
-            //if(!window.geoos.isFavorite(initialGroup.id, "group")){
                 window.geoos.addFavGroups(s);
             }
         }
@@ -85,5 +88,14 @@ class Main extends ZCustomController {
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
+
+
+    get config() {
+        if (!window.geoos.user.config.default) window.geoos.user.config.default = {
+            initGroup:[], 
+        }; 
+        return window.geoos.user.config.default
+    }
+
 }
 ZVC.export(Main);
