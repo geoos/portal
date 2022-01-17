@@ -488,6 +488,8 @@ class GEOOS {
                 await this.unselect();
             }
             let group = this.getGroup(id);
+            console.log("grupo geoos", group);
+            console.log("grupos", this.groups);
             if (group.active) {
                 let newActive = this.groups.find(g => !g.active);
                 this.activateGroup(newActive.id);
@@ -503,8 +505,11 @@ class GEOOS {
     async activateGroup(groupId) {
         let g = this.getGroup(groupId);
         if (!g) throw "Can't find group '" + groupId + "'";
+        console.log("[DG] nuevo activo",g);
         let current = this.getActiveGroup();
+
         if (current) {
+            console.log("[DG] actual activo",current);
             if (this.getSelectedTool()) {
                 // deactivate current tool, saving its id in old group
                 let oldSelectedToolId = current.selectedToolId;
@@ -560,6 +565,7 @@ class GEOOS {
 
     async addFavGroups(group){
         this.user.config.favorites.groups.push(group);
+        console.log("Agregado grupo a Favoritos");
         this.user.saveConfig();
         await this.events.trigger("portal", "userConfigChanged");
     }
@@ -964,22 +970,47 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        console.log("grupo entrante", group);
-        console.log("grupo default", this.user.config.default.initGroup);
-        if(group.id === this.user.config.default.initGroup.id) return true;
-        else return false;
+        console.log("predeterminado actual: ", this.user.config.defaultGroup);
+        let s = group.serialize();
+        let defLayers = this.user.config.defaultGroup.layers;
+        //if(group.layers === this.user.config.default.initGroup[0].layers) return true;
+        if(s.layers.length == defLayers.length){
+            for (var i = 0; i < s.layers.length; i++) {
+                if(s.layers[i].id != defLayers[i].id) return false;
+            }
+        }else return false;
+        return true;
     }
+
     addDefault(group){
-        if(!this.user.config.default.initGroup.length){
-            this.user.config.default.initGroup.push(group)}
+        this.user.config.defaultGroup = {};
+        //this.user.config.defaultGroup = JSON.parse(JSON.stringify(group));
+        this.user.config.defaultGroup = group;
         this.user.saveConfig();
+        //console.log("[DG] Agregado grupo", group);
+        console.log("[DG] Agregado por defecto", this.user.config.defaultGroup);
     }
+
     deleteDefault(id){
-        if(this.user.config.default.initGroup.find(e => e.id===id)){
-            this.user.config.default.initGroup = []
-            console.log("elimina default");
+        //if(this.user.config.default.initGroup.find(e => e.id===id)){
+        if(this.user.config.defaultGroup.id == id){
+            this.user.config.defaultGroup = {}
+            console.log("[DG] Elimina default");
         }
         this.user.saveConfig();
+    }
+    getDefault(){
+        //console.log("[DG] getDefault: ", this.user.config.defaultGroup)
+        //if(this.user.config.defaultGroup == undefined){
+        if(Object.keys(this.user.config.defaultGroup).length === 0){
+            console.log("[DG] tamaño 0", this.user.config.defaultGroup)
+        }else {
+            console.log("[DG] getDefault: ", this.user.config.defaultGroup);
+            //console.log("compare:",  this.user.config.defaultGroup.length == undefined);
+            let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
+            //let newGroup = this.user.config.defaultGroup;
+            return newGroup;
+        }
     }
 }
 

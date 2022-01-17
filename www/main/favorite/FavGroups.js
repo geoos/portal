@@ -1,6 +1,7 @@
 class FavGroups extends ZCustomController {
     async onThis_init() {
         this.layers = await window.geoos.getLayers();
+        //this.groupDef = false;
         window.geoos.events.on("portal", "userConfigChanged", _ => {
             this.refresh();
             this.applyConfig(true);
@@ -14,19 +15,20 @@ class FavGroups extends ZCustomController {
         return window.geoos.user.config.favorites
     }
 
-    refresh() {
+    async refresh() {
         this.groups = this.config.groups;
         let html = ``;
         for (let serializedGroup of this.groups) {
             let group = GEOOSGroup.deserialize(serializedGroup);
-            
+            this.groupDef = window.geoos.isDefault(group);
+            console.log("groupDef", group.config.name, this.groupDef);
             //console.log("group", window.geoos.groups);
             //let layerSelected = selection.type == "layer" && selection.element.id == layer.id;
             let groupName = group.config.name;
             /* <div class="col-1 mt-2"><i  class="geoos-group-default?defActive: fas float-left"></i></div> */
-            //let defActive = window.geoos.isDefault(group)
+            //${window.geoos.isDefault(group)?"-active":""
             html += `   <div class="row fav-panel-group" data-group-id="${group.id}"  style="max-width:420px;">
-                            <div class="col-1 mt-2"><img  class="float-left" src="/img/icons/default${window.geoos.isDefault(group)?"-active":""}.svg" /></div>
+                            <div class="col-1 mt-2"><img  class="group-default float-left"  src="/img/icons/default${this.groupDef?"-active":""}.svg"/> </div>
                             <div class="col-9 mt-2"><span class="favorite-selected-name"}><h5>${groupName}</h5></span></div>
                             <div class="col mt-2">
                                 <i class=" group-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>
@@ -52,16 +54,17 @@ class FavGroups extends ZCustomController {
         $myFavContainer.find(".group-deleter").click(e => this.groupDeleter_click(e));
         $myFavContainer.find(".layer-activator").click(e => this.layerActivator_click(e));
         $myFavContainer.find(".layer-deleter").click(e => this.layerDeleter_click(e));
-        $myFavContainer.find(".geoos-group-default").click(e => this.groupDefault(e));
+        $myFavContainer.find(".group-default").click(e => this.groupDefault(e));
 
     }
-    async groupDefault(e){
+     async groupDefault(e){
         let activator = $(e.currentTarget);
         let div = activator.parent().parent();
         let groupId = div.data("group-id");
-        console.log("groupID", groupId);
         let group = window.geoos.getFavoriteGroup(groupId);
-        console.log("group", group);
+        //let newGroup = GEOOSGroup.deserialize(group);
+        window.geoos.addDefault(group);
+        this.refresh();
     }
 
     async groupActivator_click(e){ 
@@ -72,7 +75,6 @@ class FavGroups extends ZCustomController {
         console.log("group", group);
         //this.groupDuplicate(group);
         let newGroup = GEOOSGroup.deserialize(group);
-        newGroup.active = false;
         console.log("newGroup", newGroup);
         window.geoos.addExistingGroup(newGroup);
 
