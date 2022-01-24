@@ -389,6 +389,8 @@ class MyPanel extends ZCustomController {
         }, {
             code:"delete", icon:"far fa-trash-alt", label:"Eliminar el Grupo", 
         }, {
+            code:"delete-layers", icon:"far fa-trash-alt", label:"Eliminar las capas", 
+        }, {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"scalesPanel", icon:"fas fa-palette", label:"Escalas de Colores", 
@@ -441,6 +443,12 @@ class MyPanel extends ZCustomController {
                     this.groupDuplicate(group);
                 } else if (code == "scalesPanel") {
                     window.geoos.infoBarPanel.toggle();
+                } else if (code == "delete-layers") {
+                    //group.layers = [];
+                    let n = group.layers.length;
+                    while(n > group.layers.length){
+                        group.layers.pop();
+                    }
                 }
             }
         })
