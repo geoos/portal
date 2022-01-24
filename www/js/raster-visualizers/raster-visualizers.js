@@ -33,6 +33,7 @@ class RasterVisualizer {
         this.config = config;
         this.active = config.active;
         delete config.active;
+        this.updateColorScale();
     }
 
     startWorking() {
@@ -63,5 +64,6 @@ class RasterVisualizer {
 
     async create() {console.warn("Abstract create in visualizer")}
     async destroy() {console.warn("Abstract destroy in visualizer")}
-    getColorScale() {return null}
+    getColorScale() {return this.config.colorScale}
+    updateColorScale() {}
 }

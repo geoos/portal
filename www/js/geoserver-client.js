@@ -127,10 +127,10 @@ class GEOServerClient {
             controller:controller
         }
     }
-    fileGeoJson(dataSetCode, fileName, time) {
+    fileGeoJson(dataSetCode, fileName, time, finishListener) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + fileName + "/geoJson", {time}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + fileName + "/geoJson", {time}, controller.signal, finishListener),
             controller:controller
         }
     }
