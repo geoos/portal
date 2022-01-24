@@ -57,6 +57,7 @@ class VectorsRasterVisualizer extends RasterVisualizer {
         this.visualizer = null;
     }
     update() {
+        if (!this.layer || !this.layer.group) return;
         if (this.active && this.layer.active && this.layer.group.active) {
             this.layer.konvaLeafletLayer.getVisualizer(this.code).update();
         }

@@ -7,6 +7,7 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
     }
 
     get interactions() {return this.options.interactions}
+    get useTiles() {return this.options.useTiles}
     
     abort() {
         for (let key in this.tiles) {
@@ -16,7 +17,11 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
                 t.status = "deleted";
             }
         }
-        this.tiles = {};
+        if (this.currentAborter) {
+            this.currentAborter.abort();
+            this.currentAborter = null;
+        }
+        this.tiles = {};        
     }
     destroy() {
         this.abort();
@@ -67,6 +72,17 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
         }
     } 
 
+    loadGeoJson() {
+        this.currentAborter = null;
+        this.geojson = null;
+        let {promise, aborter} = this.options.getGeoJson();
+        promise.then(geojson => {
+            this.geoJson = geojson;
+            this.currentAborter = null;
+            this.addGeoJsonFeatures();
+        })
+    }
+
     reset() {
         this.abort();
         this.update();
@@ -75,35 +91,39 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
         super.update()
         this.konvaLayer.destroyChildren();
         if (this.interactions) this.interactions.clearShapes(this.uniqueId);
-        let zoom = this.map.getZoom();
-        if (this.lastZoom != zoom) this.abort();
-        this.lastZoom = zoom;
+        if (this.useTiles) {
+            let zoom = this.map.getZoom();
+            if (this.lastZoom != zoom) this.abort();
+            this.lastZoom = zoom;
 
-        let worldBounds = this.map.getPixelWorldBounds();        
-        let mapBounds = this.map.getPixelBounds();
-        this.originInWorld = {x:mapBounds.min.x, y:mapBounds.min.y}
-        let nTiles = Math.pow(2, zoom);
-        let tileWidth =  worldBounds.max.x / nTiles,
-            tileHeight = worldBounds.max.y / nTiles;
-        let x0 = Math.floor(mapBounds.min.x / tileWidth),
-            x1 = Math.floor(mapBounds.max.x / tileWidth);
-        x0 = Math.max(0, x0); x0 = Math.min(nTiles - 1, x0);
-        x1 = Math.max(0, x1); x1 = Math.min(nTiles - 1, x1);
-        let y0 = Math.floor(mapBounds.min.y / tileHeight),
-            y1 = Math.floor(mapBounds.max.y / tileHeight);
-        y0 = Math.max(0, y0); y0 = Math.min(nTiles - 1, y0);
-        y1 = Math.max(0, y1); y1 = Math.min(nTiles - 1, y1);
+            let worldBounds = this.map.getPixelWorldBounds();        
+            let mapBounds = this.map.getPixelBounds();
+            this.originInWorld = {x:mapBounds.min.x, y:mapBounds.min.y}
+            let nTiles = Math.pow(2, zoom);
+            let tileWidth =  worldBounds.max.x / nTiles,
+                tileHeight = worldBounds.max.y / nTiles;
+            let x0 = Math.floor(mapBounds.min.x / tileWidth),
+                x1 = Math.floor(mapBounds.max.x / tileWidth);
+            x0 = Math.max(0, x0); x0 = Math.min(nTiles - 1, x0);
+            x1 = Math.max(0, x1); x1 = Math.min(nTiles - 1, x1);
+            let y0 = Math.floor(mapBounds.min.y / tileHeight),
+                y1 = Math.floor(mapBounds.max.y / tileHeight);
+            y0 = Math.max(0, y0); y0 = Math.min(nTiles - 1, y0);
+            y1 = Math.max(0, y1); y1 = Math.min(nTiles - 1, y1);
 
-        for (let y=y0; y <= y1; y++) {
-            for (let x=x0; x <= x1; x++) {
-                let xOrigin = tileWidth * x;
-                let yOrigin = tileHeight * y;
+            for (let y=y0; y <= y1; y++) {
+                for (let x=x0; x <= x1; x++) {
+                    let xOrigin = tileWidth * x;
+                    let yOrigin = tileHeight * y;
 
-                let t = this.loadTile(zoom, x, y, xOrigin, yOrigin, tileWidth, tileHeight);
-                if (t.status == "ready") {
-                    this.addFeatures(t);
+                    let t = this.loadTile(zoom, x, y, xOrigin, yOrigin, tileWidth, tileHeight);
+                    if (t.status == "ready") {
+                        this.addFeatures(t);
+                    }
                 }
             }
+        } else {
+            this.loadGeoJson();
         }
         if (this.contextLegend) this.drawContextLegend();
         if (this.options.getExtraElements) {
@@ -198,6 +218,66 @@ class VectorTilesVisualizer extends KonvaLeafletVisualizer {
         });
         if (!empty) this.konvaLayer.add(group);
     }    
+
+    addGeoJsonFeatures() {
+        const types = ["point", "line", "polygon"];
+        const defaultStyles = [{
+            fill:"red", stroke:"black", strokeWidth:1, radius: 20
+        }, {
+            stroke:"red", strokeWidth:2
+        }, {
+            stroke:"red", strokeWidth:2
+        }]
+        const defaultSelectedStyles = [{
+            fill:"blue", stroke:"red", strokeWidth:1.2, radius: 9
+        }, {
+            stroke:"red", strokeWidth:3
+        }, {
+            stroke:"red", strokeWidth:3
+        }];
+        this.geoJson.geoJson.features.forEach(feature => {
+            let geom = feature.geometry;
+            let type = types.indexOf(geom.type.toLowerCase());
+            let style = defaultStyles[type];
+            if (this.options.getFeatureStyle) {
+                style = this.options.getFeatureStyle(feature) || style;
+            }
+            let selectedStyle = defaultSelectedStyles[type];
+            if (this.options.getSelectedFeatureStyle) {
+                selectedStyle = this.options.getSelectedFeatureStyle(feature) || selectedStyle;
+            }
+            style.listening = false;
+            if (style.visible != false) {
+                let object = null, empty = true;
+                if (geom.type == "Point") {
+                    let p = this.toCanvas({lng:geom.coordinates[0], lat:geom.coordinates[1]});
+                    style.x = p.x;
+                    style.y = p.y;
+                    let circle = new Konva.Circle(style)                    
+                    this.konvaLayer.add(circle);
+                    //console.log(style);
+                    empty = false;
+                    object = circle;
+                }
+                if (this.interactions && !empty) {
+                    let interObject = object.clone();
+                    interObject.setListening(true);
+                    this.interactions.addObservableShape(this.uniqueId, interObject);
+                    if (this.options.onmouseover) {
+                        interObject.on("mouseover", e => this.options.onmouseover(feature))
+                    }
+                    if (this.options.onmouseout) {
+                        interObject.on("mouseout", e => this.options.onmouseout(feature))
+                    }
+                    if (this.options.onclick) {
+                        interObject.on("click", e => this.options.onclick(feature))
+                    }
+                }   
+            }         
+        });
+        this.konvaLayer.draw();       
+        if (this.interactions) this.interactions.redraw(); 
+    }
 
     drawContextLegend() {
         let l1_x = 60, l1_y = 30, l2_x = 70;

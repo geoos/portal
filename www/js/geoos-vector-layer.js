@@ -64,8 +64,11 @@ class GEOOSVectorLayer extends GEOOSLayer {
         window.geoos.events.on("map", "objectUnselected", this.objectUnselectedListener);
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
 
+        // Use Tiles
+        if (this.file.options && this.file.options.dontTile) this.useTiles = false;
+        else this.useTiles = true;
         // Styles
-        let getFeatureStyle = f => ({stroke:"black", strokeWidth:1, radius:5});
+        let getFeatureStyle = f => ({stroke:"black", strokeWidth:2, radius:10, fill: "orange"});
         if (this.file.options && this.file.options.getFeatureStyle) {
             try {
                 getFeatureStyle = eval(this.file.options.getFeatureStyle);
@@ -106,20 +109,28 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.konvaLeafletLayer.addVisualizer("geoJsonTiles", new VectorTilesVisualizer({
             zIndex:1,
             interactions:window.geoos.interactions,
+            useTiles: this.useTiles,
             getTile: (z, x, y) => {
                 let time;
                 if (this.dataSet.temporality != "none") time = window.geoos.time;
                 this.startWorking();
                 return this.geoServer.client.fileGeoJsonTile(this.dataSet.code, this.file.name, time, z, x, y, _ => this.finishWorking());
             },
-            getFeatureStyle: f => {       
-                if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.code == f.tags.id) {
+            getGeoJson: _ => {
+                let time;
+                if (this.dataSet.temporality != "none") time = window.geoos.time;
+                this.startWorking();
+                return this.geoServer.client.fileGeoJson(this.dataSet.code, this.file.name, time, _ => this.finishWorking());
+            },
+            getFeatureStyle: f => {    
+                let fId = f.tags?f.tags.id:f.properties.id;   
+                if (window.geoos.selectedObject && window.geoos.selectedObject.layer.id == this.id && window.geoos.selectedObject.code == fId) {
                     return getSelectedFeatureStyle(f)
                 }
                 if (this.getColorWatcher()) {
                     let s = getFeatureStyle(f);
                     if (this.watchColorResults) {                        
-                        let v = this.watchColorResults[f.tags.id];
+                        let v = this.watchColorResults[fId];
                         s.fill = this.getColorScale().getColor(v);
                     }
                     return s;
@@ -127,17 +138,26 @@ class GEOOSVectorLayer extends GEOOSLayer {
                 return getFeatureStyle(f)
             },
             onmouseover: f => {
-                if (f.tags.id == this.hoveredId) return;
-                this.hoveredId = f.tags.id;
+                let fId = f.tags?f.tags.id:f.properties.id;
+                if (fId == this.hoveredId) return;
+                this.hoveredId = fId;
                 let o = this.metadataMap[this.hoveredId];
                 let name, lat, lng;
                 if (o) {
-                    name = o.name; lat = o.centroid.lat, lng = o.centroid.lng;
+                    name = o.name; 
+                    if (o.centroid) {
+                        lat = o.centroid.lat, lng = o.centroid.lng;
+                    } else if(f.geometry) {
+                        lat = f.geometry.coordinates[1];
+                        lng = f.geometry.coordinates[0];
+                    }
                 } else {
                     name = f.tags.name; lat = f.tags.centroidLat; lng = f.tags.centroidLng;
-                    if (lat === undefined || lng === undefined) {
-                        lat = f.tags.centerLat, lng = f.tags.centerLng;
-                    }
+                    name = f.tags?f.tags.name:f.properties.name;
+                    lat = f.tags?f.tags.centroidLat || f.tags.centerLat:null;
+                    if (!lat && f.geometry) lat = f.geometry.coordinates[1];
+                    lng = f.tags?f.tags.centroidLng || f.tags.centerLng:null;
+                    if (!lng && f.geometry) lat = f.geometry.coordinates[0];                    
                 }                
                 if (name !== undefined && lat !== undefined && lng !== undefined) {
                     this.konvaLeafletLayer.getVisualizer("legends").setContextLegend(lat, lng, name);
@@ -145,15 +165,23 @@ class GEOOSVectorLayer extends GEOOSLayer {
                     this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 }
             },
-            onmouseout: f => {
+            onmouseout: f => {                
                 this.hoveredId = null;
                 this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 //this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
             },
-            onclick:f => window.geoos.selectObject({
-                type:"vector-object", code:f.tags.id, name:f.tags.name, layer:this, minZDimension:this.minZDimension,
-                lat:f.tags.centroidLat || f.tags.centerLat, lng:f.tags.centroidLng || f.tags.centerLng
-            })
+            onclick:f => {
+                let fId = f.tags?f.tags.id:f.properties.id;
+                let lat = f.tags?f.tags.centroidLat || f.tags.centerLat:null;
+                if (!lat && f.geometry) lat = f.geometry.coordinates[1];
+                let lng = f.tags?f.tags.centroidLng || f.tags.centerLng:null;
+                if (!lng && f.geometry) lat = f.geometry.coordinates[0];
+                let name = f.tags?f.tags.name:f.properties.name;
+                window.geoos.selectObject({                
+                    type:"vector-object", code:fId, name, layer:this, minZDimension:this.minZDimension,
+                    lat, lng
+                })
+            }
         }));
 
         this.konvaLeafletLayer.addVisualizer("legends", new LegendsVisualizer({
