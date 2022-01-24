@@ -163,6 +163,19 @@ a:hover {
 .geoos-panel-back:hover {
     background-image: url(../img/icons/back-active.svg);
 }
+.geoos-group-default{
+    float: right;   
+    width: 22px; height: 22px;
+    background-image: url(../img/icons/pin.svg);
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+    cursor: pointer;    
+    margin-right: 6px;
+    margin-top:3px ;
+}
+.geoos-group-default:hover {
+    background-image: url(../img/icons/pin-active.svg);
+}
 .geoos-panel-subtitle {
     font-weight: normal;
     font-size: 16px;

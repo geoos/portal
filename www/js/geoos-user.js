@@ -16,7 +16,8 @@ class GEOOSUser {
                 layers:[],
                 groups:[],
                 stations:[]
-            }
+            },
+            defaultGroup:{}
         }
     }
     get config() {

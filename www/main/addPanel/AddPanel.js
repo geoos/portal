@@ -272,7 +272,9 @@ class AddPanel extends ZCustomController {
                 console.log("favo-variable", variable);
                 img.attr("src", "img/icons/favo-active.svg");
                 //se traspasa a la otra vista
-                window.geoos.addFavLayers(code)  
+                console.log("codigo: ", code);
+                window.geoos.addFavLayers(code)
+
             }else{
                 window.geoos.deleteFavLayers(code)
                 img.attr("src", "img/icons/favo.svg");
@@ -316,7 +318,7 @@ class AddPanel extends ZCustomController {
     onCmdAddLayers_click(){
         this.toggle();
         window.geoos.addLayers(this.layers.filter(l => (l.selected)));
-        //console.log("sel", this.layers.filter(l => (l.selected)));
+        console.log("sel", this.layers.filter(l => (l.selected)));
         window.geoos.openMyPanel();
     }
 

@@ -39,7 +39,21 @@ class Main extends ZCustomController {
                 console.error("Group is not correctly serialized", err);
             }
         }
-        if (!initialGroup) initialGroup = window.geoos.addGroup({name:"Grupo 1"});
+        //si no existe un grupo inicial por defecto, se crea, y se agrega a favoritos
+        if (!initialGroup){
+            //agregar grupo inicial
+            console.log(" I N I C I A L ");
+            initialGroup = window.geoos.addGroup({name:"Grupo Inicial"});
+            initialGroup.default = true;
+
+            let layers = await window.geoos.getLayers();
+            let wind = layers.find(element => element.code === "noaa-gfs4.WND_10M");
+            let pres = layers.find(element => element.code === "noaa-gfs4.PRMSL");
+            window.geoos.addLayer(wind, initialGroup);
+            window.geoos.addLayer(pres, initialGroup);
+
+            let s = initialGroup.serialize();
+        }
         if (initialView) {
             window.geoos.mapPanel.deserialize(initialView);
             if (!toolsStatus || toolsStatus == "min") {
@@ -53,6 +67,37 @@ class Main extends ZCustomController {
         } else {
             await window.geoos.activateGroup(initialGroup.id)
         }
+        let defaultGroup = window.geoos.getDefault(); 
+        console.log("[DG] defi", defaultGroup);
+        if (!defaultGroup){
+            console.log("[DG] no hay inicial");
+            let s = initialGroup.serialize();
+            window.geoos.addDefault(s);
+            window.geoos.addFavGroups(s);
+        }else {
+            console.log("[DG] hay inicial", defaultGroup);
+            if(!window.geoos.isDefault(initialGroup)){
+                //se agrega a Mi panel el nuevo grupo
+                console.log("[DG] agrega");
+                let newGroup = await window.geoos.addGroup(defaultGroup);
+                //await window.geoos.addExistingGroup(defaultGroup);
+                let allLayers = await window.geoos.getLayers();
+                for (let layer of defaultGroup.layers){
+                    let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
+                    //console.log("lay", code, layer);
+                    let newLayer = allLayers.find(element => element.code === code);
+                    console.log("newLayer:" , newLayer);
+                    window.geoos.addLayer(newLayer, newGroup);
+                }
+
+                console.log("[DG] activa");
+                await window.geoos.activateGroup(newGroup.id);
+
+
+                console.log("[DG] elimina", initialGroup.id);
+                await window.geoos.deleteGroup(initialGroup.id);
+            }
+        }
     }
 
     getParameterByName(name) {
@@ -64,5 +109,6 @@ class Main extends ZCustomController {
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
+
 }
 ZVC.export(Main);
