@@ -54,6 +54,7 @@ class Main extends ZCustomController {
 
             let s = initialGroup.serialize();
         }
+        let defaultGroup = window.geoos.getDefault(); 
         if (initialView) {
             window.geoos.mapPanel.deserialize(initialView);
             if (!toolsStatus || toolsStatus == "min") {
@@ -64,34 +65,34 @@ class Main extends ZCustomController {
                 await window.geoos.activateGroup(initialGroup.id)
                 if (toolsStatus) await window.geoos.toolsPanel.toggle(toolsStatus)
             }
-        } else {
-            await window.geoos.activateGroup(initialGroup.id)
-        }
-        let defaultGroup = window.geoos.getDefault(); 
-        //console.log("[DG] defi", defaultGroup);
-        if (!defaultGroup){
-            //console.log("[DG] no hay inicial");
-            let s = initialGroup.serialize();
-            window.geoos.addDefault(s);
-            window.geoos.addFavGroups(s);
-        }else {
-            //console.log("[DG] hay inicial", defaultGroup);
-            if(!window.geoos.isDefault(initialGroup)){
-                //se agrega a Mi panel el nuevo grupo
-                //console.log("[DG] agrega");
-                let newGroup = await window.geoos.addGroup(defaultGroup);
-                //await window.geoos.addExistingGroup(defaultGroup);
-                let allLayers = await window.geoos.getLayers();
-                for (let layer of defaultGroup.layers){
-                    let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
-                    //console.log("lay", code, layer);
-                    let newLayer = allLayers.find(element => element.code === code);
-                    window.geoos.addLayer(newLayer, newGroup);
+        //} else {
+        //    await window.geoos.activateGroup(initialGroup.id)
+        }else{
+            if (!defaultGroup){
+                await window.geoos.activateGroup(initialGroup.id);
+                console.log("[DG] no hay inicial");
+                let s = initialGroup.serialize();
+                await window.geoos.addDefault(s);
+                await window.geoos.addFavGroups(s);
+            
+            }else {
+                console.log("[DG] hay inicial", defaultGroup);
+                if(!window.geoos.isDefault(initialGroup)){ 
+                    //se agrega a Mi panel el nuevo grupo
+                    let newGroup = await window.geoos.addGroup(defaultGroup);
+                    //await window.geoos.addExistingGroup(defaultGroup);
+                    let allLayers = await window.geoos.getLayers();
+                    for (let layer of defaultGroup.layers){
+                        let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
+                        //console.log("lay", code, layer);
+                        let newLayer = allLayers.find(element => element.code === code);
+                        window.geoos.addLayer(newLayer, newGroup);
+                    }
+                    //console.log("[DG] activa");
+                    await window.geoos.activateGroup(newGroup.id);
+                    await window.geoos.deleteGroup(initialGroup.id);
+                    await window.geoos.myPanel.refresh();
                 }
-                //console.log("[DG] activa");
-                await window.geoos.activateGroup(newGroup.id);
-                //console.log("[DG] elimina", initialGroup.id);
-                await window.geoos.deleteGroup(initialGroup.id);
             }
         }
     }
@@ -105,6 +106,5 @@ class Main extends ZCustomController {
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
-
 }
 ZVC.export(Main);

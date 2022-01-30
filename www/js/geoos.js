@@ -6,7 +6,6 @@ class GEOOS {
         this.stationUnselected = [];
         this.selection = {type:null}
         moment.locale("es")
-        this.groupDefault = [];
         this._time = Date.now();
         this.calculatePortalSize();
         window.addEventListener("resize", _ => this.triggerResize());        
@@ -483,7 +482,7 @@ class GEOOS {
     }
     async deleteGroup(id) {
         try {
-            if (this.groups.length == 1) throw "No puede eliminar el último grupo";
+            if (this.groups.length == 1) throw "[ERROR] No puede eliminar el último grupo";
             if (this.selection.type == "group" && this.selection.element.id == id) {
                 await this.unselect();
             }
@@ -496,9 +495,10 @@ class GEOOS {
             }
             let idx = this.groups.findIndex(g => g.id == id);
             this.groups.splice(idx,1);
+            console.log("grupos eliminados: ",this.groups);
             await this.events.trigger("portal", "groupDeleted", group)
         } catch(error) {
-            throw error;
+            throw ("[ERROR] No se pudo eliminar el grupo", error);
         }
     }
 
@@ -970,10 +970,9 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        console.log("predeterminado actual: ", this.user.config.defaultGroup);
+        //console.log("predeterminado actual: ", this.user.config.defaultGroup);
         let s = group.serialize();
         let defLayers = this.user.config.defaultGroup.layers;
-        //if(group.layers === this.user.config.default.initGroup[0].layers) return true;
         if(s.layers.length == defLayers.length){
             for (var i = 0; i < s.layers.length; i++) {
                 if(s.layers[i].id != defLayers[i].id) return false;

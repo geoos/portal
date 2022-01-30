@@ -8,6 +8,7 @@ class InfoBar extends ZCustomController {
         window.geoos.events.on("portal", "groupActivated", _ => this.callRefresh())
         window.geoos.events.on("portal", "layersAdded", _ => this.callRefresh())
         window.geoos.events.on("portal", "layersRemoved", _ => this.callRefresh())
+        window.geoos.events.on("portal", "groupDeleted", _ => this.callRefresh())
         window.geoos.events.on("layer", "startWorking", layer => this.callRefresh())
         window.geoos.events.on("layer", "finishWorking", layer => this.callRefresh())
         window.geoos.events.on("layer", "layerItemsChanged", layer => this.callRefresh())
@@ -157,6 +158,8 @@ class InfoBar extends ZCustomController {
         this.infoBarContent.html = html;
         this.infoBarContent.findAll(".ib-scale").forEach(s => {
             let idx = parseInt(s.getAttribute("data-scale-idx"));
+            console.log("refreshPreview: ", this.scales[idx]);
+            console.log("objeto s: ", s);
             this.scales[idx].refreshPreview(s);
             let centerText = this.infoBarContent.find(".ib-center-text[data-scale-idx='" + idx + "']");
             s.addEventListener("mouseleave", e => {
