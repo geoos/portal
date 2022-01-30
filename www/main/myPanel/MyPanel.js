@@ -547,7 +547,7 @@ class MyPanel extends ZCustomController {
     }
 
     refreshLayerState(layer) {
-        $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .layer-name .layer-state").text(layer.getDataState());
+        $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .layer-name .layer-state").html(layer.getDataState());
     }
     layerStartWorking(layer) {
         $(this.myContainer.view).find(".my-panel-layer[data-layer-id='" + layer.id + "'] .fa-spin").show();
