@@ -13,7 +13,8 @@ class Stations extends ZCustomController {
         for(let i of this.layer.points){
             console.log("estaciones:", i);
             if(i.lat > -33){
-                html_n += `<i class='layer-activator far fa-lg fa-${this.layer.active?"check-square":"square"} mr-2 float-left'></i> <div> ${i.station.name} </div>`;
+                //html_n += `<i class='layer-activator far fa-lg fa-${this.layer.active?"check-square":"square"} mr-2 float-left'></i> <div> ${i.station.name} </div>`;
+                html_n += `<i class='layer-activator far fa-building"></i>"} mr-2 float-left'></i> <div> ${i.station.name} </div>`;
                 //html_n += "<i class='layer-activator far fa-lg fa-check-square mr-2 float-left'></i> <div>" +i.station.name+ "</div>";
             }else if(i.lat <= -33 && i.lat > -38){
                 html_c += "<i class='layer-activator far fa-lg fa-check-square mr-2 mt-2 float-left'></i> <div class='mt-2'>" + i.station.name + "</div>";
