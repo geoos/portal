@@ -105,8 +105,9 @@ class WindyRasterVisualizer extends RasterVisualizer {
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
         promise
             .then(ret => {
+                let modelTime = ret.metadata && ret.metadata.modelExecution?ret.metadata.modelExecution.formatted:null;
                 this.aborter = null;
-                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null, null, modelTime);
                 this.limits = {min:ret.min, max:ret.max}
                 this.colorScale.setRange(ret.min, ret.max);
                 window.geoos.events.trigger("visualizer", "results", this);

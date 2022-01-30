@@ -84,13 +84,14 @@ class GEOOSRasterLayer extends GEOOSLayer {
         if (this.isWorking) return "Consultando ...";
         //let n = this.visualizers.reduce((sum, v) => (v.active?sum+1:sum), 0);
         // Obtener los tiempos de los datos de cada visualizador activo. 
-        let {tiempos, errores} = this.visualizers.reduce((listas, v) => {
+        let {tiempos, errores, modelos} = this.visualizers.reduce((listas, v) => {
             if (v.active) {
                 listas.tiempos.push(v.lastDataTime);
                 listas.errores.push(v.lastError);
+                listas.modelos.push(v.lastModelTime);
             }
             return listas;
-        }, {tiempos:[], errores:[]});
+        }, {tiempos:[], errores:[], modelos:[]});
         let stErrores = null;
         for (let error of errores) {
             if (error) {
@@ -112,6 +113,22 @@ class GEOOSRasterLayer extends GEOOSLayer {
                 }
             }
         }
-        return stEstado || "Sin Información";
+        let stModelo = null;
+        for (let tiempoModelo of modelos) {
+            if (tiempoModelo) {                
+                if (!stModelo) stModelo = "Ej.Modelo (UTC): " + tiempoModelo;
+                else {
+                    if (stModelo.indexOf(tiempoModelo) < 0) stModelo += ", " + tiempoModelo;
+                }
+            }
+        }
+        if (stEstado) {
+            if (stModelo) return stEstado + "<br>" + stModelo;
+            return stEstado;
+        } else if (stModelo) {
+            return stModelo
+        } else {
+            return "Sin Información";
+        }
     }
 }
