@@ -991,16 +991,15 @@ class GEOOS {
     }
 
     deleteDefault(id){
-        //if(this.user.config.default.initGroup.find(e => e.id===id)){
         if(this.user.config.defaultGroup.id == id){
             this.user.config.defaultGroup = {}
             console.log("[DG] Elimina default");
         }
         this.user.saveConfig();
     }
+    
     getDefault(){
         //console.log("[DG] getDefault: ", this.user.config.defaultGroup)
-        //if(this.user.config.defaultGroup == undefined){
         if(Object.keys(this.user.config.defaultGroup).length === 0){
             console.log("[DG] tamaño 0", this.user.config.defaultGroup)
         }else {
