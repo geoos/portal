@@ -114,7 +114,6 @@ class ConfigPanel extends ZCustomController {
         }
         $(this.configPanels.view).animate({opacity:1}, 200);
         $(this.configPanels.view).find(".prop-caption").click(e => {
-            console.log("caption click", e);
             let panelCode = $(e.currentTarget).parent().data("panel-code");
             let panel = this.panels.find(p => p.panelCode == panelCode);
             let $panel = $(panel.view);

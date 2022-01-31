@@ -158,8 +158,6 @@ class InfoBar extends ZCustomController {
         this.infoBarContent.html = html;
         this.infoBarContent.findAll(".ib-scale").forEach(s => {
             let idx = parseInt(s.getAttribute("data-scale-idx"));
-            console.log("refreshPreview: ", this.scales[idx]);
-            console.log("objeto s: ", s);
             this.scales[idx].refreshPreview(s);
             let centerText = this.infoBarContent.find(".ib-center-text[data-scale-idx='" + idx + "']");
             s.addEventListener("mouseleave", e => {

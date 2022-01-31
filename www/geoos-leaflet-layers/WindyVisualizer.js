@@ -45,12 +45,11 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
         ctx.clearRect(0, 0, canvas.width, canvas.height);        
     }
 
-    /*
+    
     redraw() {
-        console.log("DBG:redraw");
         this.paintCanvas();
     }
-    */
+    
 
     paintCanvas() {
         this.canvas.style.left = this.stageCanvas.style.left;
