@@ -65,8 +65,6 @@ class Main extends ZCustomController {
                 await window.geoos.activateGroup(initialGroup.id)
                 if (toolsStatus) await window.geoos.toolsPanel.toggle(toolsStatus)
             }
-        //} else {
-        //    await window.geoos.activateGroup(initialGroup.id)
         }else{
             if (!defaultGroup){
                 await window.geoos.activateGroup(initialGroup.id);

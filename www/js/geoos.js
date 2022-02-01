@@ -468,7 +468,7 @@ class GEOOS {
     getActiveGroup() {return this.groups.find(g => (g.active))}
     getFavoriteGroup(id){
         let favorite = this.user.config.favorites;
-        console.log("grupos favoritos:", favorite);
+        console.log("Grupos favoritos:", favorite);
         return favorite.groups.find(g => g.id == id)
     }
     addGroup(config) {
@@ -559,7 +559,18 @@ class GEOOS {
     }
 
     async addFavGroups(group){
-        this.user.config.favorites.groups.push(group);
+        let found = this.user.config.favorites.groups.find(e => e.id===group.id)
+        if(found){
+            let newGroup = new GEOOSGroup({name:group.name});
+            let layers = await this.getLayers();
+            for (let i of group.layers){
+                let name = i.dataSet + "." + i.variable;
+                let newLayer = layers.find(el => el.code === name)
+                await this.addLayer(newLayer, newGroup);
+            }
+            let s = newGroup.serialize();
+            this.user.config.favorites.groups.push(s);
+        }else this.user.config.favorites.groups.push(group);
         this.user.saveConfig();
         await this.events.trigger("portal", "userConfigChanged");
     }
@@ -577,10 +588,26 @@ class GEOOS {
                 return true;
             }else return false;
         }else if(type == "group"){
-            let found = favorite.groups.find(element => element.id===code)
-            if(found){
-                return true;
-            }else return false;
+            let s = code;
+            console.log("es favorito este grupo?", s);
+            console.log("grupos favoritos", favorite.groups);
+  
+            for (let g=0; g< favorite.groups.length; g++){ //recorre todos los favoritos
+                console.log("recorre", favorite.groups[g]);
+                let favLayers = favorite.groups[g].layers;
+                if(s.layers.length == favLayers.length){
+                    let sw=0;
+                    console.log("2");
+                    for (var i = 0; i < s.layers.length; i++) {
+                        let findLayer = favLayers.find(f => (s.layers[i].dataSet + "." + s.layers[i].variable)===(f.dataSet + "." + f.variable) );
+                        if(!findLayer) {//no tienen las mismas capas
+                            sw = 1;
+                            break;
+                        } else console.log("encontrada", findLayer);
+                    }
+                    if (sw==0) return true; 
+                }//; //no tienen el mismo numero de capas
+            }return false; //no lo encontro
         }
     }
 
@@ -986,11 +1013,9 @@ class GEOOS {
     }
     
     getDefault(){
-        //console.log("[DG] getDefault: ", this.user.config.defaultGroup)
         if(Object.keys(this.user.config.defaultGroup).length === 0){
         }else {
             let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
-            //let newGroup = this.user.config.defaultGroup;
             return newGroup;
         }
     }

@@ -1,6 +1,7 @@
 class FavGroups extends ZCustomController {
     async onThis_init() {
         this.layers = await window.geoos.getLayers();
+        //this.groups = [];
         //this.groupDef = false;
         window.geoos.events.on("portal", "userConfigChanged", _ => {
             this.refresh();
@@ -24,7 +25,7 @@ class FavGroups extends ZCustomController {
             //console.log("groupDef", group.config.name, this.groupDef);
             let groupName = group.config.name;
             html += `   <div class="row fav-panel-group" data-group-id="${group.id}"  style="max-width:420px;">
-                            <div class="col-1 mt-2"><img  class="group-default float-left"  src="/img/icons/default${this.groupDef?"-active":""}.svg"/> </div>
+                            <div class="col-1 mt-2"data-layer-num="${group.layers}"><img  class="group-default float-left"  src="/img/icons/default${this.groupDef?"-active":""}.svg"/> </div>
                             <div class="col-9 mt-2"><span class="favorite-selected-name"}><h5>${groupName}</h5></span></div>
                             <div class="col mt-2">
                                 <i class=" group-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>
@@ -53,12 +54,16 @@ class FavGroups extends ZCustomController {
         $myFavContainer.find(".group-default").click(e => this.groupDefault(e));
 
     }
-     async groupDefault(e){
+    async groupDefault(e){
         let activator = $(e.currentTarget);
+        let layers = activator.parent().data("layer-num");
         let div = activator.parent().parent();
         let groupId = div.data("group-id");
+/*         for(let i in this.groups){
+            
+        } */
+
         let group = window.geoos.getFavoriteGroup(groupId);
-        //let newGroup = GEOOSGroup.deserialize(group);
         window.geoos.addDefault(group);
         this.refresh();
     }
