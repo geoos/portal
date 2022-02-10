@@ -565,7 +565,7 @@ class GEOOS {
             let layers = await this.getLayers();
             for (let i of group.layers){
                 let name = i.dataSet + "." + i.variable;
-                let newLayer = layers.find(el => el.code === name)
+                let newLayer = layers.find(el => el.code === name);
                 await this.addLayer(newLayer, newGroup);
             }
             let s = newGroup.serialize();

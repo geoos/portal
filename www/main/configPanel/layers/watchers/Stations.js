@@ -11,17 +11,17 @@ class Stations extends ZCustomController {
         let html_a = "";
 
         for(let i of this.layer.points){
-            console.log("estaciones:", i);
+            //console.log("estaciones:", i);
             if(i.lat > -33){
                 //html_n += `<i class='layer-activator far fa-lg fa-${this.layer.active?"check-square":"square"} mr-2 float-left'></i> <div> ${i.station.name} </div>`;
-                html_n += `<i class='layer-activator far fa-building"></i>"} mr-2 float-left'></i> <div> ${i.station.name} </div>`;
+                html_n += `<div class='mt-2'>${i.station.name} </div>`;
                 //html_n += "<i class='layer-activator far fa-lg fa-check-square mr-2 float-left'></i> <div>" +i.station.name+ "</div>";
             }else if(i.lat <= -33 && i.lat > -38){
-                html_c += "<i class='layer-activator far fa-lg fa-check-square mr-2 mt-2 float-left'></i> <div class='mt-2'>" + i.station.name + "</div>";
+                html_c += `<div class='mt-2'>${i.station.name} </div>`;
             }else if(i.lat <= -38 && i.lat > -43){
-                html_s += "<i class='layer-activator far fa-lg fa-check-square mr-2 mt-2 float-left'></i> <div class='mt-2'>" + i.station.name + "</div>";
+                html_s += `<div class='mt-2'>${i.station.name} </div>`;
             }else{
-                html_a += "<i class='layer-activator far fa-lg fa-check-square mr-2 mt-2 float-left'></i> <div class='mt-2'>" + i.station.name + "</div>";
+                html_a += `<div class='mt-2'>${i.station.name} </div>`;
             }
         }
         this.cont_norte.html = html_n;
@@ -29,7 +29,7 @@ class Stations extends ZCustomController {
         this.cont_sur.html = html_s;
         this.cont_austral.html = html_a;
 
-        this.content.find(".layer-activator").click(e => this.layerActivator_click(e));
+        //this.content.find(".layer-activator").click(e => this.layerActivator_click(e));
     }
     
     async layerActivator_click(e) {

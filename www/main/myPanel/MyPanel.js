@@ -416,7 +416,7 @@ class MyPanel extends ZCustomController {
                     let s = group.serialize();
                     s.mapView = window.geoos.mapPanel.serialize();
                     s.toolsStatus = window.geoos.toolsPanel.status;
-                    //console.log("grupo map:", s);
+                    console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
                     let url = window.location.href.split('?')[0] + "?group=" + linkToken;
                     const el = document.createElement('textarea');
@@ -430,19 +430,12 @@ class MyPanel extends ZCustomController {
                     //agregar a favoritos
                     let s = group.serialize();
                     if(!window.geoos.isFavorite(s, "group")){
-                        //if(!s.config.name) 
                         s.config = {name:s.name}
                         console.log("group add", s);
                         window.geoos.addFavGroups(s);
                         window.geoos.openFavorites();
                     }
-                    /* }else{
-                        window.geoos.deleteFavGroups(groupId);
-                        //window.geoos.addFavGroups(s);
-                        window.geoos.openFavorites();
-                    } */
                     return false;
-
                 } else if (code == "duplicate") {
                     this.groupDuplicate(group);
                 } else if (code == "scalesPanel") {
