@@ -32,8 +32,16 @@ class FavGroups extends ZCustomController {
                                 <i class=" group-activator fas fa-layer-group ml-1 float-right" style="cursor: pointer;"></i>
                             </div>`;
             for (let layer of group.layers) {
-                let layerName = layer.name;
-                let layerId = layer.config.dataSet.code + "." + layer.variable.code;
+                console.log("layer", layer, layer instanceof GEOOSRasterLayer);
+                if (layer instanceof GEOOSRasterLayer){
+                    var layerName = layer.config.name;
+                    var layerId = layer.config.dataSet.code + "." + layer.variable.code;
+                }
+                else{
+                    var layerName = layer.points[0].name;
+                    var layerId = layer.id;
+                }
+
                 //let layerId = layer.id;
                 html += `<div class="col-1 mt-1"></div>
                         <div class="col-9 mt-1"><span class="favorite-selected-name"}>${layerName}</span></div>
