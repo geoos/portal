@@ -22,7 +22,7 @@ class FavGroups extends ZCustomController {
         for (let serializedGroup of this.groups) {
             let group = GEOOSGroup.deserialize(serializedGroup);
             this.groupDef = window.geoos.isDefault(group);
-            console.log("group", group);
+            //console.log("group", group);
             let groupName = group.config.name;
             html += `   <div class="row fav-panel-group" data-group-id="${group.id}"  style="max-width:420px;">
                             <div class="col-1 mt-2"data-layer-num="${group.layers}"><img  class="group-default float-left"  src="/img/icons/default${this.groupDef?"-active":""}.svg"/> </div>

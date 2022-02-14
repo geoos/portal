@@ -528,10 +528,15 @@ class MyPanel extends ZCustomController {
                     }else{
                         //codName = name, idx=Math.random();
                         let g = new GEOOSGroup(name);
-                        g = GEOOSGroup.deserialize(g);
-                        g.name="Capas de Mi Panel";
-                        g.addLayer(layer);
-                        let s = g.serialize();
+                        let desGroup = GEOOSGroup.deserialize(g);
+                        desGroup.name = name;
+                        console.log("layer",layer);
+                        //if (layer instanceof GEOOSStationsLayer) {
+
+                        //}else g.addLayer(layer);
+                        //console.log("aca");
+                        desGroup.addLayer(layer);
+                        let s = desGroup.serialize();
                         window.geoos.addFavGroups(s);
                         window.geoos.openFavorites();
                     }                 

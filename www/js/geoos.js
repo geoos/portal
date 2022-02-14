@@ -468,7 +468,7 @@ class GEOOS {
     getActiveGroup() {return this.groups.find(g => (g.active))}
     getFavoriteGroup(id){
         let favorite = this.user.config.favorites;
-        console.log("Grupos favoritos:", favorite);
+        //console.log("Grupos favoritos:", favorite);
         return favorite.groups.find(g => g.id == id)
     }
     addGroup(config) {
@@ -589,21 +589,19 @@ class GEOOS {
             }else return false;
         }else if(type == "group"){
             let s = code;
-            console.log("es favorito este grupo?", s);
-            console.log("grupos favoritos", favorite.groups);
+            //console.log("es favorito este grupo?", s);
+            //console.log("grupos favoritos", favorite.groups);
   
             for (let g=0; g< favorite.groups.length; g++){ //recorre todos los favoritos
-                console.log("recorre", favorite.groups[g]);
                 let favLayers = favorite.groups[g].layers;
                 if(s.layers.length == favLayers.length){
                     let sw=0;
-                    console.log("2");
                     for (var i = 0; i < s.layers.length; i++) {
                         let findLayer = favLayers.find(f => (s.layers[i].dataSet + "." + s.layers[i].variable)===(f.dataSet + "." + f.variable) );
                         if(!findLayer) {//no tienen las mismas capas
                             sw = 1;
                             break;
-                        } else console.log("encontrada", findLayer);
+                        }
                     }
                     if (sw==0) return true; 
                 }//; //no tienen el mismo numero de capas
@@ -652,17 +650,13 @@ class GEOOS {
 
     async deleteFavLayerGroups(groupId, layerId){
         let found = this.user.config.favorites.groups.findIndex(element => element.id==groupId)
-        console.log("found", found);
         if(found != -1){
             let group =  this.user.config.favorites.groups[found];
             let ds = GEOOSGroup.deserialize(group);
-            console.log("grupo hayado", ds);
             for (let i in ds.layers){
                 let layer = ds.layers[i];
-                console.log("layer", layer);
                 if (layer instanceof GEOOSRasterLayer){
                     let lName = layer.config.dataSet.code + "." + layer.variable.code;
-                    console.log("lName:", lName, " layerId:", layerId);
                     if( lName === layerId ){
                         if(ds.layers.length>1){
                             group.layers.splice(i, 1);
@@ -1016,8 +1010,6 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        console.log("grupo default", group);
-        //let s = group.serialize();
         if (!this.user.config.defaultGroup) this.user.config.defaultGroup = {layers:[]};
         let defLayers = GEOOSGroup.deserialize(this.user.config.defaultGroup).layers;
         if(group.layers.length == defLayers.length){
@@ -1027,15 +1019,10 @@ class GEOOS {
         }else return false;
         return true;
 
-        //if(s.layers.length == defLayers.length){
-        //    for (var i = 0; i < s.layers.length; i++) {
-        //        if(s.layers[i].id != defLayers[i].id) return false;
-
     }
 
     addDefault(group){
         this.user.config.defaultGroup = {};
-        //this.user.config.defaultGroup = JSON.parse(JSON.stringify(group));
         this.user.config.defaultGroup = group;
         this.user.saveConfig();
     }
