@@ -81,10 +81,16 @@ class Main extends ZCustomController {
                     //await window.geoos.addExistingGroup(defaultGroup);
                     let allLayers = await window.geoos.getLayers();
                     for (let layer of defaultGroup.layers){
-                        let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
-                        //console.log("lay", code, layer);
-                        let newLayer = allLayers.find(element => element.code === code);
-                        window.geoos.addLayer(newLayer, newGroup);
+                        if (layer instanceof GEOOSRasterLayer){
+                            let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
+                            //console.log("lay", code, layer);
+                            let newLayer = allLayers.find(element => element.code === code);
+                            window.geoos.addLayer(newLayer, newGroup);
+                        }else if (layer instanceof GEOOSStationsLayer){
+                            for(let i of layer.points){
+                                window.geoos.addStation(i.id, newGroup);
+                            }
+                        }
                     }
                     //console.log("[DG] activa");
                     await window.geoos.activateGroup(newGroup.id);

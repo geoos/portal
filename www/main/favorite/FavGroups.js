@@ -80,11 +80,28 @@ class FavGroups extends ZCustomController {
         let div = activator.parent().parent();
         let groupId = div.data("group-id");
         let group = window.geoos.getFavoriteGroup(groupId);
+        let ds = GEOOSGroup.deserialize(group);
         //console.log("group", group);
-        let newGroup = GEOOSGroup.deserialize(group);
-        //console.log("newGroup", newGroup);
-        window.geoos.addExistingGroup(newGroup);
 
+        let newGroup = await window.geoos.addGroup(ds);
+        let allLayers = await window.geoos.getLayers();
+        for (let layer of ds.layers){
+            //console.log("layer", layer);
+            let code = [];
+            if (layer instanceof GEOOSRasterLayer){
+                code = layer.config.dataSet.code + "." + layer.config.variable.code;
+                let newLayer = allLayers.find(element => element.code === code);
+                window.geoos.addLayer(newLayer, newGroup);
+            }else if (layer instanceof GEOOSStationsLayer){
+                //console.log("caso 2");
+ 
+                for(let i of layer.points){
+                    //layerId.push(i.id);
+                    window.geoos.addStation(i.id, newGroup);
+                }
+                //console.log("layerId",layerId);
+            }
+        }
         window.geoos.openMyPanel();
     }
 
@@ -115,8 +132,8 @@ class FavGroups extends ZCustomController {
         console.log("div: ", div);
         let groupId = div.data("group-id");
         console.log("groupId: ", groupId);
-        window.geoos.deleteFavGroups(groupId);
-        window.geoos.deleteDefault(groupId);
+        await window.geoos.deleteFavGroups(groupId);
+        await window.geoos.deleteDefault(groupId);
         this.refresh();
     }
 
@@ -126,7 +143,7 @@ class FavGroups extends ZCustomController {
         let layerId = div.data("layer-id");
         let groupId = div.data("group-id");
         console.log("layerId: ", layerId, " groupId: ", groupId);
-        window.geoos.deleteFavLayerGroups(groupId, layerId);
+        await window.geoos.deleteFavLayerGroups(groupId, layerId);
         this.refresh();
     }
 
