@@ -108,7 +108,7 @@ class MyPanel extends ZCustomController {
                     html += `  <i class="layer-icon fas fa-lg fa-minus mr-2 float-left"></i>`;
                 }
                 html += `  <i  class="layer-activator far fa-lg fa-${layer.active?"check-square":"square"} mr-2 float-left"></i>`;
-                html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}>${layerName}</span>${layerState}</div>`;
+                html += `  <div class="layer-name"><span ${layerSelected?" class='my-panel-selected-name'":""}><b>${layerName}</b></span>${layerState}</div>`;
                 html += `  <i class="layer-context details-menu-icon fas fa-ellipsis-h ml-2 float-right"></i>`;
                 html += `  <i class="fas fa-spinner fa-spin ml-2 float-right" style="margin-top: -10px; display: none;"></i>`;
                 if (layerItems) {
@@ -416,7 +416,7 @@ class MyPanel extends ZCustomController {
                     let s = group.serialize();
                     s.mapView = window.geoos.mapPanel.serialize();
                     s.toolsStatus = window.geoos.toolsPanel.status;
-                    //console.log("grupo map:", s);
+                    console.log("grupo map:", s);
                     let linkToken = await zPost("createLink.geoos", {content:s});
                     let url = window.location.href.split('?')[0] + "?group=" + linkToken;
                     const el = document.createElement('textarea');
@@ -428,17 +428,14 @@ class MyPanel extends ZCustomController {
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
                     //agregar a favoritos
-                    if(!window.geoos.isFavorite(groupId, "group")){
-                        console.log("group add", group);
-                        let s = group.serialize();
+                    let s = group.serialize();
+                    if(!window.geoos.isFavorite(s, "group")){
+                        s.config = {name:s.name}
+                        console.log("group add", s);
                         window.geoos.addFavGroups(s);
-                        window.geoos.openFavorites();
-                    }else{
-                        window.geoos.deleteFavGroups(s);
                         window.geoos.openFavorites();
                     }
                     return false;
-
                 } else if (code == "duplicate") {
                     this.groupDuplicate(group);
                 } else if (code == "scalesPanel") {

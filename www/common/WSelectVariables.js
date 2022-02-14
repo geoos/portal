@@ -3,6 +3,7 @@ class WSelectVariables extends ZDialog {
         this.dimCode = options.dimCode;
         this.layerName = options.layerName;
         this.singleSelection = options.singleSelection;
+        console.log("options", options);
         console.log("usando singleSelection", this.singleSelection);
         this.selectedIcon = options.singleSelection?"fa-dot-circle":"fa-check-square";
         this.unselectedIcon = options.singleSelection?"fa-circle":"fa-square";
