@@ -103,11 +103,12 @@ class GEOOSRasterLayer extends GEOOSLayer {
             }
         }
         if (stErrores) return stErrores;
+
         let stEstado = null;
         for (let tiempo of tiempos) {
             if (tiempo > 0) {
                 let fmt = moment.tz(tiempo, window.timeZone).format("YYYY-MM-DD HH:mm");
-                if (!stEstado) stEstado = "Datos para " + fmt;
+                if (!stEstado) stEstado = "Válido para " + fmt;
                 else {
                     if (stEstado.indexOf(fmt) < 0) stEstado += ", " + fmt;
                 }
@@ -116,17 +117,17 @@ class GEOOSRasterLayer extends GEOOSLayer {
         let stModelo = null;
         for (let tiempoModelo of modelos) {
             if (tiempoModelo) {                
-                if (!stModelo) stModelo = "Ej.Modelo (UTC): " + tiempoModelo;
+                if (!stModelo) stModelo = "Inicio (UTC): " + tiempoModelo;
                 else {
                     if (stModelo.indexOf(tiempoModelo) < 0) stModelo += ", " + tiempoModelo;
                 }
             }
         }
-        if (stEstado) {
-            if (stModelo) return stEstado + "<br>" + stModelo;
-            return stEstado;
-        } else if (stModelo) {
-            return stModelo
+        if (stModelo) {
+            if (stEstado) return stModelo + "<br>" + stEstado;
+            return stModelo;
+        } else if (stEstado) {
+            return stEstado
         } else {
             return "Sin Información";
         }

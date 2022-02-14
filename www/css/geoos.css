@@ -491,6 +491,7 @@ a:hover {
 .my-panel-layer .layer-state {
     font-size: small;
     margin-left: 50px;
+    font-weight: 100;
 }
 .layer-expander {
     cursor: pointer;
@@ -561,6 +562,7 @@ a:hover {
     display: block;
     margin-top: -5px;
     padding: 2px;
+    font-weight: 600;
 }
 .my-panel-selected-name {
     background: #444343;
