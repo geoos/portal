@@ -133,6 +133,7 @@ class FavGroups extends ZCustomController {
         let groupId = div.data("group-id");
         console.log("groupId: ", groupId);
         await window.geoos.deleteFavGroups(groupId);
+        console.log("aca 2");
         await window.geoos.deleteDefault(groupId);
         this.refresh();
     }

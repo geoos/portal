@@ -588,24 +588,12 @@ class GEOOS {
                 return true;
             }else return false;
         }else if(type == "group"){
-            let s = code;
-            //console.log("es favorito este grupo?", s);
-            //console.log("grupos favoritos", favorite.groups);
-  
-            for (let g=0; g< favorite.groups.length; g++){ //recorre todos los favoritos
-                let favLayers = favorite.groups[g].layers;
-                if(s.layers.length == favLayers.length){
-                    let sw=0;
-                    for (var i = 0; i < s.layers.length; i++) {
-                        let findLayer = favLayers.find(f => (s.layers[i].dataSet + "." + s.layers[i].variable)===(f.dataSet + "." + f.variable) );
-                        if(!findLayer) {//no tienen las mismas capas
-                            sw = 1;
-                            break;
-                        }
-                    }
-                    if (sw==0) return true; 
-                }//; //no tienen el mismo numero de capas
-            }return false; //no lo encontro
+            let s = code;    
+            console.log("es favorito este grupo?", s);
+            console.log("grupos favoritos", favorite.groups);
+            let found = favorite.groups.find(e => e.name===s.name);
+            if(found)return true;
+            return false; //no lo encontro
         }
     }
 
@@ -636,7 +624,7 @@ class GEOOS {
 
     async deleteFavGroups(groupId){
         let favorite = this.user.config.favorites;
-        let found = favorite.groups.findIndex(element => element.id==groupId)
+        let found = favorite.groups.findIndex(element => element.id==groupId);
         if(found != -1){
             if(favorite.groups.length > 1){
                 this.user.config.favorites.groups.splice(found,1);
@@ -671,18 +659,6 @@ class GEOOS {
                 }
             }
 
-
-
-
-      /*       let layerpos = group.layers.findIndex(el => (el.dataSet+"."+el.variable)==layerId)
-            console.log("layerpos", layerpos);
-            if(layerpos != -1 && group.layers.length>1){
-                group.layers.splice(layerpos, 1);
-            }else if(layerpos != -1){
-                if(this.user.config.favorites.groups.length > 1){
-                    this.user.config.favorites.groups.splice(found,1);
-                }else this.user.config.favorites.groups = [];
-            } */
             this.user.saveConfig();
             await this.events.trigger("portal", "userConfigChanged");
         }
@@ -1010,15 +986,20 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        if (!this.user.config.defaultGroup) this.user.config.defaultGroup = {layers:[]};
-        let defLayers = GEOOSGroup.deserialize(this.user.config.defaultGroup).layers;
-        if(group.layers.length == defLayers.length){
-            for (var i = 0; i < group.layers.length; i++) {
-                if(group.layers[i].id != defLayers[i].id) return false;
-            }
-        }else return false;
-        return true;
-
+        if (this.user.config.defaultGroup.length === 0 ) {
+            console.log("def 1:", this.user.config.defaultGroup)
+            //this.user.config.defaultGroup = {layers:[]};
+            return false;
+        }else {
+            console.log("def 2:", this.user.config.defaultGroup.length, this.user.config.defaultGroup)
+            let defLayers = GEOOSGroup.deserialize(this.user.config.defaultGroup).layers;
+            if(group.layers.length == defLayers.length){
+                for (var i = 0; i < group.layers.length; i++) {
+                    if(group.layers[i].id != defLayers[i].id) return false;
+                }
+            }else return false;
+        }
+        return true;    
     }
 
     addDefault(group){
@@ -1028,8 +1009,8 @@ class GEOOS {
     }
 
     deleteDefault(id){
-        if(this.user.config.defaultGroup.id == id){
-            this.user.config.defaultGroup = {}
+        if(this.user.config.defaultGroup.id === id){
+            this.user.config.defaultGroup = []
         }
         this.user.saveConfig();
     }

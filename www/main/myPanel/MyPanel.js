@@ -434,8 +434,14 @@ class MyPanel extends ZCustomController {
                         console.log("group add", s);
                         window.geoos.addFavGroups(s);
                         window.geoos.openFavorites();
+                    }else{                    
+                        this.showDialog("common/WConfirm", {message:"¿Desea agregar nuevamente el grupo?", subtitle:"Ya existe el grupo en Favoritos"}, _=> {
+                            s.config = {name:s.name}
+                            console.log("group add", s);
+                            window.geoos.addFavGroups(s);
+                            window.geoos.openFavorites();
+                        } )
                     }
-                    return false;
                 } else if (code == "duplicate") {
                     this.groupDuplicate(group);
                 } else if (code == "scalesPanel") {
@@ -443,9 +449,7 @@ class MyPanel extends ZCustomController {
                 } else if (code == "delete-layers") {
                     //group.layers = [];
                     let n = group.layers.length;
-                    while(n > group.layers.length){
-                        group.layers.pop();
-                    }
+                    this.showDialog("common/WInProgress", {});
                 }
             }
         })

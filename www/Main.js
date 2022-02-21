@@ -70,15 +70,18 @@ class Main extends ZCustomController {
                 await window.geoos.activateGroup(initialGroup.id);
                 console.log("[DG] no hay inicial");
                 let s = initialGroup.serialize();
+                console.log("[DG] aca 1");
                 await window.geoos.addDefault(s);
+                console.log("[DG] aca 2");
                 await window.geoos.addFavGroups(s);
             
             }else {
                 console.log("[DG] hay inicial", defaultGroup);
                 if(!window.geoos.isDefault(initialGroup)){ 
                     //se agrega a Mi panel el nuevo grupo
-                    let newGroup = await window.geoos.addGroup(defaultGroup);
-                    //await window.geoos.addExistingGroup(defaultGroup);
+                    let newGroup = await window.geoos.addGroup(defaultGroup.config);
+                    //let newGroup = await window.geoos.addExistingGroup(defaultGroup);
+                    console.log("newGroup", newGroup);
                     let allLayers = await window.geoos.getLayers();
                     for (let layer of defaultGroup.layers){
                         if (layer instanceof GEOOSRasterLayer){
@@ -92,7 +95,6 @@ class Main extends ZCustomController {
                             }
                         }
                     }
-                    //console.log("[DG] activa");
                     await window.geoos.activateGroup(newGroup.id);
                     await window.geoos.deleteGroup(initialGroup.id);
                     await window.geoos.myPanel.refresh();
