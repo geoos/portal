@@ -110,7 +110,7 @@ class Final extends ZCustomController {
                                 if (t == time) {
                                     let val = data[v][idx];
                                     if (val.n && val.m !== null && val.M !== null) {
-                                        console.log("val", val);
+                                        // console.log("val", val);
                                         avg = (val.v / val.n).toLocaleString("en", {useGrouping:false});
                                         min = val.m.toLocaleString("en", {useGrouping:false});
                                         max = val.M.toLocaleString("en", {useGrouping:false});
