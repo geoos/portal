@@ -8,8 +8,10 @@ class SelVariables extends ZCustomController {
         this.options.variablesDesdeDSOriginal = this.options.dsOriginal;
         if (this.options.dsOriginal) {
             // Buscar dataSet (rie.${proveedor})
-            this.options.dataSet = z.dataSets.find(d => d.code == ("rie." + this.options.station.proveedor));
-            if (!this.options.dataSet) throw "No se encontró el dataSet '" + "rie." + this.options.station.proveedor + "' en zRepo"
+            let dsName = "rie." + this.options.station.proveedor;
+            if (dsName == "rie.redema") dsName = "rie.datosRecientesEMA";
+            this.options.dataSet = z.dataSets.find(d => d.code == dsName);
+            if (!this.options.dataSet) throw "No se encontró el dataSet '" + dsName + "' en zRepo"
             // buscar columna con codigoEstacion desde los triggers
             this.options.colCodigoEstacion = null;
             this.options.dataSet.triggers.forEach(t => {

@@ -5,25 +5,44 @@ class Periodo extends ZCustomController {
         if (options.dsOriginal) {
             this.rowAgrupador.hide();
         } else {
-            if (!options.temporalidad) options.temporalidad = "5m";
+            let s = this.options.station;
+            let z = s.server.client;
+            let vars = this.options.variables;
+            let maxTempLevel = 0;
+            let variables = this.options.listaVariables.reduce((lista, v) => {
+                if (vars[v.code + "-avg"] || vars[v.code + "-min"] || vars[v.code + "-max"] || vars[v.code + "-n"]) lista.push(v.code);
+                return lista;
+            }, []);
+            for (let v of variables) {
+                let variable = z.variables.find(v2 => v2.code == v);
+                if (variable) {
+                    let level = temporalityLevel[variable.temporality].level;
+                    if (level && level > maxTempLevel) maxTempLevel = level;
+                }
+            }
+            console.log("maxTempLevel", maxTempLevel);
+            if (!options.temporalidad) {
+                options.temporalidad = "5m";
+            }
             this.rowAgrupador.show();
+            // Calcular mayor temporalidad (level) de las variables para filtrar agrupadores para consulta
             this.edTemporalidad.setRows([{
-                code:"5m", name:"5 Minutos"
+                code:"5m", name:"5 Minutos", level:0
             }, {
-                code:"15m", name:"15 Minutos"
+                code:"15m", name:"15 Minutos", level:1
             }, {
-                code:"30m", name:"30 Minutos"
+                code:"30m", name:"30 Minutos", level:2
             }, {
-                code:"1h", name:"1 Hora"
+                code:"1h", name:"1 Hora", level:3
             }, {
-                code:"6h", name:"6 Horas"
+                code:"6h", name:"6 Horas", level:4
             }, {
-                code:"12h", name:"12 Horas"
+                code:"12h", name:"12 Horas", level:5
             }, {
-                code:"1d", name:"1 Día"
+                code:"1d", name:"1 Día", level:6
             }, {
-                code:"1M", name:"1 Mes"
-            }], options.temporalidad)
+                code:"1M", name:"1 Mes", level:7
+            }].filter(n => n.level >= maxTempLevel), options.temporalidad)
         }
         let months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
         months = months.map((m, idx) => ({index:idx, name:m}));
