@@ -1016,7 +1016,8 @@ class GEOOS {
     }
     
     getDefault(){
-        if(Object.keys(this.user.config.defaultGroup).length === 0){
+        if(this.user.config.defaultGroup.length === 0){
+            this.user.config.defaultGroup = {layers:[]};
         }else {
             let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
             return newGroup;
