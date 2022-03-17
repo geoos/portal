@@ -129,9 +129,7 @@ class FavGroups extends ZCustomController {
     async groupDeleter_click(e){
         let activator = $(e.currentTarget);
         let div = activator.parent().parent();
-        console.log("div: ", div);
         let groupId = div.data("group-id");
-        console.log("groupId: ", groupId);
         await window.geoos.deleteFavGroups(groupId);
         console.log("aca 2");
         await window.geoos.deleteDefault(groupId);

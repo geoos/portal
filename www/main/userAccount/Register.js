@@ -39,7 +39,7 @@ class Register extends ZCustomController {
             this.working.show();
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
             this.codigoInicial.hide()
-            this.showDialog("./WCode", {}, async x =>{
+            await this.showDialog("./WCode", {email:this.edEmail.value.trim()}, async x =>{
                 if(x==0 || x==1){
                     this.codigoEnviado.hide();
                     this.codigoInicial.show();
