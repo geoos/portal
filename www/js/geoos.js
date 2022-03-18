@@ -1013,9 +1013,10 @@ class GEOOS {
     }
     
     getDefault(){
-        if(this.user.config.defaultGroup.layers.length === 0){
+        if(this.user.config.defaultGroup.layers.length === 0 || this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined){
             this.user.config.defaultGroup = {layers:[]};
         }else {
+            console.log("gr", this.user.config.defaultGroup);
             let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
             return newGroup;
         }
