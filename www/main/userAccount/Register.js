@@ -40,14 +40,16 @@ class Register extends ZCustomController {
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
             this.codigoInicial.hide()
             await this.showDialog("./WCode", {email:this.edEmail.value.trim()}, async x =>{
-                if(x==0 || x==1){
+                if(x == 1){
                     this.codigoEnviado.hide();
                     this.codigoInicial.show();
+                }else{
+                    this.codigoEnviado.show();
+                    this.codigoInicial.hide();
                 }
-                console.log("mostrar:", x);
             });
             //this.showDialog("common/WCode", {message:error.toString()})
-            this.codigoEnviado.show();
+            //this.codigoEnviado.show();
             this.lblMensajeEnviar.text = mensajeReenviar;
         } catch(error) {
             console.error(error);

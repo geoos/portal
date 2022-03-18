@@ -70,20 +70,35 @@ class Main extends ZCustomController {
                 await window.geoos.activateGroup(initialGroup.id);
                 console.log("[DG] no hay inicial");
                 let s = initialGroup.serialize();
-                console.log("[DG] aca 1");
                 await window.geoos.addDefault(s);
-                console.log("[DG] aca 2");
                 await window.geoos.addFavGroups(s);
             
             }else {
                 console.log("[DG] hay inicial", defaultGroup);
                 if(!window.geoos.isDefault(initialGroup)){ 
+
+/*                     let s = defaultGroup.serialize();
+                    s.id = generateId();
+                    // Regenerar id de las capas
+                    s.layers.forEach(layer => {
+                        layer.id = generateId();
+                    })
+                    let newGroup = GEOOSGroup.deserialize(s);
+                    //newGroup.active = false;
+                    console.log("newGroup", newGroup);
+                    await window.geoos.addExistingGroup(newGroup);
+                    await window.geoos.activateGroup(newGroup.id); */
+
+
                     //se agrega a Mi panel el nuevo grupo
                     let newGroup = await window.geoos.addGroup(defaultGroup.config);
-                    //let newGroup = await window.geoos.addExistingGroup(defaultGroup);
+                    //let group = await window.geoos.addExistingGroup(defaultGroup);
+                    //let newGroup = GEOOSGroup.deserialize(group);
                     console.log("newGroup", newGroup);
-                    let allLayers = await window.geoos.getLayers();
-                    for (let layer of defaultGroup.layers){
+                     let allLayers = await window.geoos.getLayers();
+                    //for (let layer of defaultGroup.layers){
+                    for (let i = defaultGroup.layers.length-1; i>=0; i--){
+                        let layer = defaultGroup.layers[i];
                         if (layer instanceof GEOOSRasterLayer){
                             let code =  layer.config.dataSet.code + "." + layer.config.variable.code;
                             //console.log("lay", code, layer);
@@ -91,7 +106,7 @@ class Main extends ZCustomController {
                             window.geoos.addLayer(newLayer, newGroup);
                         }else if (layer instanceof GEOOSStationsLayer){
                             for(let i of layer.points){
-                                window.geoos.addStation(i.id, newGroup);
+                                await window.geoos.addStation(i.id, newGroup);
                             }
                         }
                     }
