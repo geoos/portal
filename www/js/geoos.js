@@ -709,7 +709,7 @@ class GEOOS {
             l = g.createStationsLayer(p.name, p.code);
             this.events.trigger("portal", "layersAdded", g);
         }
-        console.log("[DBG] l", l);
+        //console.log("[DBG] l", l);
         l.addStation(code);
     }
 
@@ -984,11 +984,11 @@ class GEOOS {
     }
     isDefault(group){
         if (this.user.config.defaultGroup.layers.length === 0) {
-            console.log("def 1:", this.user.config.defaultGroup)
+            //console.log("def 1:", this.user.config.defaultGroup)
             this.user.config.defaultGroup = {layers:[]};
             return false;
         }else {
-            console.log("def 2:", this.user.config.defaultGroup.length, this.user.config.defaultGroup)
+            //console.log("def 2:", this.user.config.defaultGroup.length, this.user.config.defaultGroup)
             let defLayers = GEOOSGroup.deserialize(this.user.config.defaultGroup).layers;
             if(group.layers.length == defLayers.length){
                 for (var i = 0; i < group.layers.length; i++) {
@@ -1016,7 +1016,7 @@ class GEOOS {
         if(this.user.config.defaultGroup.layers.length === 0 || this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined){
             this.user.config.defaultGroup = {layers:[]};
         }else {
-            console.log("gr", this.user.config.defaultGroup);
+            //console.log("gr", this.user.config.defaultGroup);
             let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
             return newGroup;
         }

@@ -32,7 +32,6 @@ class FavGroups extends ZCustomController {
                                 <i class=" group-activator fas fa-layer-group ml-1 float-right" style="cursor: pointer;"></i>
                             </div>`;
             for (let layer of group.layers) {
-                //console.log("layer", layer, layer instanceof GEOOSRasterLayer);
                 if (layer instanceof GEOOSRasterLayer){
                     var layerName = layer.config.name;
                     var layerId = layer.config.dataSet.code + "." + layer.variable.code;
@@ -81,25 +80,23 @@ class FavGroups extends ZCustomController {
         let groupId = div.data("group-id");
         let group = window.geoos.getFavoriteGroup(groupId);
         let ds = GEOOSGroup.deserialize(group);
-        //console.log("group", group);
 
         let newGroup = await window.geoos.addGroup(ds);
         let allLayers = await window.geoos.getLayers();
-        for (let layer of ds.layers){
-            //console.log("layer", layer);
+        console.log("ds.layers", ds.layers.length);
+        //for (let layer of ds.layers){
+        for(let i = ds.layers.length-1; i >= 0;i--){
+            let layer = ds.layers[i];
             let code = [];
             if (layer instanceof GEOOSRasterLayer){
                 code = layer.config.dataSet.code + "." + layer.config.variable.code;
                 let newLayer = allLayers.find(element => element.code === code);
                 window.geoos.addLayer(newLayer, newGroup);
-            }else if (layer instanceof GEOOSStationsLayer){
-                //console.log("caso 2");
- 
+            }else if (layer instanceof GEOOSStationsLayer){ 
                 for(let i of layer.points){
                     //layerId.push(i.id);
                     window.geoos.addStation(i.id, newGroup);
                 }
-                //console.log("layerId",layerId);
             }
         }
         window.geoos.openMyPanel();

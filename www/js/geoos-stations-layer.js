@@ -165,10 +165,12 @@ class GEOOSStationsLayer extends GEOOSLayer {
         this.konvaLeafletLayer = null;
     }
 
-    async refresh() {        
+    async refresh() {   
         this.refreshWatchers();
-        this.konvaLeafletLayer.getVisualizer("points").update();
-        this.konvaLeafletLayer.getVisualizer("legends").update();
+        if (!this.konvaLeafletLayer) return;
+        await this.konvaLeafletLayer.getVisualizer("points").update();
+        await this.konvaLeafletLayer.getVisualizer("legends").update();
+        
     }
 
     repaint() {
