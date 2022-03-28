@@ -983,7 +983,10 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        if (this.user.config.defaultGroup.layers.length === 0) {
+        if(this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined) {
+            this.user.config.defaultGroup = {layers:[]};
+            return false
+        }else if (!this.user.config.defaultGroup.layers || this.user.config.defaultGroup.layers.length === 0) {
             //console.log("def 1:", this.user.config.defaultGroup)
             this.user.config.defaultGroup = {layers:[]};
             return false;
@@ -1012,8 +1015,11 @@ class GEOOS {
         this.user.saveConfig();
     }
     
+    
     getDefault(){
-        if(this.user.config.defaultGroup.layers.length === 0 || this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined){
+        if(this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined) {
+            this.user.config.defaultGroup = {layers:[]};
+        }else if(!this.user.config.defaultGroup.layers || this.user.config.defaultGroup.layers.length === 0){
             this.user.config.defaultGroup = {layers:[]};
         }else {
             //console.log("gr", this.user.config.defaultGroup);
