@@ -7,8 +7,9 @@ class ConfigPanel extends ZCustomController {
         this.panels = [];
         this.hide();
         this.doResize(window.geoos.size)
-        window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.selectionChange(oldSelection, newSelection))        
-        window.geoos.events.on("portal", "layerDeleted", async layer => this.layerDeleted(layer))
+        window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.selectionChange(oldSelection, newSelection));       
+        window.geoos.events.on("portal", "layerDeleted", async layer => this.layerDeleted(layer));
+        
     }
 
     doResize(size) {
