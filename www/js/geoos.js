@@ -559,18 +559,14 @@ class GEOOS {
     }
 
     async addFavGroups(group){
-        let found = this.user.config.favorites.groups.find(e => e.id===group.id)
-        if(found){
-            let newGroup = new GEOOSGroup({name:group.name});
-            let layers = await this.getLayers();
-            for (let i of group.layers){
-                let name = i.dataSet + "." + i.variable;
-                let newLayer = layers.find(el => el.code === name);
-                await this.addLayer(newLayer, newGroup);
-            }
-            let s = newGroup.serialize();
-            this.user.config.favorites.groups.push(s);
-        }else this.user.config.favorites.groups.push(group);
+        let s = group;
+        s.id = generateId();
+        // Regenerar id de las capas
+        s.layers.forEach(layer => {
+            layer.id = generateId();
+        })
+
+        this.user.config.favorites.groups.push(s);
         this.user.saveConfig();
         await this.events.trigger("portal", "userConfigChanged");
     }
@@ -713,6 +709,7 @@ class GEOOS {
             l = g.createStationsLayer(p.name, p.code);
             this.events.trigger("portal", "layersAdded", g);
         }
+        //console.log("[DBG] l", l);
         l.addStation(code);
     }
 
@@ -986,12 +983,15 @@ class GEOOS {
         }, 200);
     }
     isDefault(group){
-        if (this.user.config.defaultGroup.length === 0 ) {
-            console.log("def 1:", this.user.config.defaultGroup)
-            //this.user.config.defaultGroup = {layers:[]};
+        if(this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined) {
+            this.user.config.defaultGroup = {layers:[]};
+            return false
+        }else if (!this.user.config.defaultGroup.layers || this.user.config.defaultGroup.layers.length === 0) {
+            //console.log("def 1:", this.user.config.defaultGroup)
+            this.user.config.defaultGroup = {layers:[]};
             return false;
         }else {
-            console.log("def 2:", this.user.config.defaultGroup.length, this.user.config.defaultGroup)
+            //console.log("def 2:", this.user.config.defaultGroup.length, this.user.config.defaultGroup)
             let defLayers = GEOOSGroup.deserialize(this.user.config.defaultGroup).layers;
             if(group.layers.length == defLayers.length){
                 for (var i = 0; i < group.layers.length; i++) {
@@ -1003,21 +1003,26 @@ class GEOOS {
     }
 
     addDefault(group){
-        this.user.config.defaultGroup = {};
+        this.user.config.defaultGroup = {layers:[]};
         this.user.config.defaultGroup = group;
         this.user.saveConfig();
     }
 
     deleteDefault(id){
         if(this.user.config.defaultGroup.id === id){
-            this.user.config.defaultGroup = []
+            this.user.config.defaultGroup = {layers:[]};
         }
         this.user.saveConfig();
     }
     
+    
     getDefault(){
-        if(Object.keys(this.user.config.defaultGroup).length === 0){
+        if(this.user.config.defaultGroup == null || this.user.config.defaultGroup == undefined) {
+            this.user.config.defaultGroup = {layers:[]};
+        }else if(!this.user.config.defaultGroup.layers || this.user.config.defaultGroup.layers.length === 0){
+            this.user.config.defaultGroup = {layers:[]};
         }else {
+            //console.log("gr", this.user.config.defaultGroup);
             let newGroup = GEOOSGroup.deserialize(this.user.config.defaultGroup);
             return newGroup;
         }

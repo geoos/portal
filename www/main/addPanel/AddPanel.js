@@ -348,13 +348,15 @@ class AddPanel extends ZCustomController {
         })
     }
 
-    onCmdCloseInfoPanel_click() {
-        $(this.variablesContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
-        this.closeInfo()
+    async onCmdCloseInfoPanel_click() {
+        //$(this.variablesContainer.view).find(".info").each((idx, i) => $(i).attr("src", "img/icons/info.svg"));
+        await this.closeInfo();
     }
 
     refreshInfo(layer) {
+        console.log("variable", layer);
         this.infoVarCode = layer.code;
+        console.log("lblVarName", this.lblVarName);
         this.lblVarName.text = layer.name;
         let provider = window.geoos.providers.find(p => p.code == layer.providers[0]);
         this.logoProvider.view.src = provider.logo;

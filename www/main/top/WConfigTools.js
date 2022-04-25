@@ -9,7 +9,7 @@ class WConfigTools extends ZDialog {
             let toolDef = GEOOSTool.getToolDef(t.code);
             if (!n) html += "<tr>";
             html += "<td class='tool-available-cell' data-code='" + t.code + "'>";
-            html += "<img src='" + toolDef.factories.menuIcon + "' class='float-left' style='width:33%; ";
+            html += "<img src='" + toolDef.factories.menuIcon + "' class='float-left' style='width:33%;' ";
             for (let prop in (toolDef.factories.menuIconStyles || {})) {
                 html += prop + ": " + toolDef.factories.menuIconStyles[prop];
             }

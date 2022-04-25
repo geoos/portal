@@ -449,7 +449,23 @@ class MyPanel extends ZCustomController {
                 } else if (code == "delete-layers") {
                     //group.layers = [];
                     let n = group.layers.length;
-                    this.showDialog("common/WInProgress", {});
+                    this.showDialog("common/WConfirm", {
+                        subtitle:"Eliminar Todas las Capas",
+                        message:"¿Confirma que desea eliminar todas las capas?"
+                    }, async _ => {
+                        try {
+                            await group.removeAllLayers();
+                            //await window.geoos.events.trigger("portal", "layerDeleted");
+                            this.refresh();
+                        } catch(error) {
+                            console.log("error")
+                            this.showDialog("common/WError", {
+                                subtitle:"Advertencia",
+                                message:"No se pudo eliminar las capas " + error.toString()
+                            });    
+                        }
+                    })
+                    //this.showDialog("common/WInProgress", {});
                 }
             }
         })
@@ -534,11 +550,7 @@ class MyPanel extends ZCustomController {
                         let g = new GEOOSGroup(name);
                         let desGroup = GEOOSGroup.deserialize(g);
                         desGroup.name = name;
-                        console.log("layer",layer);
-                        //if (layer instanceof GEOOSStationsLayer) {
-
-                        //}else g.addLayer(layer);
-                        //console.log("aca");
+                        //console.log("layer",layer);
                         desGroup.addLayer(layer);
                         let s = desGroup.serialize();
                         window.geoos.addFavGroups(s);

@@ -14,6 +14,7 @@ class UserHelpPanel extends ZCustomController {
         if (!this.open) return;
         let topMenuRect = window.geoos.topPanel.topPanelContainer.view.getBoundingClientRect();
         let top = (topMenuRect.top + topMenuRect.height - 6);
+        this.updates.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
         this.aboutPage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
         this.faqPage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";
         this.colabPage.view.style["max-height"] = (window.geoos.size.height - top - 120) + "px";

@@ -83,6 +83,15 @@ class GEOOSGroup {
         this.adjustOrder();
         if (!dontCheckTools) await window.geoos.checkToolsValidity();
     }
+    async removeAllLayers(dontCheckTools){
+        let layers = this.layers;
+        for (let layer of layers){
+            if (this.active) await layer.destroy();
+        }
+        //if (this.active) await layer.destroy();
+        this.layers = [];
+        if (!dontCheckTools) await window.geoos.checkToolsValidity();
+    }
     async insertLayerAfter(layer, after) {
         layer.group = this; 
         let idx = after.index;
