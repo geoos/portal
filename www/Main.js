@@ -63,6 +63,11 @@ class Main extends ZCustomController {
                         userConfig.favorites.groups.push(initialGroup.serialize());
                         window.geoos.user.saveConfig();
                     }
+                } else {
+                    console.error("No hay layer codes");
+                    console.log(window.geoos.config);
+                    initialGroup = window.geoos.addGroup({name:"Mis Capas"});
+                    await window.geoos.activateGroup(initialGroup.id);
                 }
             } else if (userConfig.favorites.initialGroup) {
                 let serializedGroup = userConfig.favorites.groups.find(g => g.id == userConfig.favorites.initialGroup);
