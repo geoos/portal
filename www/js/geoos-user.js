@@ -16,8 +16,7 @@ class GEOOSUser {
                 layers:[],
                 groups:[],
                 stations:[]
-            },
-            defaultGroup:{}
+            }
         }
     }
     get config() {
@@ -40,11 +39,11 @@ class GEOOSUser {
         let c = this.config; // load local
     }
 
-    saveConfig() {
+    async saveConfig() {
         if (this.configType == "local") {
             localStorage.setItem("geoos-config", JSON.stringify(this._config));
         } else {
-            zPost("saveUserConfig.geoos", {config:this._config});
+            await zPost("saveUserConfig.geoos", {config:this._config});
         }
     }
 }

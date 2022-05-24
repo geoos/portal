@@ -113,13 +113,14 @@ class WindyRasterVisualizer extends RasterVisualizer {
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setWindyData(ret.foundBox, ret.min, ret.max, ret.rowsU, ret.rowsV, ret.nrows, ret.ncols);
             })
-            .catch(err => {
+            .catch(err => {                
                 this.aborter = null;
                 if (err != "aborted" && err.toString().indexOf("abort") < 0) {
                     console.error(err);
                     this.finishWorking(null, err.toString());
                 }
-                visualizer.setWindyData(null, null, null, null, null, null, null);
+                //visualizer.setWindyData(null, null, null, null, null, null, null);
+                visualizer.stopWindy();
             })
     }
 

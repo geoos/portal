@@ -9,18 +9,13 @@ class FavLayers extends ZCustomController {
 
     get config() {return window.geoos.user.config.favorites}
 
-    async refresh() {
-        //rescata los codigos guardados
-        this.favCodes = this.config.layers;
-        //let selection = window.geoos.selection;
+    async refresh() {        
         let html = ``;
-        for (let code of this.favCodes) {
-            let layer = this.layers.find(element => element.code==code)
-            let layerName = layer.name;
+        for (let layer of this.config.layers) {
             html += `  <div class="row"  style="max-width:420px;">`;
             html += `    <div class="col-1 mt-2"><i  class="layer-activator fas fa-star float-left"></i></div>`;
-            html += `    <div class="col-9 mt-2"><span class="favorite-selected-name"}>${layerName}</span></div>`;
-            html += `    <div class="col mt-2" data-layer-id="${layer.code}">`;
+            html += `    <div class="col-9 mt-2"><span class="favorite-selected-name"}>${layer.name}</span></div>`;
+            html += `    <div class="col mt-2" data-layer-id="${layer.id}">`;
             html += `      <i class=" layer-deleter far fa-trash-alt ml-1 float-right" style="cursor: pointer;"></i>`;
             html += `      <i class=" layer-activator fas fa-layer-group ml-1 float-right" style="cursor: pointer;"></i>`;
             html += `    </div>`;
@@ -38,9 +33,10 @@ class FavLayers extends ZCustomController {
         let activator = $(e.currentTarget);
         let layerDiv = activator.parent();
         let layerId = layerDiv.data("layer-id");
-        //console.log("layer", layerId);
-        let variable = this.layers.find(v => v.code == layerId);
-        window.geoos.addLayer(variable);
+        let serializedLayer = this.config.layers.find(l => l.id == layerId);
+        if (!serializedLayer) return;
+        let layer = GEOOSLayer.deserialize(serializedLayer);
+        geoos.getActiveGroup().addLayer(layer);
         window.geoos.openMyPanel();
     }
 
@@ -48,9 +44,7 @@ class FavLayers extends ZCustomController {
         let activator = $(e.currentTarget);
         let div = activator.parent();
         let layerId = div.data("layer-id");
-        console.log("layerId: ", layerId);
-        window.geoos.deleteFavLayers(layerId);
-        this.refresh();
+        await window.geoos.deleteFavLayer(layerId);
     }
 
     applyConfig(onlyShow) {

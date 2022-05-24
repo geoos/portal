@@ -427,21 +427,8 @@ class MyPanel extends ZCustomController {
                     document.body.removeChild(el);
                     this.showDialog("common/WInfo", {message:"Se ha copiado al portapapeles un enlace con el grupo exportado", subtitle:"Compartir Grupo de Capas"})
                 } else if (code == "favo") {
-                    //agregar a favoritos
-                    let s = group.serialize();
-                    if(!window.geoos.isFavorite(s, "group")){
-                        s.config = {name:s.name}
-                        console.log("group add", s);
-                        window.geoos.addFavGroups(s);
-                        window.geoos.openFavorites();
-                    }else{                    
-                        this.showDialog("common/WConfirm", {message:"¿Desea agregar nuevamente el grupo?", subtitle:"Ya existe el grupo en Favoritos"}, _=> {
-                            s.config = {name:s.name}
-                            console.log("group add", s);
-                            window.geoos.addFavGroups(s);
-                            window.geoos.openFavorites();
-                        } )
-                    }
+                    window.geoos.addFavGroup(group);
+                    window.geoos.openFavorites();
                 } else if (code == "duplicate") {
                     this.groupDuplicate(group);
                 } else if (code == "scalesPanel") {
@@ -535,27 +522,8 @@ class MyPanel extends ZCustomController {
                         }
                     })
                 } else if (code=="favo") {   
-                    let name = "Capas de Mi Panel";
-                    let found = window.geoos.user.config.favorites.groups.find(g => g.config.name == name);
-                    if(found) {
-                        let desGroup = GEOOSGroup.deserialize(found);
-                        desGroup.addLayer(layer);
-                        let s = desGroup.serialize();
-                        window.geoos.deleteFavGroups(s.id);
-                        window.geoos.addFavGroups(s);
-                        window.geoos.openFavorites();
-                        
-                    }else{
-                        //codName = name, idx=Math.random();
-                        let g = new GEOOSGroup(name);
-                        let desGroup = GEOOSGroup.deserialize(g);
-                        desGroup.name = name;
-                        //console.log("layer",layer);
-                        desGroup.addLayer(layer);
-                        let s = desGroup.serialize();
-                        window.geoos.addFavGroups(s);
-                        window.geoos.openFavorites();
-                    }                 
+                    window.geoos.addFavLayer(layer);
+                    window.geoos.openFavorites();
                 } else if (code == "duplicate") {
                     this.layerDuplicate(layer);
                 }

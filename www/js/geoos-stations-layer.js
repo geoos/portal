@@ -11,20 +11,20 @@ class GEOOSStationsLayer extends GEOOSLayer {
     serialize() {
         let l = super.serialize();
         l.type = "stations";
-        l.points = this.points.map(p => {
-            p.station = p.station.code;
-            return p;
-        })
+        l.stations = this.points.map(p => (p.id));
         l.watchers = this.watchers.reduce((list, w) => [...list, w.serialize()], [])
         return l;
     }
     static deserialize(s, config) {
         let layer = new GEOOSStationsLayer(config);
         layer.id = s.id;
-        layer.points = s.points.map(p => {
-            p.station = window.geoos.estaciones.estaciones[p.station];
-            return p;
-        });
+        for (let code of s.stations) {
+            try {
+                layer.addStation(code, true);
+            } catch(error) {
+                console.error("No se puede agregar estacion ", code, error);
+            }
+        }
         layer.watchers = s.watchers?s.watchers.reduce((list, w) => [...list, GEOOSQuery.deserialize(w)], []):[];
         layer.watchers.forEach(w => {
             w.layer = layer;
@@ -33,9 +33,10 @@ class GEOOSStationsLayer extends GEOOSLayer {
         return layer;
     }
 
-    get minZDimension() {return "rie.estacion"}
+    get minZDimension() {return "rie.estacion"}    
 
     addStation(code, silent) {
+        if (this.containsStation(code)) return;
         let e = window.geoos.estaciones.estaciones[code];
         if (!e) throw "No se encontró la estación " + code;
         let point = {
@@ -48,7 +49,6 @@ class GEOOSStationsLayer extends GEOOSLayer {
         if (!silent) this.refresh();        
     }
     addStations(list) {
-        console.log("list", list);
         list.forEach(s => this.addStation(s, true));
         this.refresh();
     }
@@ -57,7 +57,7 @@ class GEOOSStationsLayer extends GEOOSLayer {
         if (idx < 0) throw "No se encontró la estación " + code;
         this.points.splice(idx, 1);
         if (!silent) this.refresh();
-        console.log("en station layer", this.points);
+        //console.log("en station layer", this.points);
     } 
     removeStations(list) {
         list.forEach(s => this.removeStation(s, true));
@@ -375,4 +375,6 @@ class GEOOSStationsLayer extends GEOOSLayer {
         if (this.getColorWatcher()) this.colorScale.unit = this.getColorWatcher().unit;
         this.repaint();
     }
+
+    regenerateIds() {}
 }

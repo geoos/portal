@@ -39,6 +39,12 @@ class WindyVisualizer extends KonvaCanvasVisualizer {
         this.update();
     }
 
+    stopWindy() {
+        if (this.windy) this.windy.stop();
+        this.windy = null;
+        this.clearCanvas();        
+    }
+
     clearCanvas() {
         let canvas = this.canvas; // this.stageCanvas
         let ctx = canvas.getContext("2d");

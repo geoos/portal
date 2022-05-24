@@ -250,13 +250,14 @@ class AddStationsPanel extends ZCustomController {
                 ${provider.name}
             </div>`;
             for (let station of this.filteredStations.filter(s => s.proveedor == provider.code)) {
+                let isFav = window.geoos.isFavStation(station.code);
                 /* <i class="far fa-lg ${window.geoos.isStationAdded(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i> */
                 htmlStations += `
                     <div class="add-panel-variable ml-4" data-code="${station.code}">
                         <i class="far fa-lg ${window.geoos.isStationSelected(station.code)?"fa-check-square":"fa-square"} float-left mr-2"></i>
                         ${station.name}
                         <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoStationCode==station.code?"-active":""}.svg" />
-                        <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
+                        <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo${isFav?"-active":""}.svg" />
                         <img class="add-panel-variable-icon download" style="height: 16px; filter: invert(1); " src="img/icons/download.svg" />
                     </div>
                 `;
@@ -290,13 +291,12 @@ class AddStationsPanel extends ZCustomController {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
             //agregar a favoritos
-            if(!window.geoos.isFavorite(code, "station")){
+            if (!window.geoos.isFavStation(code)){
                 let station = this.filteredStations.find(v => v.code == code);
                 img.attr("src", "img/icons/favo-active.svg");
-                window.geoos.addFavStations(station);
-                
+                window.geoos.addFavStation(station);                
             }else{
-                window.geoos.deleteFavStations(code)
+                window.geoos.deleteFavStation(code)
                 img.attr("src", "img/icons/favo.svg");
             }
             return false;

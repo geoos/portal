@@ -32,7 +32,7 @@ class RasterVisualizer {
     applyConfig(config) {
         this.config = config;
         this.active = config.active;
-        delete config.active;
+        // delete config.active;
         this.updateColorScale();
     }
 

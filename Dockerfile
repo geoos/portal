@@ -1,5 +1,5 @@
-# // Multiplataforma
-# docker buildx build --push --platform linux/amd64,linux/arm64 -t docker.homejota.net/geoos/portal:latest -t docker.homejota.net/geoos/portal:0.93 .
+# // Multiplataforma (prod: 0.87)
+# docker buildx build --push --platform linux/amd64,linux/arm64 -t docker.homejota.net/geoos/portal:latest -t docker.homejota.net/geoos/portal:0.95 .
 #
 
 FROM node:14-alpine

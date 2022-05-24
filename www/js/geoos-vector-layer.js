@@ -158,7 +158,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
                     if (!lat && f.geometry) lat = f.geometry.coordinates[1];
                     lng = f.tags?f.tags.centroidLng || f.tags.centerLng:null;
                     if (!lng && f.geometry) lat = f.geometry.coordinates[0];                    
-                }                
+                }
                 if (name !== undefined && lat !== undefined && lng !== undefined) {
                     this.konvaLeafletLayer.getVisualizer("legends").setContextLegend(lat, lng, name);
                 } else {

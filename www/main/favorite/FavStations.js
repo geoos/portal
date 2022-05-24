@@ -68,15 +68,14 @@ class FavStations extends ZCustomController {
         let stationId = stationDiv.data("station-id");
         window.geoos.toggleStation(stationId);
         this.refresh();
-        window.geoos.openMyPanel();
+        //window.geoos.openMyPanel();
     }
 
     async stationDeleter_click(e){
         let activator = $(e.currentTarget);
         let div = activator.parent();
         let stationId = div.data("station-id");
-        console.log("stationId: ", stationId);
-        window.geoos.deleteFavStations(stationId);
+        window.geoos.deleteFavStation(stationId);
         this.refresh();
     }
 

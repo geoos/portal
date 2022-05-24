@@ -71,10 +71,20 @@ class GEOOSGroup {
     }
 
     async addLayer(layer) {
-        layer.group = this; 
-        this.layers.splice(0,0, layer)
-        if (this.active) await layer.create();
-        this.adjustOrder();
+        if (layer instanceof GEOOSStationsLayer) {
+            // Mezclar estaciones
+            let sl = this.getStationsLayer();
+            if (!sl) sl = this.createStationsLayer();
+            for (let p of layer.points) {
+                sl.addStation(p.id, true);
+            }
+            setTimeout(_ => sl.refresh(), 200);
+        } else {
+            layer.group = this; 
+            this.layers.splice(0,0, layer)
+            if (this.active) await layer.create();
+            this.adjustOrder();
+        }
     }
     async removeLayer(id, dontCheckTools) {
         let layer = this.getLayer(id);
@@ -114,26 +124,32 @@ class GEOOSGroup {
     getLayer(id) {return this.layers.find(l => (l.id == id))}
     getIndexOfLayer(layer) {return this.layers.findIndex(l => (l.id == layer.id))}
 
-    /* getStationsLayer() {
+    getStationsLayer() {
         return this.layers.find(l => (l.id == "stations"));
-    } */
+    }
+    /*
     getStationsLayer(code) {
         return this.layers.find(l => (l.id == code));
     }
+    */
 
-    createStationsLayer(providerName, code) {
-        //let l = new GEOOSStationsLayer({name:"Estaciones", opacity:100});
-        let l = new GEOOSStationsLayer({name:providerName, opacity:100, id:code});
-        this.addLayer(l)
+    createStationsLayer() {
+        let l = new GEOOSStationsLayer({name:"Estaciones", opacity:100});
+        // this.addLayer(l)
+        l.group = this; 
+        this.layers.splice(0,0, l)
+        if (this.active) l.create();
+        this.adjustOrder();
         return l;
     }
-    /* removeStationsLayer() {
+    removeStationsLayer() {
         this.removeLayer("stations");
-    } */
+    }
+    /*
     removeStationsLayer(code) {
         this.removeLayer(code);
     }
-
+    */
     getUserObjectsLayer() {
         return this.layers.find(l => (l.id == "user-objects"));
     }
@@ -164,6 +180,13 @@ class GEOOSGroup {
         return [{
             code:"group-properties", name:"Propiedades del Grupo", path:"./groups/GroupProperties"
         }]
+    }
+
+    regenerateIds() {
+        this.id = generateId();
+        for (let layer of this.layers) {
+            layer.regenerateIds();
+        }
     }
 }
 
@@ -294,4 +317,6 @@ class GEOOSLayer {
     }
 
     getDataState() {return ""}
+
+    regenerateIds() {this.id = generateId()}
 }
