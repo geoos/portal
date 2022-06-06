@@ -303,5 +303,198 @@ class Time extends ZCustomController {
             this.edSelMinutes.disable();
         }
     }
+
+    onCmdCamera_click() {
+        window.geoos.mapPanel.takePicture();
+    }
+
+    onCmdVideo_click() {
+        let opener = $(this.find("#cmdVideo"));
+        let z = new ZPop(opener, [{
+            code:"start", icon:"fas fa-step-forward", label:"Fijar Tiempo de Inicio", 
+        }, {
+            code:"end", icon:"fas fa-step-backward", label:"Fijar Tiempo de Término", 
+        }, {
+            code:"sep", icon:"-", label:"-", 
+        }, {
+            code:"animate", icon:"fas fa-video", label:"Generar Animación", 
+        }], {
+            vMargin:10,
+            onClick:async (code, item) => {
+                if (code == "start") {
+                    if (!window.geoos.anim) window.geoos.anim = {start:NaN, end:NaN};
+                    window.geoos.anim.start = window.geoos.time;
+                } else if (code == "end") {
+                    if (!window.geoos.anim) window.geoos.anim = {start:NaN, end:NaN};
+                    window.geoos.anim.end = window.geoos.time;
+                } else if (code == "animate") {
+                    this.animate();
+                }
+            }
+        });
+        z.show();
+    }
+
+    async sleep(ms) {
+        await new Promise(resolve => setTimeout(_ => resolve(), ms));
+    }
+
+    async waitForLayers() {
+        let t0 = Date.now();
+        let working;
+        do {            
+            working = false;
+            let layers = window.geoos.getActiveGroup().layers;
+            for (let layer of layers) {
+                if (layer.isWorking) {
+                    working = true;
+                    break;
+                }
+            }
+            if (working) await this.sleep(200);
+        } while(working && (Date.now() - t0) < 5000);
+    }
+
+    // https://semisignal.com/tag/ffmpeg-js/
+    convertDataURIToBinary(dataURI) {
+        var base64 = dataURI.replace(/^data[^,]+,/,'');
+        var raw = window.atob(base64);
+        var rawLength = raw.length;
+
+        var array = new Uint8Array(new ArrayBuffer(rawLength));
+        for (let i = 0; i < rawLength; i++) {
+            array[i] = raw.charCodeAt(i);
+        }
+        return array;
+    };
+
+    pad(n, width, z) {
+        z = z || '0';
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+      }
+
+    // https://gist.github.com/ilblog/5fa2914e0ad666bbb85745dbf4b3f106
+    async animate() {
+        if (!window.geoos.anim || isNaN(window.geoos.anim.start) || isNaN(window.geoos.anim.end)) {
+            this.showDialog("common/WError", {message:"Debe fijar el tiempo de inicio y de término antes de generar la animación"});
+            return;
+        }
+        console.log("anim", window.geoos.anim);
+        let start = window.geoos.anim.start;
+        let end = window.geoos.anim.end;
+        if (start >= end) {
+            this.showDialog("common/WError", {message:"Debe fijar el tiempo de término después del tiempo de inicio"});
+            return;
+        }
+
+        this.callSetTime(start);
+        await this.sleep(200);
+        await this.waitForLayers();
+        const images = [];
+        let imgWidth, imgHeight;
+        while (window.geoos.time < end) {
+            // Tomar foto
+            console.log("click");
+            let canvas = await window.geoos.mapPanel.getPicture();
+            if (!imgWidth) imgWidth = canvas.width;
+            if (!imgHeight) imgHeight = canvas.height;
+            const imgString = canvas.toDataURL('image/jpeg', 1);
+            const data = this.convertDataURIToBinary(imgString);
+            images.push({
+                name: `img${ this.pad( images.length, 3 ) }.jpeg`,
+                data
+            });
+
+            // Incrementar tiempo
+            let days = parseInt(this.edSelDays.value);
+            let hours = parseInt(this.edSelHours.value);
+            let minutes = parseInt(this.edSelMinutes.value);
+            let m = window.geoos.moment.add(days, "days");
+            m = m.add(hours, "hours");
+            m = m.add(minutes, "minutes");
+            window.geoos.moment = m;
+
+            await this.sleep(200);
+
+            // Esperar que las capas hayan cargado
+            await this.waitForLayers();
+        }
+        this.finalizeVideo(images, imgWidth, imgHeight);
+    }
+
+    finalizeVideo(images, w, h) {
+        console.log("w, h", w, h);
+        window.ffmpegWorker.onmessage = e => {
+            let msg = e.data;
+            switch (msg.type) {
+                case "stdout":
+                    console.log("ffmpeg: " + msg.data);
+                    break
+                case "stderr":
+                    console.warn("ffmpeg: " + msg.data);
+                    break;
+                case "exit":
+                    console.log("ffmpeg Process exited with code " + msg.data);
+                    //worker.terminate();
+                    break;    
+                case 'done':
+                    const blob = new Blob([msg.data.MEMFS[0].data], {
+                        type: "video/mp4"
+                    });
+                    this.doneVideo(blob);
+                    break;
+            }
+        };
+    
+        // https://trac.ffmpeg.org/wiki/Slideshow
+        // https://semisignal.com/tag/ffmpeg-js/
+
+        // Ajuste tamaño:
+        // https://stackoverflow.com/questions/20847674/ffmpeg-libx264-height-not-divisible-by-2
+        let vf = `scale=${Math.ceil(w/2)*2}:${Math.ceil(h/2)*2}`;
+        console.log("usando vf", vf);
+        window.ffmpegWorker.postMessage({
+            type: 'run',
+            TOTAL_MEMORY: 1073741824,
+            
+            // arguments: ["-r", "20", "-i", "img%03d.jpeg", "-c:v", "libx264", "-crf", "1", "-vf", "scale=150:150", "-pix_fmt", "yuv420p", "-vb", "20M", "out.mp4"],
+            arguments: ["-r", "2", "-i", "img%03d.jpeg", "-c:v", "libx264", "-crf", "1", "-vf", vf, "-pix_fmt", "yuv420p", "-vb", "80M", "out.mp4"],
+            
+            MEMFS: images
+        });
+        
+        // Updated recommented arguments
+        /*
+                worker.postMessage({
+                type: 'run',
+                TOTAL_MEMORY: 268435456,
+                arguments: [
+                    //"-r", opts.state.frameRate.toString(),
+                    "-framerate", opts.state.frameRate.toString(),
+                    "-frames:v", imgs.length.toString(),
+                    "-an", // disable sound
+                    "-i", "img%03d.jpeg",
+                    "-c:v", "libx264",
+                    "-crf", "17", // https://trac.ffmpeg.org/wiki/Encode/H.264
+                    "-filter:v",
+                    `scale=${w}:${h}`,
+                    "-pix_fmt", "yuv420p",
+                    "-b:v", "20M",
+                    "out.mp4"],
+                MEMFS: imgs
+            });*/    
+    }
+
+    doneVideo(output) {
+        const url = webkitURL.createObjectURL(output);
+        var element = document.createElement('a');
+        element.href = url;
+        element.setAttribute('download', "geoos-anim.mp4");
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
 }
 ZVC.export(Time)

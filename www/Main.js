@@ -1,5 +1,7 @@
 class Main extends ZCustomController {
-    async onThis_init() {        
+    async onThis_init() {       
+        window.ffmpegWorker = new Worker('js/ffmpeg-worker-mp4.js') 
+        console.log("cargado ffmpeg worker");
         window.timeZone = moment.tz.guess();
         Highcharts.setOptions({
             lang: {

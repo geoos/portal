@@ -165,5 +165,29 @@ class Map extends ZCustomController {
         let z = this.map.getZoom();
         if (z > 3) this.map.setZoom(z - 1);
     }
+
+    async getPicture() {
+        try {
+            let canvas = await html2canvas(this.view, {
+                allowTaint:true, useCORS:true
+            });
+            return canvas;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async takePicture() {
+        try {
+            let canvas = await this.getPicture();
+            let dataURL = canvas.toDataURL();
+            var image = new Image();
+            image.src = dataURL;
+            var w = window.open("");
+            w.document.write(image.outerHTML);
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 ZVC.export(Map);
