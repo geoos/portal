@@ -59,7 +59,7 @@ class Final extends ZCustomController {
                 var blob = new Blob(["\ufeff", csv]);
                 var url = URL.createObjectURL(blob);
                 downloadLink.href = url;
-                downloadLink.download = "estacion.csv";
+                downloadLink.download = "estacion-" + this.options.station.code + ".csv";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
@@ -68,9 +68,13 @@ class Final extends ZCustomController {
                 this.triggerEvent("finish");
             } else {
                 let filter = {estacion:this.options.station.code};
-                let vars = this.options.variables;
+                let units = {};
+                let vars = this.options.variables;                
                 let variables = this.options.listaVariables.reduce((lista, v) => {
                     if (vars[v.code + "-avg"] || vars[v.code + "-min"] || vars[v.code + "-max"] || vars[v.code + "-n"]) lista.push(v.code);
+                    console.log("options", v.options, v);
+                    if (v.options && v.options.unit) units[v.code] = " [" + v.options.unit + "]";
+                    else units[v.code] = "";
                     return lista;
                 }, [])
                 let data = await (this.options.station.server.client.queryMultiVarTimeSerie(
@@ -79,12 +83,13 @@ class Final extends ZCustomController {
                     filter, this.options.temporalidad, true
                 ).promise);
                 let csv = "tiempo" + variables.reduce((st, v) => {
-                    let vName = v;
+                    let vName = v;                    
                     if (vName.startsWith("rie.")) vName = vName.substr(4);
-                    if (this.options.variables[v + "-avg"]) st += ";" + vName + "_avg";
-                    if (this.options.variables[v + "-min"]) st += ";" + vName + "_min";
-                    if (this.options.variables[v + "-max"]) st += ";" + vName + "_max";
-                    if (this.options.variables[v + "-n"]) st += ";" + vName + "_n";
+                    let unit = units[v] || "";
+                    if (this.options.variables[v + "-avg"]) st += ";" + vName + "_avg" + unit;
+                    if (this.options.variables[v + "-min"]) st += ";" + vName + "_min" + unit;
+                    if (this.options.variables[v + "-max"]) st += ";" + vName + "_max" + unit;
+                    if (this.options.variables[v + "-n"]) st += ";" + vName + "_n [N°]";
                     return st;
                 }, "");
                 let indexes = {};
@@ -131,7 +136,7 @@ class Final extends ZCustomController {
                 var blob = new Blob(["\ufeff", csv]);
                 var url = URL.createObjectURL(blob);
                 downloadLink.href = url;
-                downloadLink.download = "estacion.csv";
+                downloadLink.download = "estacion-" + this.options.station.code + ".csv";
 
                 document.body.appendChild(downloadLink);
                 downloadLink.click();

@@ -23,6 +23,9 @@ class UserObjectsVisualizer extends KonvaLeafletVisualizer {
             elements.forEach(e => this.konvaLayer.add(e))
             if (interactionElements && this.interactions) interactionElements.forEach(interObject => {
                 this.interactions.addObservableShape(this.uniqueId, interObject);
+                if (interObject.zIndexToAssign) {
+                    interObject.zIndex(interObject.zIndexToAssign);
+                }
                 if (this.options.onmouseover) {
                     interObject.on("mouseover", e => {                        
                         this.options.onmouseover(o, o.getInteractionObjectInfo(interObject))

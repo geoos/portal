@@ -163,6 +163,7 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
         let panels = super.getPropertyPanels();
         return panels;
     }
+    regenerateIds() {}
 }
 
 class GEOOSUserObject {
@@ -361,6 +362,7 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
             delete opts.fill;
             let interElement = new Konva.Circle(opts);
             interElement.userObjectType = "point";
+            interElement.zIndexToAssign = 60;
             interactionElements.push(interElement);            
         }
 

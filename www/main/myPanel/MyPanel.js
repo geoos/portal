@@ -100,6 +100,8 @@ class MyPanel extends ZCustomController {
                 let layerState = "";
                 if (layer instanceof GEOOSRasterLayer) {
                     layerState = `<div class="layer-state">${layer.getDataState()}</div>`;
+                } else if (layer instanceof GEOOSVectorLayer) {
+                    layerState = `<div class="layer-state">${layer.getDataState()}</div>`;
                 }
                 html += `<div class="my-panel-layer" data-layer-id="${layer.id}" data-group-id="${group.id}">`;
                 if (layerItems) {

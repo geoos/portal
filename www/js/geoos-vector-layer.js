@@ -44,7 +44,10 @@ class GEOOSVectorLayer extends GEOOSLayer {
     }
 
     async create() {
-        await this.loadMetadata();
+        try {
+            await this.loadMetadata();
+        } catch(error) {
+        }
 
         this.objectSelectedListener = selection => {
             if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
@@ -111,6 +114,7 @@ class GEOOSVectorLayer extends GEOOSLayer {
             interactions:window.geoos.interactions,
             useTiles: this.useTiles,
             getTile: (z, x, y) => {
+                if (!this.metadata) return [];
                 let time;
                 if (this.dataSet.temporality != "none") time = window.geoos.time;
                 this.startWorking();
@@ -237,13 +241,31 @@ class GEOOSVectorLayer extends GEOOSLayer {
         this.startWorking();
         let {promise, controller} = this.geoServer.client.fileMetadata(this.dataSet.code, this.file.name, time, _ => this.finishWorking());
         this.metadataAborter = controller;
-        this.metadata = await promise;
+        try {
+            this.metadata = await promise;
+        } catch(error) {
+            this.metadata = null;
+        }
         this.metadataAborter = null;
-        this.metadataMap = this.metadata.objects.reduce((map, o) => {
-            map[o.id] = o;
-            return map;
-        }, {})
+        if (this.metadata) {
+            this.metadataMap = this.metadata.objects.reduce((map, o) => {
+                map[o.id] = o;
+                return map;
+            }, {})
+        } else {
+            this.metadataMap = {}
+        }
     }
+
+    getDataState() {
+        if (!this.dataSet || this.dataSet.temporality == "none") return "";
+        if (!this.metadata) return "Sin Datos";
+        let ft = this.metadata.foundTime;
+        if (!ft) return "S/I";
+        let fmt = moment.tz(ft.msUTC, window.timeZone).format("YYYY-MM-DD HH:mm");
+        return "Válido para " + fmt;
+    }
+    
     async refresh() {
         if (!this.metadata || this.dataSet.temporality != "none") {
             await this.loadMetadata();

@@ -36,7 +36,7 @@ class SelVariables extends ZCustomController {
             this.options.station.variables.forEach(code => {
                 let v = z.variables.find(v => v.code == code);
                 if (v) {
-                    this.options.listaVariables.push({code:code, name:v.name});
+                    this.options.listaVariables.push({code:code, name:v.name, options:v.options});
                     if (this.options.variables[code + "-avg"] === undefined) this.options.variables[code + "-avg"] = true;
                     if (this.options.variables[code + "-min"] === undefined) this.options.variables[code + "-min"] = false;
                     if (this.options.variables[code + "-max"] === undefined) this.options.variables[code + "-max"] = false;

@@ -32,7 +32,7 @@ class GEOServerClient {
                 .then(res => {
                     if (res.status != 200) {
                         this._decWorking()
-                        if (this.finishListener) this.finishListener();
+                        if (finishListener) finishListener();
                         res.text()
                             .then(txt => reject(txt))
                             .catch(_ => reject(res.statusText))
@@ -40,11 +40,11 @@ class GEOServerClient {
                     }
                     res.json()
                         .then(json => {
-                            if (this.finishListener) this.finishListener();
+                            if (finishListener) finishListener();
                             this._decWorking();
                             resolve(json)
                         }).catch(err => {
-                            if (this.finishListener) this.finishListener();
+                            if (finishListener) finishListener();
                             this._decWorking();
                             reject(err)
                         })
