@@ -398,6 +398,17 @@ class GEOOS {
                     }
                 }
             }
+        } else if (type == "special") {
+            layers.push({
+                type:"rasterFormula",
+                name:"Capa Calculada (Raster)",
+                providers:[],
+                subjects:[],
+                regions:[],
+                types:[],
+                map:map,
+                code:"rasterFormula" 
+            })
         } else if (type == "minz") {            
             let variables = this.getVariablesFiltrablesPorDimension(dimCode);
             for (let v of variables) {

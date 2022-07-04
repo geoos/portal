@@ -8,7 +8,7 @@ class ZDateTimePicker extends ZController {
             format:this.format,
             keepInvalid:false,
             icons: {
-                time: "fas fa-clock-o",
+                time: "fas fa-clock",
                 date: "fas fa-calendar",
                 up: "fas fa-chevron-up",
                 down: "fas fa-chevron-down",
@@ -37,10 +37,10 @@ class ZDateTimePicker extends ZController {
         //this.ignoreNextChange = true;
         let v = this.$view.data("DateTimePicker").date();
         // Actualizar (e informar evento) sólo si efectivamente cambia
-        if (dt && v && dt.valueOf() != v.valueOf()) {
+        //if (dt && v && dt.valueOf() != v.valueOf()) {
             this.$view.data("DateTimePicker").date(dt);
             this.$view.addClass("is-filled");
-        }
+        //}
     }
     get value() {
         if (!this.$view.data("DateTimePicker").date()) return null;

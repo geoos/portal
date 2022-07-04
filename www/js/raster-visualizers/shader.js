@@ -1,6 +1,7 @@
 class ShaderRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("grid");
+        if (layer instanceof GEOOSRasterFormulaLayer) return true;
+        return layer.variable && layer.variable.queries.includes("grid");
     }
 
     constructor(layer, config) {
@@ -8,14 +9,20 @@ class ShaderRasterVisualizer extends RasterVisualizer {
         config = config || {};
         if (config.autoIncrement === undefined) config.autoIncrement = true;
         if (!config.colorScale) {
-            if (layer.variable.options.colorScale) config.colorScale = layer.variable.options.colorScale;
+            if (layer.variable && layer.variable.options.colorScale) config.colorScale = layer.variable.options.colorScale;
             else config.colorScale = {
                 name:"Verde a Rojo", auto:true, clipOutOfRange:false
             }            
-        }
-        config.colorScale.unit = layer.variable.unit;
+        }        
         this.config = config;
-        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "grid");
+        if (layer instanceof GEOOSRasterFormulaLayer) {
+            this.isFormula = true;
+            config.colorScale.unit = layer.unit;
+        } else {
+            this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "grid");
+            config.colorScale.unit = layer.variable?layer.variable.unit:"s/u";
+        }
+
         this.aborter = null;
         this.createColorScale();
     }
@@ -30,6 +37,11 @@ class ShaderRasterVisualizer extends RasterVisualizer {
     }
 
     updateColorScale() {
+        if (this.layer instanceof GEOOSRasterFormulaLayer) {
+            this.config.colorScale.unit = this.layer.unit;
+        } else {
+            this.config.colorScale.unit = this.layer.variable?this.layer.variable.unit:"s/u";
+        }
         this.createColorScale();
         this.update();
     }
@@ -44,7 +56,7 @@ class ShaderRasterVisualizer extends RasterVisualizer {
             }
         }));
         this.timeChangeListener = _ => {
-            if (this.layer.config.dataSet.temporality != "none") this.refresh()
+            if (this.layer instanceof GEOOSRasterFormulaLayer || this.layer.config.dataSet.temporality != "none") this.refresh()
         }
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
         this.startQuery();
@@ -79,10 +91,21 @@ class ShaderRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({margin:1, level:this.layer.level});
-        this.aborter = controller;
+        let promise_1, controller_1;
+        if (this.query) {
+            let {promise, controller} = this.query.query({margin:1, level:this.layer.level});
+            promise_1 = promise;
+            controller_1 = controller;
+        } else if (this.isFormula) {
+            let {promise, controller} = this.layer.resolveFormula();            
+            promise_1 = promise;
+            controller_1 = controller;
+            this.config.colorScale.unit = this.layer.unit
+        }
+
+        this.aborter = controller_1;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
-        promise
+        promise_1
             .then(ret => {
                 let modelTime = ret.metadata && ret.metadata.modelExecution?ret.metadata.modelExecution.formatted:null;
                 this.aborter = null;

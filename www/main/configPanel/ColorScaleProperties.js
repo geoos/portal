@@ -6,6 +6,7 @@ class ColorScaleProperties extends ZCustomController {
                 if (this.visualizer.colorScale.auto) {
                     this.edMin.value = this.visualizer.layer.formatValue(this.visualizer.colorScale.min);
                     this.edMax.value = this.visualizer.layer.formatValue(this.visualizer.colorScale.max);
+                    this.edUnit.value = this.visualizer.colorScaleConfig.unit;
                     this.checkLimits();
                 }
             }

@@ -1,6 +1,6 @@
 class WindyRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("vectorsGrid");
+        return layer.variable && layer.variable.queries.includes("vectorsGrid");
     }
 
     constructor(layer, config) {

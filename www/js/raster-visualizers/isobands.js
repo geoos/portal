@@ -1,6 +1,6 @@
 class IsobandsRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("isobands");
+        return layer.variable && layer.variable.queries.includes("isobands");
     }
 
     constructor(layer, config) {

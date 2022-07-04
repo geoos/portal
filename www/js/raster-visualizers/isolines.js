@@ -1,6 +1,7 @@
 class IsolinesRasterVisualizer extends RasterVisualizer {
     static applyToLayer(layer) {
-        return layer.variable.queries.includes("isolines");
+        if (layer instanceof GEOOSRasterFormulaLayer) return true;
+        return layer.variable && layer.variable.queries.includes("isolines");
     }
 
     constructor(layer, config) {
@@ -10,7 +11,11 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
         if (config.lineWidth === undefined) config.lineWidth = 1;
         if (config.lineColor === undefined) config.lineColor = "#000000"
         this.config = config;
-        this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "isolines");
+        if (layer instanceof GEOOSRasterFormulaLayer) {
+            this.isFormula = true;
+        } else {
+            this.query = new RasterQuery(this.layer.geoServer, this.layer.dataSet, this.layer.variable, "isolines");
+        }
         this.aborter = null;
     }
     get code() {return "isolines"}
@@ -31,7 +36,7 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             zIndex:3,
             onBeforeUpdate: _ => {this.startQuery(); return false},
             lineStyle:f => ({stroke:this.lineColor, strokeWidth:this.lineWidth, hitStrokeWidth:0, perfectDrawEnabled:false, listenning:false, tension:0.2}),
-            markerLabel:m => (m.value)
+            markerLabel:m => "" + (m.value)
         }));
         this.timeChangeListener = _ => {
             if (this.layer.config.dataSet.temporality != "none") this.refresh()
@@ -69,10 +74,19 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             this.finishWorking();
         }
         this.startWorking();
-        let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels ,level:this.layer.level});
-        this.aborter = controller;
+        let promise_1, controller_1;
+        if (this.query) {
+            let {promise, controller} = this.query.query({increment:this.autoIncrement?undefined:this.increment, fixedLevels:this.fixedLevels ,level:this.layer.level});
+            promise_1 = promise;
+            controller_1 = controller;
+        } else {
+            let {promise, controller} = this.layer.resolveIsolines(this.autoIncrement, this.increment, this.fixedLevels);
+            promise_1 = promise;
+            controller_1 = controller;
+        }
+        this.aborter = controller_1;
         let visualizer = this.layer.konvaLeafletLayer.getVisualizer(this.code)
-        promise
+        promise_1
             .then(ret => {
                 let modelTime = ret.metadata && ret.metadata.modelExecution?ret.metadata.modelExecution.formatted:null;
                 this.aborter = null;

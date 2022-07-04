@@ -171,6 +171,8 @@ class GEOOSGroup {
             return this.layers.find(l => (l instanceof GEOOSTilesLayer && l.map.name == layerConfig.map.name))?true:false;
         } else if (layerConfig.type == "stations") {
             return this.getStationsLayer()?true:false;
+        } else if (layerConfig.type == "rasterFormula") {
+            return false;
         } else if (layerConfig.type == "minz") {
             return false;
         } else throw "layer type '" + layerConfig.type + "' not handled yet in 'containsLayer'"
@@ -216,6 +218,11 @@ class GEOOSLayer {
                 dataSet: layerConfig.dataSet
             }
             return new GEOOSTilesLayer(config);
+        } else if (layerConfig.type == "rasterFormula") {
+            let config = {
+                name: layerConfig.name
+            }
+            return new GEOOSRasterFormulaLayer(config);
         } else if (layerConfig.type == "stations") {
             let config = {
                 name: layerConfig.name,
@@ -257,6 +264,8 @@ class GEOOSLayer {
         let config = {name:s.name, opacity:s.opacity, expanded:s.expanded, active:s.active}
         if (s.type == "raster") {            
             return GEOOSRasterLayer.deserialize(s, config);
+        } else if (s.type == "rasterFormula") {
+            return GEOOSRasterFormulaLayer.deserialize(s, config);
         } else if (s.type == "vector") {
             return GEOOSVectorLayer.deserialize(s, config);
         } else if (s.type == "tiles") {

@@ -104,10 +104,10 @@ class GEOServerClient {
             controller:controller
         }
     }
-    grid(dataSetCode, varCode, time, n, w, s, e, margin, level) {
+    grid(dataSetCode, varCode, time, n, w, s, e, margin, level, dLat, dLng) {
         let controller = new AbortController();
         return {
-            promise:this._getJSON(dataSetCode + "/" + varCode + "/grid", {time, n, w ,s, e, margin, level}, controller.signal),
+            promise:this._getJSON(dataSetCode + "/" + varCode + "/grid", {time, n, w ,s, e, margin, level, dLat, dLng}, controller.signal),
             controller:controller
         }
     }

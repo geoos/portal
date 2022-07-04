@@ -1,0 +1,49 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 id="title" class="modal-title">Tiempo de Variable</h6>
+                <i id="cmdClose" class="geoos-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div id="modalBody" class="modal-body container-fluid" style="background-color: rgba(0,0,0,0.9);">
+                <div class="row mt-1">
+                    <div class="col-4">                        
+                        <label class="mt-1">Tipo de Tiempo</label>
+                    </div>
+                    <div class="col-8">
+                        <select id="edType" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                </div>
+                <div id="fixedTime" class="row mt-1">
+                    <div class="col-4">                        
+                        <label class="mt-1">Tiempo Fijo</label>                        
+                    </div>
+                    <div class="col-4">
+                        <input id="edDate" class="datetimepicker" data-z-format="DD/MM/YYYY" class="form-control form-control-sm" style="background-color: black; color: white; font-size: 15px; border: 1px solid; border-radius: 3px; padding: 4px; width: 110px; height: 30px;" />
+                    </div>
+                    <div class="col-2 pl-1">
+                        <select id="edHH" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                    <div class="col-2 pl-1">
+                        <select id="edMM" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                </div>
+                <div id="mapTime" class="row mt-1">
+                    <div class="col-4">                        
+                        <label class="mt-1">Desplazamiento</label>                        
+                    </div>
+                    <div class="col-3">
+                        <input id="edOffset" class="form-control form-control-sm" type="number" />    
+                    </div>
+                    <div class="col-5">
+                        <select id="edTimeUnit" class="custom-select custom-select-sm" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cmdOk" type="button" class="btn btn-link geoos-panel-ok">Aceptar</button>
+                <button id="cmdCancel" type="button" class="btn btn-link ml-auto">Cancelar</button>
+            </div>    
+        </div>
+    </div>
+</div>

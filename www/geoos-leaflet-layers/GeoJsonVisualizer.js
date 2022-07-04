@@ -27,7 +27,8 @@ class GeoJsonVisualizer extends KonvaLeafletVisualizer {
                     }
                 }
                 //opts = opts || {fontSize: 14, fontFamily: 'Calibri', fontStyle:"bold", fill: 'black', stroke:"white", strokeWidth:2}
-                opts = opts || {fontSize: 17, fontFamily: 'Calibri', fontStyle:"bold", fill:"black", stroke:"white", strokeWidth:1.2}
+                //opts = opts || {fontSize: 17, fontFamily: 'Calibri', fontStyle:"bold", fill:"black", stroke:"white", strokeWidth:1.2}
+                opts = opts || {fontSize: 17, fontFamily: 'sans-serif', fontStyle:"bold", fill:"black", stroke:"white", strokeWidth:1.0}
                 let txt;
                 if (this.options.markerLabel) {
                     if (typeof this.options.markerLabel == "function") {

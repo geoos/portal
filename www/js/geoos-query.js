@@ -81,7 +81,7 @@ class GEOOSQuery {
             <div class="row mt-1">
                 <div class="col">
                     <img class="mr-1 float-left inverse-image" height="16px" src="${this.icon}"/>
-                    <span id="varName${this.id}" class="selectable-name" data-z-clickable="true"'>${this.name}</span>
+                    <span id="varName${this.id}" class="selectable-name" data-z-clickable="true">${this.name}</span>
                     <i id="caretVar${this.id}" class="fas fa-caret-right ml-1 float-right mt-1" ></i>
                 </div>
             </div>

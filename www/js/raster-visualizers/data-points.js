@@ -1,6 +1,6 @@
 class DataPointsVisualizerHelper extends RasterVisualizer {
-    static applyToLayer(layer) {
-        return layer.variable.queries.includes("grid");
+    static applyToLayer(layer) {        
+        return layer.variable && layer.variable.queries.includes("grid");
     }
 
     constructor(layer, config) {
@@ -21,7 +21,6 @@ class DataPointsVisualizerHelper extends RasterVisualizer {
             interactions:window.geoos.interactions,
             onBeforeUpdate: _ => {this.startQuery(); return false}
         }));
-        console.log("dataPointsLayer", this.layer);
         this.timeChangeListener = _ => {
             if (this.layer.config.dataSet.temporality != "none" && this.active) this.startQuery()
         }

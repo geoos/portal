@@ -14,17 +14,21 @@ class AddPanel extends ZCustomController {
             code:"vector", name:"Puntos o Áreas de Interés"
         }, {
             code:"tiles", name:"Capas de Imágenes"
+        }, {
+            code:"special", name:"Capas Especiales"
         }], "variables")
+        // Clonar proveedores y agregar "no" (capas erspeciales)
+        let providers = JSON.parse(JSON.stringify(window.geoos.providers));
+        providers.splice(0,0,{code:"no", name:"Capa Especial|"})
         this.sections = [{
             code:"subjects", name:"Filtrar por Tema", data:window.geoos.subjects
         }, {
-            code:"providers", name:"Filtrar por Proveedor o Agencia", data:window.geoos.providers
+            code:"providers", name:"Filtrar por Proveedor o Agencia", data:providers
         }, {
             code:"types", name:"Filtrar por Tipo de Información", data:window.geoos.types
         }, {
             code:"regions", name:"Filtrar por Zona o Región", data:window.geoos.regions
         }]
-        console.log("window geoos:", window.geoos);
         await this.refreshLayerType();
     }
 
@@ -234,7 +238,7 @@ class AddPanel extends ZCustomController {
             htmlVars += `
                 <div class="add-panel-variable" data-code="${layer.code}">
                     <i class="far fa-lg ${layer.selected?"fa-check-square":"fa-square"} float-left mr-2"></i>
-                    ${layer.name + " - [" + layer.providers[0] +"]"}
+                    ${layer.name + (layer.providers.length?" - [" + layer.providers[0] +"]":"")}
                     <img class="add-panel-variable-icon info" style="height: 16px;" src="img/icons/info${this.infoVarCode==layer.code?"-active":""}.svg" />
                     <img class="add-panel-variable-icon favo" style="height: 16px;" src="img/icons/favo.svg" />
                     <img class="add-panel-variable-icon ${(activeGroup && activeGroup.containsLayer(layer))?"":"inactive"} added" style="height: 16px;" src="img/icons/variable-added.svg" />
@@ -267,6 +271,10 @@ class AddPanel extends ZCustomController {
         $(this.variablesContainer.view).find(".favo").click(e => {
             let img = $(e.currentTarget);
             let code = img.parent().data("code");
+            if (code == "rasterFormula") {
+                this.showDialog("common/WError", {message: "Las capas especiales se deben configurar y agregar a favoritos sólo desde 'Mi Panel'"});
+                return;
+            }
             let variable = this.filteredLayers.find(v => v.code == code);
             if(!window.geoos.isFavorite(code, "layer")){
                 console.log("favo-variable", variable);
@@ -355,6 +363,10 @@ class AddPanel extends ZCustomController {
 
     refreshInfo(layer) {
         console.log("variable", layer);
+        if (layer.type == "rasterFormula") {
+            this.showDialog("common/WError", {message: "Las capas especiales no tienen información adicional"});
+            return;
+        }
         this.infoVarCode = layer.code;
         console.log("lblVarName", this.lblVarName);
         this.lblVarName.text = layer.name;
