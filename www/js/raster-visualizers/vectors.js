@@ -95,6 +95,8 @@ class VectorsRasterVisualizer extends RasterVisualizer {
             code:"color-scale", name:"Escala de Colores", path:"./ColorScaleProperties"
         }]
     }
+
+    getColorScale() {return this.colorScale}
 }
 
 RasterVisualizer.registerVisualizerClass("vectors", VectorsRasterVisualizer);

@@ -5,11 +5,11 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
     }
 
     constructor(layer, config) {
-        super(layer);
+        super(layer);        
         config = config || {};
         if (config.autoIncrement === undefined) config.autoIncrement = true;
         if (config.lineWidth === undefined) config.lineWidth = 1;
-        if (config.lineColor === undefined) config.lineColor = "#000000"
+        if (config.lineColor === undefined) config.lineColor = "#000000"        
         this.config = config;
         if (layer instanceof GEOOSRasterFormulaLayer) {
             this.isFormula = true;
@@ -39,6 +39,10 @@ class IsolinesRasterVisualizer extends RasterVisualizer {
             markerLabel:m => "" + (m.value)
         }));
         this.timeChangeListener = _ => {
+            if (this.isFormula) {
+                this.refresh();
+                return;
+            }
             if (this.layer.config.dataSet.temporality != "none") this.refresh()
         }
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);

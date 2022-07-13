@@ -35,6 +35,7 @@ class ScalesFactory {
             case "pg": return new PGScale(scaleDef, config);
             case "positive-negative": return new NegativePositiveScale(scaleDef, config);
             case "ranges": return new RangesScale(scaleDef, config);
+            case "rgb-decoder": return new RGBDecoderScale(scaleDef, config);
             default: throw "Color Scale '" + scaleDef.type + "' not handled";
         }
     }
@@ -379,5 +380,19 @@ class RangesScale extends GEOOSColorScale {
         }, "");
         let style = "linear-gradient(90deg" + gradSteps + ")";
         div.style["background-image"] = style;
+    }
+}
+
+class RGBDecoderScale extends GEOOSColorScale {
+    getColor(value) {        
+        let r = parseInt(value / 65536);
+        let rest = value - 65536 * r;
+        let g = parseInt(rest / 256);
+        let b = rest - 256 * g;
+
+        return "rgb(" + r + "," + g + "," + b + ")";
+    }
+    refreshPreview(div) {
+        div.style["background-image"] = "linear-gradient(90deg, blue, green, red)";
     }
 }

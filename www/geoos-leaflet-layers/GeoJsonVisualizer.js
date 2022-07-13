@@ -131,7 +131,7 @@ class GeoJsonVisualizer extends KonvaLeafletVisualizer {
 
     addLineCoordinates(coordinates, lines) {
         if (!coordinates.length) {
-            console.error("Empty coordinates array");
+            //console.error("Empty coordinates array");
             return;
         }
         if (!Array.isArray(coordinates[0])) {

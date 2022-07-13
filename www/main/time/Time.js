@@ -352,7 +352,7 @@ class Time extends ZCustomController {
                 }
             }
             if (working) await this.sleep(200);
-        } while(working && (Date.now() - t0) < 5000);
+        } while(working && (Date.now() - t0) < 30000);
     }
 
     // https://semisignal.com/tag/ffmpeg-js/
@@ -459,7 +459,7 @@ class Time extends ZCustomController {
             TOTAL_MEMORY: 1073741824,
             
             // arguments: ["-r", "20", "-i", "img%03d.jpeg", "-c:v", "libx264", "-crf", "1", "-vf", "scale=150:150", "-pix_fmt", "yuv420p", "-vb", "20M", "out.mp4"],
-            arguments: ["-r", "2", "-i", "img%03d.jpeg", "-c:v", "libx264", "-crf", "1", "-vf", vf, "-pix_fmt", "yuv420p", "-vb", "80M", "out.mp4"],
+            arguments: ["-r", "5", "-i", "img%03d.jpeg", "-c:v", "libx264", "-crf", "1", "-vf", vf, "-pix_fmt", "yuv420p", "-vb", "80M", "out.mp4"],
             
             MEMFS: images
         });

@@ -56,7 +56,7 @@ class InfoBar extends ZCustomController {
         let g = window.geoos.getActiveGroup();
         // Filter
         this.filteredLayers = g.layers.reduce((list, layer) => {
-            if (layer instanceof GEOOSRasterLayer) {
+            if (layer instanceof GEOOSRasterLayer || layer instanceof GEOOSRasterFormulaLayer) {
                 let activeVisualizers = layer.visualizers.filter(v => v.active && v.getColorScale());
                 if (activeVisualizers && activeVisualizers.length) {
                     list.push({layer, activeVisualizers});
@@ -158,7 +158,12 @@ class InfoBar extends ZCustomController {
         this.infoBarContent.html = html;
         this.infoBarContent.findAll(".ib-scale").forEach(s => {
             let idx = parseInt(s.getAttribute("data-scale-idx"));
-            this.scales[idx].refreshPreview(s);
+            try {
+                this.scales[idx].refreshPreview(s);
+            } catch(error) {
+                console.log("escala", this.scales[idx]);
+                console.error(error);
+            }
             let centerText = this.infoBarContent.find(".ib-center-text[data-scale-idx='" + idx + "']");
             s.addEventListener("mouseleave", e => {
                 centerText.value = this.getUnit(this.layers[idx]);
@@ -204,10 +209,14 @@ class InfoBar extends ZCustomController {
     }
 
     format(n, layer) {
+        /*
         let dec = (layer.variable.options && layer.variable.options.decimals !== undefined?layer.variable.options.decimals:2);
         return window.geoos.formatNumber(n, dec);
+        */
+        return  layer.formatValue(n);
     }
     getUnit(layer) {
+        if (layer instanceof GEOOSRasterFormulaLayer) return layer.unit || "S/U";
         return layer.variable.unit || "S/U";
     }
     onCmdToggleMode_click() {

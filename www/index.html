@@ -101,6 +101,7 @@
         <script src="js/geoos.js"></script>
 
         <script src="js/html2canvas.min.js"></script>
+        <script type="text/javascript" src="monaco/min/vs/loader.js"></script>
 
         <style>
             .popover {max-width:600px;}
@@ -109,6 +110,8 @@
         <script>            
             document.addEventListener("DOMContentLoaded", async _ => {                
                 ZVC.options.debug.events = false;
+                require.config({ paths: { 'vs': 'monaco/min/vs' }});
+                require(['vs/editor/editor.main'], () => {});
                 await ZVC.fromElement("main");
             });
         </script>

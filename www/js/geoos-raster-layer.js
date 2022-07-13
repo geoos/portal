@@ -326,6 +326,11 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                             reject(err);
                         })
                         .then(datas => {
+                            if (!datas) {
+                                reject("No Data - 2");
+                                return;
+                            }
+                            this.dataError = null;
                             let i=0;
                             for (let s of this.sources) {
                                 let sData = datas[i];
@@ -346,8 +351,15 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                                 window["max_" + s.code] = sData.max;
                                 i++;                                
                             }
+                            window["rgbEncode"] = function(r, g, b) {
+                                r = parseInt(256 * r); g = parseInt(256 * g); b = parseInt(256 * b);
+                                r = Math.min(r, 255); g = Math.min(g, 255); b = Math.min(b, 255);
+                                return 65536 * r + 256 * g + b;
+                            }
                             // Construir matriz o geoJson de resultados
+
                             let z = eval(this.formula + "\n(z)");
+                            let minDataLng, maxDataLng, minDataLat, maxDataLat;
                             for (let r=0; r<nrows; r++) {
                                 let row = [];
                                 for (let c=0; c<ncols; c++) {
@@ -358,15 +370,32 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                                     window["lng"] = lng;
                                     for (let s of this.sources) {
                                         let sRows = sourcesData[s.code].rows;
-                                        window[s.code] = sRows[r][c];
+                                        let ndv = undefined;
+                                        if (sourcesData[s.code].metadata) ndv = sourcesData[s.code].metadata.noDataValue;
+                                        let v = sRows[r][c];
+                                        if (v == ndv) v = null;
+                                        window[s.code] = v;
                                     }
-                                    let v = z();
+                                    let v;
+                                    try {
+                                        v = z();
+                                    } catch(error) {
+                                        this.dataError = "Error en Fórmula:" + error.toString();
+                                        reject(this.dataError);
+                                        return;
+                                    }
                                     if (v !== null && v !== undefined) {
                                         min = min === undefined || v < min?v:min;
                                         max = max === undefined || v > max?v:max;
+                                        minDataLng = minDataLng === undefined || lng < minDataLng?lng:minDataLng;
+                                        maxDataLng = maxDataLng === undefined || lng > maxDataLng?lng:maxDataLng;
+                                        minDataLat = minDataLat === undefined || lat < minDataLat?lat:minDataLat;
+                                        maxDataLat = maxDataLat === undefined || lat > maxDataLat?lat:maxDataLat;
                                     }
                                     if (asGeojson) {
-                                        if (v !== null && v !== undefined) {
+                                        // Los nulos intermedios son necesarios (continente / mar).
+                                        // Los nulos fuera del rectángulo de datos se eliminan en "resolveIsolines"
+                                        //if (v !== null && v !== undefined) {
                                             featureCollection.push({
                                                 type: "Feature", 
                                                 geometry: {
@@ -375,7 +404,7 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                                                 },
                                                 properties: {z:v}
                                             })
-                                        }
+                                        //}
                                     } else {
                                         row.push(v);
                                     }
@@ -386,6 +415,8 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                                 resolve({
                                     min, max, foundBox, nrows, ncols, geoJson:{
                                         type:"FeatureCollection", name:"grid", features: featureCollection
+                                    }, dataBox:{
+                                        w: minDataLng, n: maxDataLat, e: maxDataLng, s: minDataLat
                                     }
                                 });
                             } else {
@@ -442,6 +473,22 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                         l += increment;
                     }
                 }
+                // Verificar que hay datos diferentes a nulo
+                if (ret.dataBox.n === undefined || ret.dataBox.n == ret.dataBox.s) {
+                    reject("No Data Box"); return;
+                }
+                if (ret.dataBox.w === undefined || ret.dataBox.w == ret.dataBox.e) {
+                    reject("No Data Box"); return;
+                }
+                // Eliminar puntos fuera del rectángulo con datos                
+                ret.geoJson.features = ret.geoJson.features.filter(f => {
+                    let lng = f.geometry.coordinates[0],
+                        lat = f.geometry.coordinates[1];
+                    return lng >= ret.dataBox.w && lng <= ret.dataBox.e && lat >= ret.dataBox.s && lat <= ret.dataBox.n;
+                })
+
+                // Workaround: Cuando hay un solo nivel, no retorna nada. Se repite el primero
+                levels.splice(0,0,levels[0]);
                 let lines = turf.isolines(ret.geoJson, levels, {zProperty:"z"});
                 let markers = [];
                 lines.features.forEach(f => {
@@ -464,7 +511,7 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                     }                
                 });
                 let isolines = {
-                    min, max,
+                    min, max, increment,
                     geoJson:lines, 
                     markers
                 }
