@@ -14,6 +14,7 @@ class InfoBar extends ZCustomController {
         window.geoos.events.on("layer", "layerItemsChanged", layer => this.callRefresh())
         window.geoos.events.on("portal", "selectionChange", ({oldSelection, newSelection}) => this.callRefresh())
         window.geoos.events.on("layer", "rename", layer => this.callRefresh())
+        window.geoos.events.on("layer", "activationChanged", layer => this.callRefresh())
     }
     doResize() {        
         if (!this.open) return;
@@ -56,8 +57,8 @@ class InfoBar extends ZCustomController {
         let g = window.geoos.getActiveGroup();
         // Filter
         this.filteredLayers = g.layers.reduce((list, layer) => {
-            if (layer instanceof GEOOSRasterLayer || layer instanceof GEOOSRasterFormulaLayer) {
-                let activeVisualizers = layer.visualizers.filter(v => v.active && v.getColorScale());
+            if (layer.active && (layer instanceof GEOOSRasterLayer || layer instanceof GEOOSRasterFormulaLayer)) {                
+                let activeVisualizers = layer.visualizers.filter(v => v.active && v.getColorScale() && !(v.getColorScale() instanceof RGBDecoderScale) && !(v.getColorScale() instanceof RGBADecoderScale));
                 if (activeVisualizers && activeVisualizers.length) {
                     list.push({layer, activeVisualizers});
                 }

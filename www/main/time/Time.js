@@ -353,6 +353,7 @@ class Time extends ZCustomController {
             }
             if (working) await this.sleep(200);
         } while(working && (Date.now() - t0) < 30000);
+        return Date.now() - t0;
     }
 
     // https://semisignal.com/tag/ffmpeg-js/
@@ -372,10 +373,14 @@ class Time extends ZCustomController {
         z = z || '0';
         n = n + '';
         return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-      }
+    }
+
+    animate() {
+        this.showDialog("./WAnim", {timePanel:this});
+    }
 
     // https://gist.github.com/ilblog/5fa2914e0ad666bbb85745dbf4b3f106
-    async animate() {
+    async animateOld() {
         if (!window.geoos.anim || isNaN(window.geoos.anim.start) || isNaN(window.geoos.anim.end)) {
             this.showDialog("common/WError", {message:"Debe fijar el tiempo de inicio y de término antes de generar la animación"});
             return;

@@ -1,0 +1,59 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog role="document">
+        <div class="modal-content resizable draggable">
+            <div class="modal-header" style="cursor: move;">
+                <h6 id="title" class="modal-title">Generar Animación</h6>
+                <i id="cmdCloseInfoWindow" class="geoos-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div class="modal-body container" style="background-color: rgba(0,0,0,0.9);">
+                <div class="row">
+                    <div class="col-4 text-right pr-2 pt-2">
+                        FPS:
+                    </div>
+                    <div class="col-8">
+                        <input id="edFPS" type="number" min="1" max="200" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-4 text-right pr-2 pt-2">
+                        Título
+                    </div>
+                    <div class="col-8">
+                        <input id="edTitle" type="text" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-4 text-right pr-2 pt-2">
+                        Formato Tiempo
+                    </div>
+                    <div class="col-8">
+                        <input id="edFormat" type="text" class="form-control form-control-sm" />
+                    </div>
+                </div>
+                <div id="grpRunning" class="mt-2">
+                    <div class="row">
+                        <div id="estado" class="col-4">
+                            Generando
+                        </div>
+                        <div class="col-8">
+                            <div class="progress">
+                                <div id="progress" class="progress-bar" role="progressbar" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col">
+                            <div id="mensaje" class="p-2 border rounded">
+                                Estado
+                            </div>
+                        </div>
+                    </div>         
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cmdOk" type="button" class="btn btn-primary ml-auto">Generar</button>
+                <button id="cmdCancel" type="button" class="btn btn-link">Cancelar</button>
+            </div>    
+        </div>
+    </div>
+</div>

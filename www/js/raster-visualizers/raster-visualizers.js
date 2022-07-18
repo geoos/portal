@@ -51,6 +51,8 @@ class RasterVisualizer {
     async activate() {
         this.active = true;
         if (this.layer.active && this.layer.group.active) await this.create();
+        // Dispara evento para refrescar panel de escalas
+        window.geoos.events.trigger("layer", "rename", this.layer);
     }
     async deactivate() {
         await this.destroy();

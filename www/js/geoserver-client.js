@@ -55,6 +55,42 @@ class GEOServerClient {
                 });
         })
     }
+    _postJSON(url, args, signal, finishListener) {        
+        this._incWorking();
+        return new Promise((resolve, reject) => {
+            fetch(this.serverURL + "/" + url, {
+                signal:signal,
+                method:"POST",
+                body:JSON.stringify(args || {}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+                .then(res => {
+                    if (res.status != 200) {
+                        this._decWorking()
+                        if (finishListener) finishListener();
+                        res.text()
+                            .then(txt => reject(txt))
+                            .catch(_ => reject(res.statusText))
+                        return;
+                    }
+                    res.json()
+                        .then(json => {
+                            if (finishListener) finishListener();
+                            this._decWorking();
+                            resolve(json)
+                        }).catch(err => {
+                            if (finishListener) finishListener();
+                            this._decWorking();
+                            reject(err)
+                        })
+                })
+                .catch(err => {
+                    this._decWorking();
+                    reject(err.name == "AbortError"?"aborted":err)
+                });
+        })
+    }
+
     async readMetadata() {
         this.metadata = await this._getJSON("metadata");
         return this.metadata;
@@ -115,6 +151,13 @@ class GEOServerClient {
         let controller = new AbortController();
         return {
             promise:this._getJSON(dataSetCode + "/" + varCode + "/vectorsGrid", {time, n, w ,s, e, margin}, controller.signal),
+            controller:controller
+        }
+    }
+    formula(formulaType, formula, sources, time, n, w, s, e, dLat, dLng, nrows, ncols) {
+        let controller = new AbortController();
+        return {
+            promise:this._postJSON("formula", {formulaType, formula, sources, time, n, w ,s, e, dLat, dLng, nrows, ncols}, controller.signal),
             controller:controller
         }
     }

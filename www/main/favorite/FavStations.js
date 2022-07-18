@@ -75,8 +75,10 @@ class FavStations extends ZCustomController {
         let activator = $(e.currentTarget);
         let div = activator.parent();
         let stationId = div.data("station-id");
-        window.geoos.deleteFavStation(stationId);
-        this.refresh();
+        this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar la Estación?"}, async _ => {
+            window.geoos.deleteFavStation(stationId);
+            this.refresh();
+        });
     }
 
     applyConfig(onlyShow) {

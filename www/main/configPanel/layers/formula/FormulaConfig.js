@@ -9,6 +9,11 @@ class FormulaConfig extends ZCustomController {
         this.edDLng.value = this.layer.dLng;
         this.edUnidad.value = this.layer.unit;
         this.edDecimales.value = this.layer.decimals;
+        this.edFormulaType.setRows([{
+            code:"localJS", name:"JavaScript por Punto en Browser"
+        }, {
+            code:"serverJSPoint", name:"JavaScript por Punto en Servidor"
+        }], this.layer.formulaType);
     }
 
     onEdDLng_change() {
@@ -38,6 +43,10 @@ class FormulaConfig extends ZCustomController {
             this.layer.unit = u;
             this.layer.refresh();
         }
+    }
+    onEdFormulaType_change() {
+        this.layer.formulaType = this.edFormulaType.value;
+        this.layer.refresh();
     }
 }
 ZVC.export(FormulaConfig);

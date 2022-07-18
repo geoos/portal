@@ -288,6 +288,7 @@ class GEOOSLayer {
         if (this.group.active) {
             await this.create();
             this.group.adjustOrder();
+            window.geoos.events.trigger("layer", "activationChanged", this);
         }
     }
     async deactivate() {
@@ -295,6 +296,7 @@ class GEOOSLayer {
         await this.destroy();
         this.active = false;
         this.group.adjustOrder();
+        window.geoos.events.trigger("layer", "activationChanged", this);
     }
     async toggleActive() {
         if (this.active) await this.deactivate();

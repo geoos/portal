@@ -36,6 +36,7 @@ class ScalesFactory {
             case "positive-negative": return new NegativePositiveScale(scaleDef, config);
             case "ranges": return new RangesScale(scaleDef, config);
             case "rgb-decoder": return new RGBDecoderScale(scaleDef, config);
+            case "rgba-decoder": return new RGBADecoderScale(scaleDef, config);
             default: throw "Color Scale '" + scaleDef.type + "' not handled";
         }
     }
@@ -391,6 +392,22 @@ class RGBDecoderScale extends GEOOSColorScale {
         let b = rest - 256 * g;
 
         return "rgb(" + r + "," + g + "," + b + ")";
+    }
+    refreshPreview(div) {
+        div.style["background-image"] = "linear-gradient(90deg, blue, green, red)";
+    }
+}
+
+class RGBADecoderScale extends GEOOSColorScale {
+    getColor(value) {        
+        let r = parseInt(value / (65536 * 256));
+        let rest = value - (65536 * 256) * r;
+        let g = parseInt(rest / 65536);
+        rest = rest - 65536 * g;
+        let b = parseInt(rest / 256);
+        let a = rest - 256 * b;
+
+        return "rgba(" + r + "," + g + "," + b + ", " + (a / 100) + ")";
     }
     refreshPreview(div) {
         div.style["background-image"] = "linear-gradient(90deg, blue, green, red)";

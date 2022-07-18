@@ -139,14 +139,15 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
         super(config);       
         this.visualizers = RasterVisualizer.createVisualizersForLayer(this);
 
+        this.formulaType = "localJS";
         this.decimals = 2;
         this.unit = "s/u";
         this.dLat = 0.25;
         this.dLng = 0.25;
         this.formula = 
-`function z() {
-    return Math.cos(20.0 * Math.PI * lat / 360.0) 
-         * Math.sin(20.0 * Math.PI * lng / 360.0);
+`function z(args) {
+    return Math.cos(20.0 * Math.PI * args.lat / 360.0) 
+         * Math.sin(20.0 * Math.PI * args.lng / 360.0);
 }`;
 
     }
@@ -165,11 +166,12 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
             })
         }
         l.visualizers = this.visualizers.reduce((list, v) => {list.push(v.serialize()); return list}, [])
+        l.formulaType = this.formulaType;
         l.formula = this.formula;
         l.decimals = this.decimals;
         l.unit = this.unit;
         l.dLat = this.dLat;
-        l.dLng = this.dLng;
+        l.dLng = this.dLng;        
 
         return l;
     }
@@ -189,6 +191,7 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
         let layer = new GEOOSRasterFormulaLayer(config);
         layer.config.sources = sources;        
         layer.id = s.id;
+        layer.formulaType = s.formulaType;
         layer.formula = s.formula;
         layer.decimals = s.decimals;
         layer.unit = s.unit;
@@ -263,8 +266,26 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
         return panels;
     }
 
-    resolveFormula(asGeojson = false) {
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(_ => resolve(), ms));
+    }
+
+    resolveFormula() {
         // {foundBox:{lng0, lat0, lng1, lat1}, foundTime:{msUTC, formatted}, min, max, ncols, nrows, metadata:{}, rows:[nrows], searchBox, searchTime}
+        if (this.resolving) {
+            return {
+                promise: new Promise(async (resolve, reject) => {
+                    while(this.resolving) {
+                        await this.sleep(20);
+                    }
+                    if (this.dataError) reject(this.dataError);
+                    else resolve(this.ret);
+                }),
+                controller:{abort:() => console.log("Formula Abort")}
+            }
+        }
+        this.ret = null;
+        this.resolving = true;
         try {
             let bounds = window.geoos.bounds;
             let box = {};
@@ -298,151 +319,198 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                 if (ncols > 200) {dLng *= 2; retry = true;}
                 if (nrows > 200) {dLat *= 2; retry = true;}
             } while(retry);
-            let min, max, rows=[], featureCollection=[];
-            
-            let foundBox = {dLat:dLat, dLng:dLng, lat0:box.s, lat1:box.n, lng0:box.w, lng1:box.e};
-            let proms = [], controllers = [], sourcesData = {}
+            let foundBox = {dLat:dLat, dLng:dLng, lat0:box.s, lat1:box.n, lng0:box.w, lng1:box.e, nrows, ncols};
             this.dataError = null;
             this.metadatas = {};
-            return {
-                promise:new Promise((resolve, reject) => {
-                    // Sources
-                    for (let s of this.sources) {
-                        let time = window.geoos.time;
-                        if (s.time.type == "map") {
-                            const offsets = {"minutes":1000 * 60, "hours":1000 * 60 * 60, "days":1000 * 60 * 60 * 24}
-                            time += s.time.offset * offsets[s.time.unit];
-                        } else {
-                            time = s.time.ms;
-                        }
-                        let {promise, controller} = s.geoServer.client.grid(s.dataSet.code, s.variable.code, time, box.n, box.w, box.s, box.e, 0, s.level, dLat, dLng);
-                        proms.push(promise);
-                        controllers.push(controller);
-                    }
-                    Promise.all(proms)
-                        .catch(err => {
-                            console.error(err);
-                            this.dataError = err.toString();
-                            reject(err);
-                        })
-                        .then(datas => {
-                            if (!datas) {
-                                reject("No Data - 2");
-                                return;
-                            }
-                            this.dataError = null;
-                            let i=0;
-                            for (let s of this.sources) {
-                                let sData = datas[i];
-                                let metadata = {foundTime:sData.foundTime};
-                                if (sData.metadata && sData.metadata.modelExecution) {
-                                    metadata.modelExecution = sData.metadata.modelExecution;
-                                }
-                                this.metadatas[s.code] = metadata;
-                                if (sData.nrows != nrows || sData.ncols != ncols) {
-                                    console.error("Estructura de respuesta inválida");
-                                    console.error("  Esperado: (" + nrows + ", " + ncols + ")");
-                                    console.error("  Recibido: (" + sData.nrows + ", " + sData.ncols + ")");
-                                    reject("Datos incompatibles");
-                                    return;
-                                }
-                                sourcesData[s.code] = sData;
-                                window["min_" + s.code] = sData.min;
-                                window["max_" + s.code] = sData.max;
-                                i++;                                
-                            }
-                            window["rgbEncode"] = function(r, g, b) {
-                                r = parseInt(256 * r); g = parseInt(256 * g); b = parseInt(256 * b);
-                                r = Math.min(r, 255); g = Math.min(g, 255); b = Math.min(b, 255);
-                                return 65536 * r + 256 * g + b;
-                            }
-                            // Construir matriz o geoJson de resultados
-
-                            let z = eval(this.formula + "\n(z)");
-                            let minDataLng, maxDataLng, minDataLat, maxDataLat;
-                            for (let r=0; r<nrows; r++) {
-                                let row = [];
-                                for (let c=0; c<ncols; c++) {
-                                    let lat = box.s + r * dLat;
-                                    let lng = box.w + c * dLng;
-                                    // Llenar variables globales
-                                    window["lat"] = lat;
-                                    window["lng"] = lng;
-                                    for (let s of this.sources) {
-                                        let sRows = sourcesData[s.code].rows;
-                                        let ndv = undefined;
-                                        if (sourcesData[s.code].metadata) ndv = sourcesData[s.code].metadata.noDataValue;
-                                        let v = sRows[r][c];
-                                        if (v == ndv) v = null;
-                                        window[s.code] = v;
-                                    }
-                                    let v;
-                                    try {
-                                        v = z();
-                                    } catch(error) {
-                                        this.dataError = "Error en Fórmula:" + error.toString();
-                                        reject(this.dataError);
-                                        return;
-                                    }
-                                    if (v !== null && v !== undefined) {
-                                        min = min === undefined || v < min?v:min;
-                                        max = max === undefined || v > max?v:max;
-                                        minDataLng = minDataLng === undefined || lng < minDataLng?lng:minDataLng;
-                                        maxDataLng = maxDataLng === undefined || lng > maxDataLng?lng:maxDataLng;
-                                        minDataLat = minDataLat === undefined || lat < minDataLat?lat:minDataLat;
-                                        maxDataLat = maxDataLat === undefined || lat > maxDataLat?lat:maxDataLat;
-                                    }
-                                    if (asGeojson) {
-                                        // Los nulos intermedios son necesarios (continente / mar).
-                                        // Los nulos fuera del rectángulo de datos se eliminan en "resolveIsolines"
-                                        //if (v !== null && v !== undefined) {
-                                            featureCollection.push({
-                                                type: "Feature", 
-                                                geometry: {
-                                                    type:"Point",
-                                                    coordinates: [lng, lat]                                                
-                                                },
-                                                properties: {z:v}
-                                            })
-                                        //}
-                                    } else {
-                                        row.push(v);
-                                    }
-                                }
-                                rows.push(row);
-                            }
-                            if (asGeojson) {
-                                resolve({
-                                    min, max, foundBox, nrows, ncols, geoJson:{
-                                        type:"FeatureCollection", name:"grid", features: featureCollection
-                                    }, dataBox:{
-                                        w: minDataLng, n: maxDataLat, e: maxDataLng, s: minDataLat
-                                    }
-                                });
-                            } else {
-                                resolve({
-                                    min, max, foundBox, rows, nrows, ncols
-                                });
-                            }
-                            
-                        })
-                }),
-                controller:{
-                    abort:() => {console.
-                        log("Formula Abort")
-                        for (let c of controllers) c.abort();
-                    }
-                }
-            }
+            if (!this.formulaType || this.formulaType == "localJS") {
+                return this.resolveLocalJS(foundBox);
+            } else if (this.formulaType == "serverJSPoint") {
+                return this.resolveServerJSPoint(foundBox);
+            } else {
+                throw "Formula tipo " + this.formulaType + " no implementado";
+            }            
         } catch (error) {
             console.error(error);
         }
     }
 
+    resolveLocalJS(foundBox) {
+        let min, max, rows=[];            
+        let proms = [], controllers = [], sourcesData = {}
+        return {
+            promise:new Promise((resolve, reject) => {
+                // Sources
+                for (let s of this.sources) {
+                    let time = window.geoos.time;
+                    if (s.time.type == "map") {
+                        const offsets = {"minutes":1000 * 60, "hours":1000 * 60 * 60, "days":1000 * 60 * 60 * 24}
+                        time += s.time.offset * offsets[s.time.unit];
+                    } else {
+                        time = s.time.ms;
+                    }
+                    let {promise, controller} = s.geoServer.client.grid(s.dataSet.code, s.variable.code, time, foundBox.lat1, foundBox.lng0, foundBox.lat0, foundBox.lng1, 0, s.level, foundBox.dLat, foundBox.dLng);
+                    proms.push(promise);
+                    controllers.push(controller);
+                }
+                Promise.all(proms)
+                    .catch(err => {
+                        console.error(err);
+                        this.dataError = err.toString();
+                        this.resolving = false;
+                        reject(err);
+                    })
+                    .then(datas => {
+                        if (!datas) {
+                            this.dataError = "No Data";
+                            this.resolving = false;
+                            reject("No Data - 2");
+                            return;
+                        }
+                        this.dataError = null;
+                        let args = {};
+                        let i=0;
+                        for (let s of this.sources) {
+                            let sData = datas[i];
+                            let metadata = {foundTime:sData.foundTime};
+                            if (sData.metadata && sData.metadata.modelExecution) {
+                                metadata.modelExecution = sData.metadata.modelExecution;
+                            }
+                            this.metadatas[s.code] = metadata;
+                            if (sData.nrows != foundBox.nrows || sData.ncols != foundBox.ncols) {
+                                console.error("Estructura de respuesta inválida");
+                                console.error("  Esperado: (" + foundBox.nrows + ", " + foundBox.ncols + ")");
+                                console.error("  Recibido: (" + sData.nrows + ", " + sData.ncols + ")");
+                                this.dataError = "Datos Incompatibles";
+                                this.resolving = false;
+                                reject("Datos incompatibles");
+                                return;
+                            }
+                            sourcesData[s.code] = sData;
+                            window["min_" + s.code] = sData.min;
+                            args["min_" + s.code] = sData.min;
+                            window["max_" + s.code] = sData.max;
+                            args["max_" + s.code] = sData.max;
+                            i++;                                
+                        }
+                        window["rgbEncode"] = function(r, g, b) {
+                            r = parseInt(256 * r); g = parseInt(256 * g); b = parseInt(256 * b);
+                            r = Math.min(r, 255); g = Math.min(g, 255); b = Math.min(b, 255);
+                            return 65536 * r + 256 * g + b;
+                        }
+                        args["rgbEncode"] = window["rgbEncode"];
+                        window["rgbaEncode"] = function(r, g, b, a) {
+                            r = parseInt(256 * r); g = parseInt(256 * g); b = parseInt(256 * b); a = parseInt(100 * a); 
+                            r = Math.min(r, 255); g = Math.min(g, 255); b = Math.min(b, 255); a = Math.min(a, 99);
+                            let v = 65536 * 256 * r + 65536 * g + 256 * b + a;
+                            return v;
+                        }
+                        window["rgbaEncode"]
+                        // Construir matriz de resultados
+                        let z = eval(this.formula + "\n(z)");
+                        let minDataLng, maxDataLng, minDataLat, maxDataLat;
+                        for (let r=0; r<foundBox.nrows; r++) {
+                            let row = [];
+                            for (let c=0; c<foundBox.ncols; c++) {
+                                let lat = foundBox.lat0 + r * foundBox.dLat;
+                                let lng = foundBox.lng0 + c * foundBox.dLng;
+                                // Llenar variables globales
+                                window["lat"] = lat;
+                                args.lat = lat;
+                                window["lng"] = lng;
+                                args.lng = lng;
+                                for (let s of this.sources) {
+                                    let sRows = sourcesData[s.code].rows;
+                                    let ndv = undefined;
+                                    if (sourcesData[s.code].metadata) ndv = sourcesData[s.code].metadata.noDataValue;
+                                    let v = sRows[r][c];
+                                    if (v == ndv) v = null;
+                                    window[s.code] = v;
+                                    args[s.code] = v;
+                                }
+                                let v;
+                                try {
+                                    v = z(args);
+                                } catch(error) {
+                                    this.dataError = "Error en Fórmula:" + error.toString();
+                                    this.resolving = false;
+                                    reject(this.dataError);
+                                    return;
+                                }
+                                if (v !== null && v !== undefined) {
+                                    min = min === undefined || v < min?v:min;
+                                    max = max === undefined || v > max?v:max;
+                                    minDataLng = minDataLng === undefined || lng < minDataLng?lng:minDataLng;
+                                    maxDataLng = maxDataLng === undefined || lng > maxDataLng?lng:maxDataLng;
+                                    minDataLat = minDataLat === undefined || lat < minDataLat?lat:minDataLat;
+                                    maxDataLat = maxDataLat === undefined || lat > maxDataLat?lat:maxDataLat;
+                                }
+                                row.push(v);
+                            }
+                            rows.push(row);
+                        }
+                        this.ret = {
+                            min, max, foundBox, rows, nrows:foundBox.nrows, ncols:foundBox.ncols, dataBox:{
+                                w: minDataLng, n: maxDataLat, e: maxDataLng, s: minDataLat
+                            }
+                        }
+                        this.resolving = false;
+                        resolve(this.ret);
+                    })
+            }),
+            controller:{
+                abort:() => {
+                    console.log("Formula Abort");
+                    for (let c of controllers) c.abort();
+                }
+            }
+        }
+    }
+
+    resolveServerJSPoint(foundBox) {
+        // Preparar sources para servidor
+        let sources = [];                
+        for (let s of this.sources) {
+            sources.push({
+                code:s.code, variable:s.variable.code, dataSet:s.dataSet.code, time:s.time, level:s.level, 
+                geoServer:s.geoServer.url
+            })
+        }
+
+        // Seleccionar geoserver
+        let geoServer;
+        if (!this.sources.length) geoServer = window.geoos.geoServers[0];
+        else geoServer = this.sources[0].geoServer;
+
+        let {promise, controller} = geoServer.client.formula(this.formulaType, this.formula, sources, window.geoos.time, foundBox.lat1, foundBox.lng0, foundBox.lat0, foundBox.lng1, foundBox.dLat, foundBox.dLng, foundBox.nrows, foundBox.ncols);
+        return {
+            promise:new Promise((resolve, reject) => {
+                promise.then(ret => {
+                    this.metadatas = ret.metadatas;
+                    this.ret = ret;
+                    resolve(ret);
+                }).catch(error => {
+                    console.error("Formula Error", error);
+                    this.dataError = error.toString();
+                    reject(error);
+                }).finally(_ => this.resolving = false);
+            }),
+            controller:{
+                abort:() => {
+                    console.log("formula controller aborted");
+                    controller.abort();
+                }
+            }
+        }
+    }
+
     resolveIsolines(_autoIncrement, _increment, _fixedLevels) {
-        let {promise, controller} = this.resolveFormula(true);
+        let {promise, controller} = this.resolveFormula();
         let newProm = new Promise((resolve, reject) => {
             promise.then(ret => {
+                if (!ret) {
+                    reject("No Data");
+                    return;
+                }
                 let min = ret.min, max = ret.max;
                 if (min === undefined || max === undefined || min == max) {
                     reject("No Data");
@@ -480,16 +548,27 @@ class GEOOSRasterFormulaLayer extends GEOOSLayer {
                 if (ret.dataBox.w === undefined || ret.dataBox.w == ret.dataBox.e) {
                     reject("No Data Box"); return;
                 }
-                // Eliminar puntos fuera del rectángulo con datos                
-                ret.geoJson.features = ret.geoJson.features.filter(f => {
-                    let lng = f.geometry.coordinates[0],
-                        lat = f.geometry.coordinates[1];
-                    return lng >= ret.dataBox.w && lng <= ret.dataBox.e && lat >= ret.dataBox.s && lat <= ret.dataBox.n;
-                })
+
+                // Crear coleccione de features como puntos desde la grilla retornada 
+                let featureCollection = [];
+                for (let r=0; r < ret.nrows; r++) {
+                    let lat = ret.foundBox.lat0 + r * ret.foundBox.dLat;
+                    for (let c=0; c<ret.ncols; c++) {
+                        let lng = ret.foundBox.lng0 + c * ret.foundBox.dLng;
+                        if (lng >= ret.dataBox.w && lng <= ret.dataBox.e && lat >= ret.dataBox.s && lat <= ret.dataBox.n) {
+                            featureCollection.push({
+                                type: "Feature", 
+                                geometry: {type:"Point", coordinates: [lng, lat]                                                },
+                                properties: {z:ret.rows[r][c]}
+                            })
+                        }
+                    }
+                }
+                let geoJson = {type:"FeatureCollection", name:"grid", features: featureCollection}
 
                 // Workaround: Cuando hay un solo nivel, no retorna nada. Se repite el primero
                 levels.splice(0,0,levels[0]);
-                let lines = turf.isolines(ret.geoJson, levels, {zProperty:"z"});
+                let lines = turf.isolines(geoJson, levels, {zProperty:"z"});
                 let markers = [];
                 lines.features.forEach(f => {
                     if (f.geometry.type == "LineString") {

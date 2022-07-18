@@ -19,11 +19,11 @@ class WFormula extends ZDialog {
     onCmdCancel_click() {this.cancel()}
 
     instalaCompletionItemProvider() {
-        let items = [{label:"[variable] Latitud", insertText:"lat"}, {label:"[variable] Longitud", insertText:"lng"}];
+        let items = [{label:"[variable] Latitud", insertText:"args.lat"}, {label:"[variable] Longitud", insertText:"args.lng"}];
         for (let s of this.layer.sources) {
-            items.push({label:"[variable] " + s.code + ": " + s.name, insertText:s.code});
-            items.push({label:"[variable] " + "min_" + s.code + ": Mínimo de " + s.name, insertText:"min_" + s.code});
-            items.push({label:"[variable] " + "max_" + s.code + ": Máximo de " + s.name, insertText:"max_" + s.code});
+            items.push({label:"[variable] " + s.code + ": " + s.name, insertText:"args." + s.code});
+            items.push({label:"[variable] " + "min_" + s.code + ": Mínimo de " + s.name, insertText:"args.min_" + s.code});
+            items.push({label:"[variable] " + "max_" + s.code + ": Máximo de " + s.name, insertText:"args.max_" + s.code});
         }
 
         this.completionItemProvider = monaco.languages.registerCompletionItemProvider('javascript', {
@@ -44,6 +44,7 @@ class WFormula extends ZDialog {
                         return i;
                     });
                     ret.push({label:"rgbEncode(r, g, b)", insertText:"rgbEncode(r, g, b)", range, kind:monaco.languages.CompletionItemKind.Function});
+                    ret.push({label:"rgbaEncode(r, g, b, a)", insertText:"rgbaEncode(r, g, b, a)", range, kind:monaco.languages.CompletionItemKind.Function});
                     return {suggestions: ret};
                 } else {
                     return {suggestions: []};

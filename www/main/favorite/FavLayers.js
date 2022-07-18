@@ -44,7 +44,9 @@ class FavLayers extends ZCustomController {
         let activator = $(e.currentTarget);
         let div = activator.parent();
         let layerId = div.data("layer-id");
-        await window.geoos.deleteFavLayer(layerId);
+        this.showDialog("common/WConfirm", {message:"¿Confirma que desea eliminar la Capa?"}, async _ => {
+            await window.geoos.deleteFavLayer(layerId);
+        });
     }
 
     applyConfig(onlyShow) {
