@@ -8,15 +8,7 @@ class AddPanel extends ZCustomController {
         this.infoPanel.hide();
         this.hide();
         window.geoos.events.on("top", "clickAddVariables", _ => this.toggle())
-        this.edLayerType.setRows([{
-            code:"variables", name:"Capas con Variables"
-        }, {
-            code:"vector", name:"Puntos o Áreas de Interés"
-        }, {
-            code:"tiles", name:"Capas de Imágenes"
-        }, {
-            code:"special", name:"Capas Especiales"
-        }], "variables")
+        this._layerType = "variables";
         // Clonar proveedores y agregar "no" (capas erspeciales)
         let providers = JSON.parse(JSON.stringify(window.geoos.providers));
         providers.splice(0,0,{code:"no", name:"Capa Especial|"})
@@ -31,6 +23,24 @@ class AddPanel extends ZCustomController {
         }]
         await this.refreshLayerType();
     }
+    
+    get layerType() {return this._layerType}
+    set layerType(t) {
+        $(this.typeContainer.view).find("I").removeClass("fa-dot-circle");
+        this._layerType = t;
+        if (t == "variables") $(this.tVariables.find("I")).addClass("fa-dot-circle");
+        else $(this.tVariables.find("I")).addClass("fa-circle");
+        if (t == "vector") $(this.tVector.find("I")).addClass("fa-dot-circle");
+        else $(this.tVector.find("I")).addClass("fa-circle");
+        if (t == "tiles") $(this.tTiles.find("I")).addClass("fa-dot-circle");
+        else $(this.tTiles.find("I")).addClass("fa-circle");
+        if (t == "special") $(this.tSpecial.find("I")).addClass("fa-dot-circle");
+        else $(this.tSpecial.find("I")).addClass("fa-circle");
+    }
+    async onTVariables_click() {this.layerType = "variables"; await this.refreshLayerType();}
+    async onTVector_click() {this.layerType = "vector"; await this.refreshLayerType();}
+    async onTTiles_click() {this.layerType = "tiles"; await this.refreshLayerType();}
+    async onTSpecial_click() {this.layerType = "special"; await this.refreshLayerType();}
 
     doResize(size) {
         if (!this.open) return;
@@ -74,10 +84,9 @@ class AddPanel extends ZCustomController {
 
     onCmdCloseAddPanel_click() {this.toggle()}
 
-    async onEdLayerType_change() {await this.refreshLayerType()}
 
     async refreshLayerType() {
-        let layerType = this.edLayerType.value;
+        let layerType = this.layerType;
         this.filters = {};
         this.sections.forEach(section => this.filters[section.code] = [])
         this.layers = await window.geoos.getAvailableLayers(layerType);
@@ -229,7 +238,7 @@ class AddPanel extends ZCustomController {
 
         // Results
         this.filteredLayers = this.filterLayers(null, this.edNameFilter.value);
-        let name = this.edLayerType.value == "variables"?"Variables":"Capas";
+        let name = this.layerType == "variables"?"Variables":"Capas";
         this.lblResume.text = name + ": (Encontradas " + this.filteredLayers.length + ")";
         let activeGroup = window.geoos.getActiveGroup();
         let htmlVars = "";
@@ -304,8 +313,8 @@ class AddPanel extends ZCustomController {
     refreshResume() {
         //let nSelected = this.filteredLayers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
         let nSelected = this.layers.reduce((sum, l) => (l.selected?(sum+1):sum), 0);
-        let name = this.edLayerType.value == "variables"?"Variables":"Capas";
-        let name1 = this.edLayerType.value == "variables"?"Variable":"Capa";
+        let name = this.layerType == "variables"?"Variables":"Capas";
+        let name1 = this.layerType == "variables"?"Variable":"Capa";
         if (!nSelected) {
             this.lblCountResume.text = "No hay " + name + " seleccionadas";
             this.cmdAddLayers.disable();

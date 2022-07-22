@@ -76,6 +76,9 @@ class MyPanel extends ZCustomController {
         window.geoos.addGroup({name});
         this.refresh();
     }
+    onCmdImportGroup_click() {
+        this.importGroup();
+    }
 
     refresh() {
         if (!this.open) return;
@@ -381,6 +384,10 @@ class MyPanel extends ZCustomController {
         let z = new ZPop(opener, [{
             code:"duplicate", icon:"far fa-copy", label:"Duplicar Grupo", 
         }, {
+            code:"export", icon:"fas fa-download", label:"Exportar Grupo", 
+        }, {
+            code:"importLayer", icon:"fas fa-upload", label:"Importar Capa", 
+        }, {
             code:"sep", icon:"-", label:"-", 
         }, {
             code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
@@ -455,6 +462,10 @@ class MyPanel extends ZCustomController {
                         }
                     })
                     //this.showDialog("common/WInProgress", {});
+                } else if (code == "export") {
+                    this.exportGroup(group);
+                } else if (code == "importLayer") {
+                    this.importLayer(group);
                 }
             }
         })
@@ -489,6 +500,8 @@ class MyPanel extends ZCustomController {
         let layer = group.getLayer(layerId);
         let items = [{
                 code:"duplicate", icon:"far fa-copy", label:"Duplicar Capa", 
+            }, {
+                code:"export", icon:"fas fa-download", label:"Exportar Capa", 
             }, {
                 code:"sep", icon:"-", label:"-", 
             }, {
@@ -528,6 +541,8 @@ class MyPanel extends ZCustomController {
                     window.geoos.openFavorites();
                 } else if (code == "duplicate") {
                     this.layerDuplicate(layer);
+                } else if (code == "export") {
+                    this.layerExport(layer);
                 }
             }
         })
@@ -620,6 +635,92 @@ class MyPanel extends ZCustomController {
     async selectScaleConfig(layer, visualizer) {
         await window.geoos.selectElement("visualizer", visualizer);
         await window.geoos.configPanel.selectColorScale();
+    }
+
+    asFileName(name) {
+        const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const nums = "0123456789";
+        let st = "";
+        for (let i=0; i<name.length; i++) {
+            let c = name.substr(i,1);
+            if (i == 0 && nums.indexOf(c) >= 0) st += "C_";
+            if (chars.indexOf(c) <0) c = "_";
+            st += c;
+        }
+        return st;
+    }
+
+    download(fileName, text) {
+        let element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', fileName);      
+        element.style.display = 'none';
+        document.body.appendChild(element);      
+        element.click();      
+        document.body.removeChild(element);
+    }
+
+    layerExport(layer) {
+        let s = layer.serialize();
+        s.id = generateId();
+        let fileName = this.asFileName(layer.name) + ".json";
+        this.download(fileName, JSON.stringify(s, null, 4));
+    }
+    exportGroup(group) {
+        let s = group.serialize();
+        s.id = generateId();
+        let fileName = this.asFileName(group.name) + ".json";
+        this.download(fileName, JSON.stringify(s, null, 4));
+    }
+    onEdFileSelector_change() {
+        let files = this.edFileSelector.view.files;
+        if (!files || !files.length) return;
+        this.fileSelectedCallback(files[0]);
+    }
+
+    selectFile(callback) {
+        this.edFileSelector.view.value = null;
+        this.fileSelectedCallback = callback;
+        this.edFileSelector.view.click();
+    }
+    importLayer(group) {
+        this.selectFile(file => {
+            let reader = new FileReader();
+            reader.onload = event => {
+                try {
+                    let str = event.target.result;                
+                    let json = JSON.parse(str);
+                    console.log("json", json);
+                    if (!json.name || json.opacity === undefined) throw "El archivo cargado no corresponde a una Capa exportada";
+                    let layer = GEOOSLayer.deserialize(json);
+                    group.addLayer(layer);
+                    this.refresh();
+                } catch(error) {
+                    this.showDialog("common/WError", {message:error.toString()})
+                }
+            }
+            reader.readAsText(file);
+        })
+    }
+    importGroup() {
+        this.selectFile(file => {
+            let reader = new FileReader();
+            reader.onload = async event => {
+                try {
+                    let str = event.target.result;                
+                    let json = JSON.parse(str);
+                    if (!json.name || json.layers === undefined) throw "El archivo cargado no corresponde a un Grupo exportado";
+                    let newGroup = GEOOSGroup.deserialize(json);
+                    newGroup.regenerateIds();
+                    window.geoos.addExistingGroup(newGroup);
+                    await window.geoos.activateGroup(newGroup.id);
+                    this.refresh();
+                } catch(error) {
+                    this.showDialog("common/WError", {message:error.toString()})
+                }
+            }
+            reader.readAsText(file);
+        })
     }
 }
 ZVC.export(MyPanel);

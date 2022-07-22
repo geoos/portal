@@ -7,8 +7,23 @@
         </div>
         <div id="contentRow" class="d-flex flex-row" style="padding: 5px;">
             <div class="d-flex flex-column" style="flex: 1 1 450px; padding: 5px; ">
-                <div style="flex: 1 1 30px;">
-                    <select id="edLayerType" class="custom-select" data-z-id-field="code" data-z-label-field="name"></select>
+                <div id="typeContainer" style="font-size: 15px;" class="border rounded p-2">
+                    <div id="tVariables" class="mt-2" style="cursor: pointer;" data-z-clickable="true">
+                        <i class="far fa-dot-circle mr-1 fa-lg"></i>
+                        <label style="cursor: pointer;">Capas con Variables</label>
+                    </div>
+                    <div id="tVector" style="cursor: pointer;" data-z-clickable="true">
+                        <i class="far fa-circle mr-1 fa-lg"></i>
+                        <label style="cursor: pointer;">Puntos o Áreas de Interés</label>
+                    </div>
+                    <div id="tTiles" style="cursor: pointer;" data-z-clickable="true">
+                        <i class="far fa-circle mr-1 fa-lg"></i>
+                        <label style="cursor: pointer;">Capas de Imágenes</label>
+                    </div>
+                    <div id="tSpecial" style="cursor: pointer;" data-z-clickable="true">
+                        <i class="far fa-circle mr-1 fa-lg"></i>
+                        <label style="cursor: pointer;">Capas Especiales</label>
+                    </div>
                 </div>
                 <div id="accordion" class="filter-accordion" style="flex: 1 10 100%; padding: 5px; overflow-y: auto;">                    
                 </div>
