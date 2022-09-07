@@ -166,16 +166,20 @@ class Top extends ZCustomController {
     }
     activateAction(id) {
         let div = $(this.rightBar.view).find("#op" + id.substr(0,1).toUpperCase() + id.substr(1));
-        let icon = div.data("z-icon");
-        div.children()[0].src = "img/top-icons/" + icon + "-active.svg";
-        div.addClass("active");
+        if (div.length) {
+            let icon = div.data("z-icon");
+            div.children()[0].src = "img/top-icons/" + icon + "-active.svg";
+            div.addClass("active");
+        }
         window.geoos.events.trigger("top", "activateAction", id);
     }
     deactivateAction(id) {
         let div = $(this.rightBar.view).find("#op" + id.substr(0,1).toUpperCase() + id.substr(1));
-        let icon = div.data("z-icon");
-        div.children()[0].src = "img/top-icons/" + icon + ".svg";
-        div.removeClass("active");
+        if (div.length) {
+            let icon = div.data("z-icon");
+            div.children()[0].src = "img/top-icons/" + icon + ".svg";
+            div.removeClass("active");
+        }
         window.geoos.events.trigger("top", "deactivateAction", id);
     }
 
@@ -191,9 +195,11 @@ class Top extends ZCustomController {
     onOpObjects_click() {
         window.geoos.events.trigger("top", "clickObjects");
     }
+    /*
     onOpSearchLocation_click() {
         window.geoos.events.trigger("top", "clickSearchLocation");
     }
+    */
 
     onOpWizard1_click() {
         if (!window.geoos.user.config.toolsConfig.tool1) return;
@@ -239,6 +245,30 @@ class Top extends ZCustomController {
     onOpWizardExpander_click() {
         console.log("color", opWizardExpander);
         this.showDialog("./WConfigTools");
+    }
+
+    onOpMore_click(e) {
+        console.log("more");
+        let opener = $(e.currentTarget);
+        let items = [{
+            code:"help", icon:"fas fa-question", label:"Ayuda", 
+        }, {
+            code:"localidad", icon:"fas fa-search", label:"Buscar Localidad", 
+        }]
+        let z = new ZPop(opener, items, {
+            vMargin:0,
+            hPos:"justify-left", hMargin:-115,
+            onClick:(code, item) => {
+                if (code == "localidad") window.geoos.events.trigger("top", "clickSearchLocation");
+                else if (code == "help") window.geoos.events.trigger("top", "activateAction", "help");
+            }
+        });
+        z.show();
+
+    }
+
+    onOpBiblioteca_click() {
+        this.showDialog("main/myPanel/WLibrary");
     }
 }
 ZVC.export(Top)

@@ -19,7 +19,7 @@ class GEOOSGroup {
     }
 
     serialize() {
-        return {
+        let s = {
             id:this.id, 
             name:this.name,
             config:this.config, 
@@ -27,8 +27,10 @@ class GEOOSGroup {
             expanded:this.expanded, 
             layers:this.layers.reduce((list, l) => ([...list, l.serialize()]) , []),
             tools:this.tools.reduce((list, tool) => ([...list, tool.serialize()]), []),
-            selectedToolId:this.selectedToolId
+            selectedToolId:this.selectedToolId,
+            timeStep:window.geoos.timePanel && window.geoos.timePanel.getTimeStep()
         }
+        return s;
     } 
     static deserialize(s) {
         let g = new GEOOSGroup({name: s.name});
@@ -46,7 +48,8 @@ class GEOOSGroup {
             list.push(t);
             return list;
         }, []);
-        if (s.selectedToolId) g.selectedToolId = s.selectedToolId;
+        if (s.selectedToolId) g.selectedToolId = s.selectedToolId;        
+        g.savedTimeStep = s.timeStep;
 
         return g;
     }

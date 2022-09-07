@@ -20,6 +20,7 @@ class GEOOS {
         await this.scalesFactory.init();
         this.events.on("map", "click", async p => await this.unselectObject())
         await this.inicializaPlugins();
+        await GEOOSTool.inicializaDashboards();
         console.log("[GEOOS] Inicializado");
     }
 
@@ -29,6 +30,7 @@ class GEOOS {
     get subjects() {return this.config.groups.subjects}
     get types() {return this.config.groups.types}
     get providers() {return this._providers}
+    get temasBiblioteca() {return this.config.temasBiblioteca || []}
 
     get map() {return this.mapPanel.map}
     get time() {return this._time}
@@ -527,15 +529,17 @@ class GEOOS {
                 await this.selectTool(null)
                 current.selectedToolId = oldSelectedToolId;
             }
+            current.savedTimeStep = this.timePanel.getTimeStep();
             await current.deactivate();
             await this.events.trigger("portal", "groupDeactivated", current);
         }
         await g.activate();
+        if (g.savedTimeStep) this.timePanel.setTimeStep(g.savedTimeStep);
         if (g.selectedToolId) {
             let oldSelectedToolId = g.selectedToolId;
             g.selectedToolId = null; // prevent deactivate without activate in tool
             await this.selectTool(oldSelectedToolId);
-        }
+        }        
         await this.events.trigger("portal", "groupActivated", g)
         this.checkToolsValidity();
     }

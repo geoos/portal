@@ -41,6 +41,24 @@ async function startHTTPServer() {
             }
         });
 
+        app.get("/fotoBiblio/:id", async (req, res) => {
+            let id = req.params.id;
+            let foto = await portal.getFotoCapaBiblio(id);
+            if (foto) {
+                let regex = /^data:.+\/(.+);base64,(.*)$/;
+                let matches = foto.match(regex);
+                let contentType = matches[1];
+                let data = matches[2];
+                let buffer = Buffer.from(data, 'base64');
+                res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+                res.setHeader('Content-Type', "image/" + contentType);
+                res.status(200);
+                res.send(buffer);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+
         let webServerConfig = config.getWebServerConfig();
         if (webServerConfig.http) {
             let port = webServerConfig.http.port;

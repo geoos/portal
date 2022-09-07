@@ -9,6 +9,15 @@ class GEOOSTool {
         return GEOOSTool.getToolDef(s.type).factories.deserialize(s.id, s.name, s.config);
     }
 
+    static async inicializaDashboards() {
+        try {
+            console.log("Inicializando Dashboards");
+            console.log(window.geoos.config);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     constructor(type, id, name, config) {
         this.type = type;
         if (!id) id = "TO_" + parseInt(Math.random() * 99999999);

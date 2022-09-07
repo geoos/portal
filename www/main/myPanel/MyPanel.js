@@ -8,6 +8,7 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("portal", "groupActivated", _ => this.refresh())
         window.geoos.events.on("portal", "groupDeleted", group => this.groupDeleted(group))
         window.geoos.events.on("portal", "layersAdded", _ => this.refresh())
+        window.geoos.events.on("portal", "layerAdded", _ => this.refresh())
         window.geoos.events.on("portal", "layersRemoved", _ => this.refresh())
         window.geoos.events.on("layer", "startWorking", layer => this.layerStartWorking(layer))
         window.geoos.events.on("layer", "finishWorking", layer => this.layerFinishWorking(layer))
@@ -507,6 +508,8 @@ class MyPanel extends ZCustomController {
             }, {
                 code:"favo", icon:"fas fa-star", label:"Agregar a Favoritos", 
             }, {
+                code:"biblio", icon:"fas fa-book", label:"Compartir en Biblioteca", 
+            }, {
                 code:"sep", icon:"-", label:"-", 
             }, {
                 code:"delete", icon:"far fa-trash-alt", label:"Eliminar la Capa", 
@@ -515,6 +518,10 @@ class MyPanel extends ZCustomController {
         if (layer instanceof GEOOSStationsLayer) {
             // La capa de estaciones no se puede duplicar
             items.splice(0,2);
+        }
+        if (!geoos.userSession) {
+            let idx = items.findIndex(i => i.code == "biblio");
+            items.splice(idx, 1);
         }
         let z = new ZPop(opener, items, {
             vMargin:10,
@@ -543,6 +550,8 @@ class MyPanel extends ZCustomController {
                     this.layerDuplicate(layer);
                 } else if (code == "export") {
                     this.layerExport(layer);
+                } else if (code == "biblio") {
+                    this.layerPublish(layer);
                 }
             }
         })
@@ -721,6 +730,12 @@ class MyPanel extends ZCustomController {
             }
             reader.readAsText(file);
         })
+    }
+
+    layerPublish(layer) {        
+        let s = layer.serialize();
+        s.id = generateId();
+        this.showDialog("./WPublish", {layer:layer, serializedLayer:JSON.stringify(s)});
     }
 }
 ZVC.export(MyPanel);

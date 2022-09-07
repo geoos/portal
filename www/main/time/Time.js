@@ -501,5 +501,14 @@ class Time extends ZCustomController {
         element.click();
         document.body.removeChild(element);
     }
+
+    getTimeStep() {
+        return {days:this.edSelDays.value, hours:this.edSelHours.value, minutes:this.edSelMinutes.value}
+    }
+    setTimeStep(s) {
+        this.edSelDays.value = s.days;
+        this.edSelHours.value = s.hours;
+        this.edSelMinutes.value = s.minutes;
+    }
 }
 ZVC.export(Time)

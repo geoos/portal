@@ -1,0 +1,78 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content resizable draggable">
+            <div class="modal-header" style="cursor: move;">
+                <h6 id="title" class="modal-title">Biblioteca Compartida GEOOS</h6>
+                <i id="cmdCloseInfoWindow" class="geoos-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div class="modal-body container" styleX="background-color: rgba(0,0,0,0.9);">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-7">
+                                <div id="edFiltro" data-z-component="common/TextSearch" data-z-placeholder="Buscar en Biblioteca ..."></div>
+                            </div>
+                            <div class="col-5 pt-2">
+                                <input id="edSoloVerificados" type="checkbox" class="float-left mr-2"/>
+                                <label>Sólo Verificados</label>
+                            </div>
+                        </div>
+                        <div class="row px-3 pt-1">
+                            <div class="col-2 p-2" style="background-color: #575757;">
+                                <label class="mt-2 ml-2">Tema</label>
+                            </div>
+                            <div class="col-10 p-2" style="background-color: #575757;">
+                                <select id="edTema" class="custom-select custom-select-sm w-100" data-z-id-field="code" data-z-label-field="name" ></select>
+                            </div>
+                        </div>
+                        <div id="itemsContainer" class="mt-2 p-2" style="height: 460px; overflow-y: scroll;">
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div id="msgSeleccion"></div>
+                        <div id="detalles">
+                            <div style="overflow-y: auto; height: 490px;">
+                                <h5 id="lblNombreCapa"></h5>
+                                <i class="far fa-user-circle float-left ml-1 mr-1"></i>
+                                <div id="lblAutor" class=""></div>
+                                <a id="lnkMail" class="btn-link float-right" style="margin-top: -20px;">
+                                    <i class="fas fa-envelope mr-2"></i>
+                                    Contactar
+                                </a>
+                                <div class="text-center">
+                                    <img id="imgDetalles" class="my-2 ml-auto" width="100%" style="max-width: 400px;" />
+                                </div>
+                                <h5 class="mt-1">Descripción</h5>
+                                <p id="lblDescripcion"></p>
+                                <div id="adminPanel">
+                                    <hr class="mt-2 bg-light" />
+                                    <label class="mr-2">Capa Verificada</label>
+                                    <input id="edVerificado" type="checkbox" />
+                                </div>
+                            </div>
+                            <hr class="mt-3 mb-2 bg-light" />
+                            <div>
+                                <button id="cmdAdd" type="button" class="btn geoos-panel-ok btn-secondary float-right ml-2">
+                                    Agregar a Mi Panel
+                                </button>
+                                <button id="cmdCancel" type="button" class="btn btn-secondary float-right ml-2">
+                                    Cancelar
+                                </button>
+                                <button id="cmdDelete" type="button" class="btn btn-danger mr-auto">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+            </div>
+            <!--
+            <div class="modal-footer">
+                <button id="cmdOk" type="button" class="btn btn-primary ml-auto">Agregar a Mi Panel</button>
+                <button id="cmdCancel" type="button" class="btn btn-link">Cancelar</button>
+            </div>    
+            -->
+        </div>
+    </div>
+</div>
