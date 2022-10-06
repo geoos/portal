@@ -54,9 +54,9 @@ class DataPointsVisualizerHelper extends RasterVisualizer {
             .then(ret => {
                 let modelTime = ret.metadata && ret.metadata.modelExecution?ret.metadata.modelExecution.formatted:null;
                 this.aborter = null;
-                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null, null, modelTime);
                 window.geoos.events.trigger("visualizer", "results", this);
                 visualizer.setGridData(ret.foundBox, ret.rows, ret.nrows, ret.ncols);
+                this.finishWorking(ret.foundTime?ret.foundTime.msUTC:null, null, modelTime);
                 if (cb) cb();
             })
             .catch(err => {

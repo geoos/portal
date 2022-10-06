@@ -804,6 +804,7 @@ class GEOOS {
         l.removeUserObject(id);
         await this.checkToolsValidity();
         await this.events.trigger("layer", "layerItemsChanged", l);
+        this.events.trigger("userObject", "deleted", id);
     }
 
     getTools() {

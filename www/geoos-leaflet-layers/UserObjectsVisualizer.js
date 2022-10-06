@@ -18,6 +18,7 @@ class UserObjectsVisualizer extends KonvaLeafletVisualizer {
     update() {
         if (this.interactions) this.interactions.clearShapes(this.uniqueId);
         this.konvaLayer.destroyChildren();
+        if (this.prePainter) this.prePainter(this);
         this.objects.forEach(o => {
             let {elements, interactionElements} = o.getKonvaElements(this, this.interactions);
             elements.forEach(e => this.konvaLayer.add(e))
@@ -53,6 +54,7 @@ class UserObjectsVisualizer extends KonvaLeafletVisualizer {
                 }
             }); 
         })
+        if (this.postPainter) this.postPainter(this);
         this.konvaLayer.draw();
         if (this.interactions) this.interactions.redraw();
         if (this.contextLegend) this.drawContextLegend();

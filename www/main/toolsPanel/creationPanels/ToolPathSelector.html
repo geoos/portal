@@ -1,0 +1,34 @@
+<div class="container-fluid p-2">
+    <h5 id="lblSelectCaption" class="mt-2">Seleccione una Ruta</h5>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-5">
+                <h6 style="margin-top: 20px;">Puntos en la Ruta</h6>
+                <div class="btn-toolbar" role="toolbar" style="margin-top: 10px;">
+                    <div class="btn-group " role="group">
+                        <button id="cmdUp" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <button id="cmdDown" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                            <i class="fas fa-arrow-down"></i>
+                        </button>
+                    </div>
+                    <div class="btn-group ml-auto" role="group" aria-label="Second group">
+                        <button id="cmdNewPoint" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
+                            Nuevo Punto
+                        </button>
+                    </div>
+                </div>
+                <select id="edAdded" size="10" class="form-control" style="margin-top: 5px;" data-z-id-field="id" data-z-label-field="name"></select>
+            </div>
+            <div class="col-2">
+                <button id="cmdAdd" class="btn geoos-panel-ok btn-secondary w-100" style="margin-top: 130px;"><i class="fas fa-arrow-left"></i></button>
+                <button id="cmdRemove" class="btn geoos-panel-ok btn-secondary w-100 mt-1"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="col-5">
+                <h6 style="margin-top: 57px;">Puntos Disponibles</h6>
+                <select id="edAvailable" size="10" class="form-control" style="margin-top: 10px;" data-z-id-field="id" data-z-label-field="name"></select>
+            </div>
+        </div>
+    </div>
+</div>

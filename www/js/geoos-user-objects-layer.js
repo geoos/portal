@@ -164,6 +164,11 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
         return panels;
     }
     regenerateIds() {}
+
+    setPainters(prePainter, postPainter) {
+        this.konvaLeafletLayer.getVisualizer("user-objects").prePainter = prePainter;
+        this.konvaLeafletLayer.getVisualizer("user-objects").postPainter = postPainter;
+    }
 }
 
 class GEOOSUserObject {
