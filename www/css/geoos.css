@@ -117,6 +117,11 @@ a:hover {
 .checkbox i {cursor: pointer;}
 .checkbox-label:hover {cursor: pointer; text-decoration: underline;}
 
+/* Leaflet */
+.leaflet-marker-pane {
+    z-index: 2000;
+}
+
 /* Comunes Paneles y Ventanas */
 .geoos-panel {
     padding: 10px;

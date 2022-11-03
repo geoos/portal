@@ -379,6 +379,16 @@ class GEOOS {
                     }
                 }
             }
+        } else if (type == "multimedia") {
+            for (let l of this.config.capasMultimedia) {
+                let clone = JSON.parse(JSON.stringify(l));
+                clone.type = "multimedia";
+                clone.providers = clone.provider?[clone.provider]:[];
+                clone.subjects = clone.subjects || [];
+                clone.regions = clone.regions || [];
+                clone.types = clone.types || [];
+                layers.push(clone);
+            }
         } else if (type == "tiles") {
             for (let geoServer of this.geoServers) {
                 for (let dataSet of geoServer.dataSets) {
@@ -451,6 +461,21 @@ class GEOOS {
         }
         layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
         return layers;
+    }
+
+    getMultimediaLayer(code) {
+        for (let l of this.config.capasMultimedia) {
+            if (l.code == code) {
+                let clone = JSON.parse(JSON.stringify(l));
+                clone.type = "multimedia";
+                clone.providers = clone.provider?[clone.provider]:[];
+                clone.subjects = clone.subjects || [];
+                clone.regions = clone.regions || [];
+                clone.types = clone.types || [];
+                return clone;
+            }            
+        }
+        return null;
     }
 
     getAvailableStations() {

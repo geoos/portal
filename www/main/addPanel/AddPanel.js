@@ -34,12 +34,15 @@ class AddPanel extends ZCustomController {
         else $(this.tVector.find("I")).addClass("fa-circle");
         if (t == "tiles") $(this.tTiles.find("I")).addClass("fa-dot-circle");
         else $(this.tTiles.find("I")).addClass("fa-circle");
+        if (t == "multimedia") $(this.tMultimedia.find("I")).addClass("fa-dot-circle");
+        else $(this.tMultimedia.find("I")).addClass("fa-circle");
         if (t == "special") $(this.tSpecial.find("I")).addClass("fa-dot-circle");
         else $(this.tSpecial.find("I")).addClass("fa-circle");
     }
     async onTVariables_click() {this.layerType = "variables"; await this.refreshLayerType();}
     async onTVector_click() {this.layerType = "vector"; await this.refreshLayerType();}
     async onTTiles_click() {this.layerType = "tiles"; await this.refreshLayerType();}
+    async onTMultimedia_click() {this.layerType = "multimedia"; await this.refreshLayerType();}
     async onTSpecial_click() {this.layerType = "special"; await this.refreshLayerType();}
 
     doResize(size) {
@@ -130,6 +133,10 @@ class AddPanel extends ZCustomController {
             section.data.forEach(r => r.nLayers = 0);
             layers.forEach(layer => {
                 let sectionCodes = layer[section.code];
+                if (!sectionCodes) {
+                    console.error("Capa ", layer);
+                    throw "La capa no contiene la seccion " + section.code; 
+                }
                 if (!sectionCodes.length) {
                     section.data.find(r => r.code == "no").nLayers++;
                 } else {
@@ -335,7 +342,7 @@ class AddPanel extends ZCustomController {
     onCmdAddLayers_click(){
         this.toggle();
         window.geoos.addLayers(this.layers.filter(l => (l.selected)));
-        console.log("sel", this.layers.filter(l => (l.selected)));
+        //console.log("sel", this.layers.filter(l => (l.selected)));
         window.geoos.openMyPanel();
     }
 
