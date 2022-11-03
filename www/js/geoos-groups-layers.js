@@ -178,6 +178,8 @@ class GEOOSGroup {
             return false;
         } else if (layerConfig.type == "minz") {
             return false;
+        } else if (layerConfig.type == "multimedia") {
+            return this.layers.find(l => (l instanceof GEOOSMultimediaLayer && l.config.code == layerConfig.code))?true:false;
         } else throw "layer type '" + layerConfig.type + "' not handled yet in 'containsLayer'"
     }
 
@@ -221,6 +223,13 @@ class GEOOSLayer {
                 dataSet: layerConfig.dataSet
             }
             return new GEOOSTilesLayer(config);
+        } else if (layerConfig.type == "multimedia") {
+            let config = {
+                code: layerConfig.code,
+                name: layerConfig.name,
+                tolerancia: layerConfig.tolerancia?(JSON.parse(JSON.stringify(layerConfig.tolerancia))):null
+            }
+            return new GEOOSMultimediaLayer(config);
         } else if (layerConfig.type == "rasterFormula") {
             let config = {
                 name: layerConfig.name
@@ -275,6 +284,8 @@ class GEOOSLayer {
             return GEOOSTilesLayer.deserialize(s, config);
         } else if (s.type == "stations") {
             return GEOOSStationsLayer.deserialize(s, config);
+        } else if (s.type == "multimedia") {
+            return GEOOSMultimediaLayer.deserialize(s, config);
         } else if (s.type == "user-objects") {
             return GEOOSUserObjectsLayer.deserialize(s, config);
         }

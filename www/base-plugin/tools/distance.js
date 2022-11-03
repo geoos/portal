@@ -98,7 +98,7 @@ GEOOSTool.register("distance", "Medidor de Distancia", {
         caption:"Agregue puntos a la Ruta"
     },
     icon:window.geoos.getPlugin("base").basePath + "/tools/img/distance.png",
-    menuIcon:window.geoos.getPlugin("base").basePath + "/tools/img/menu-3d-chart.svg",
+    menuIcon:window.geoos.getPlugin("base").basePath + "/tools/img/distance.svg",
     menuLabel:"Medir Distancia",
     factory:(name, creationPanelResult) => (new ToolDistance(null, name, creationPanelResult)),
     deserialize:(id, name, config) => {

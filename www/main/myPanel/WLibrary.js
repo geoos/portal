@@ -147,4 +147,4 @@ class WLibrary extends ZDialog {
         });
     }
 }
-ZVC.export(WLibrary);
+ZVC.export(WYoutubeVideo);

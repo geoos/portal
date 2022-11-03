@@ -55,8 +55,6 @@ class GEOOSTilesLayer extends GEOOSLayer {
         window.geoos.events.on("portal", "timeChange", this.timeChangeListener);
 
         this.pane = window.geoos.mapPanel.createPanelForLayer(this);
-        console.log("map", this.map);
-        console.log("dataSet", this.dataSet);
         let url = this.map.urlPattern;
         if (this.dataSet.temporality != "none") url = this.parseURL(url);
         this.tileLayer = L.tileLayer(url, {pane:this.pane.id});
