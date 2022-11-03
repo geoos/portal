@@ -151,8 +151,8 @@ class ToolsPanel extends ZCustomController {
         this.checkEnabled();
     }
 
-    async onToolsMainLoader_addTool() {
-        await this.loadNewTool();
+    async onToolsMainLoader_addTool(toolCode) {
+        await this.loadNewTool(toolCode);
     }  
     async onToolsMainLoader_cancelAdd() {
         await this.loadViewTools();

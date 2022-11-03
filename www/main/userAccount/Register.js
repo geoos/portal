@@ -1,5 +1,5 @@
 let mensajeEnviar = "Se le enviará un código de 6 dígitos para verificar su dirección de correo electrónico.";
-let mensajeReenviar = "Espere unos minutos que el código llegeue a su correo. Para enviar nuevamente, use el botón de envío. Sólo el último código enviado será válido.";
+let mensajeReenviar = "Espere unos minutos que el código llegue a su correo. Para enviar nuevamente, use el botón de envío. Sólo el último código enviado será válido.";
 
 
 class Register extends ZCustomController {
@@ -39,21 +39,19 @@ class Register extends ZCustomController {
             this.working.show();
             await zPost("enviaCodigoRegistro.geoos", {email:this.edEmail.value.trim()});
             this.codigoInicial.hide()
-            await this.showDialog("./WCode", {email:this.edEmail.value.trim()}, async x =>{
-                if(x == 1){
+            await this.showDialog("./WCode", {email:this.edEmail.value.trim()}, async result =>{
+                if(result.status == 1){
                     this.codigoEnviado.hide();
                     this.codigoInicial.show();
-                }else{
+                }else if (result.status == 0) {
                     this.codigoEnviado.show();
                     this.codigoInicial.hide();
+                    this.codigoRegistro = result.codigoRegistro;
                 }
             });
-            //this.showDialog("common/WCode", {message:error.toString()})
-            //this.codigoEnviado.show();
             this.lblMensajeEnviar.text = mensajeReenviar;
         } catch(error) {
             console.error(error);
-            //this.showDialog("common/WError", {message:"Se produjo un error y el correo no pudo ser enviado. Por favor inténtelo más tarde"})
             this.showDialog("common/WError", {message:error.toString()})
         } finally {
             this.cmdEnviarCodigo.show();
@@ -70,19 +68,19 @@ class Register extends ZCustomController {
             let pwd2 = this.edPwd2.value.trim();
             if (pwd != pwd2) throw "La contraseña y su repetición son diferentes";
             let email = this.edEmail.value.trim();
-            /* let codigoRegistro = this.edCodigoRegistro.value.trim(); */
             if (!this.emailValido(email)) throw "E-mail inválido";
-            /* if (codigoRegistro.length < 6) throw "El código de registro es inválido"; */
             this.cmdRegistrarse.hide();
             this.working2.show();
             await zPost("registraUsuario.geoos", {
-                email, codigoRegistro, nombre, institucion, pwd
+                email, codigoRegistro: this.codigoRegistro, nombre, institucion, pwd
             });
+            this.cmdRegistrarse.show();
             this.triggerEvent("registrado", {email, pwd});
         } catch(error) {
             this.showDialog("common/WError", {message:error.toString()})
+            this.codigoEnviado.hide();
+            this.codigoInicial.show();
         } finally {
-            this.cmdRegistrarse.show();
             this.working2.hide();
         }
     }

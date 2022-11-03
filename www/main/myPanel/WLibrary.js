@@ -69,6 +69,7 @@ class WLibrary extends ZDialog {
     async refrescaDetalles(idCapa) {
         try {
             this.cmdDelete.hide();
+            this.cmdEdit.hide();
             this.adminPanel.hide();
             this.msgSeleccion.html = "<i class='fas fa-spin fa-spinner fa-2x'></i>";
             this.msgSeleccion.show();
@@ -87,13 +88,14 @@ class WLibrary extends ZDialog {
                 this.lnkMail.show();
                 this.lnkMail.view.href = "mailto:" + this.capa.email;
             }
-            console.log("autor", this.capa.esAutor, "admin", this.capa.esAdmin);
             if (this.capa.esAdmin) {
                 this.adminPanel.show();
                 this.edVerificado.checked = this.capa.verificado;
+                this.cmdEdit.show();
                 this.cmdDelete.show();
             }
             if (this.capa.esAutor) {
+                this.cmdEdit.show();
                 this.cmdDelete.show();
             }
         } catch(error) {
@@ -111,6 +113,7 @@ class WLibrary extends ZDialog {
         zPost("alternaCapaBiblioVerificada.geoos", {id:this.capa._id});
         let v = this.edVerificado.checked;
         let idCapa = this.capa._id;
+        this.capa.verificado = v;
         $(this.itemsContainer.view).find(".capa-biblio").each(function() {
             let id = $(this).data("id-capa");
             if (id == idCapa) {
@@ -132,6 +135,16 @@ class WLibrary extends ZDialog {
             await zPost("deleteCapaBiblio.geoos", {id:this.capa._id});
             this.refrescar();
         })
+    }
+
+    onCmdEdit_click() {
+        let layer = GEOOSLayer.deserialize(JSON.parse(this.capa.capa));
+        let s = layer.serialize();  
+        this.showDialog("./WPublish", {layer:layer, serializedLayer:JSON.stringify(s), editData: this.capa}, res => {
+            if (res){
+                this.refrescar();
+            }
+        });
     }
 }
 ZVC.export(WLibrary);

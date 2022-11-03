@@ -58,9 +58,9 @@ class UserAccountPanel extends ZCustomController {
         }
     }
 
-    async onSession_registrado(user) {
+    async onRegister_registrado(user) {
         await this.session.load("./Login", user);
-        this.tabUserAccountPanel.showTab("profile");
+        this.tabUserAccountPanel.activate("session");
     }
     async onSession_to_Login(email) {
         await this.session.load("./Login", {email:email})

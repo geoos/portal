@@ -1,19 +1,51 @@
 class WPublish extends ZDialog {
     onThis_init(options) {
         this.layer = options.layer;
-        this.edName.value = this.layer.name;
-        let html = geoos.temasBiblioteca.reduce((html, t) => {
-            html += `
-                <div class='mt-2'>
-                    <input id='edTema_${t.code}' type='checkbox' data-code='${t.code}' class='tema-toggler float-left mr-2' />
-                    ${t.name}
-                </div>
-            `;
-            return html;
-        }, "")
-        this.temasContainer.html = html;
-
-        this.croppie = null;
+        this.isEdit = !!options.editData;
+        if (!this.isEdit){
+            this.edName.value = this.layer.name;
+            let html = geoos.temasBiblioteca.reduce((html, t) => {
+                html += `
+                    <div class='mt-2'>
+                        <input id='edTema_${t.code}' type='checkbox' data-code='${t.code}' class='tema-toggler float-left mr-2' />
+                        ${t.name}
+                    </div>
+                `;
+                return html;
+            }, "")
+            this.temasContainer.html = html;
+            this.croppie = null;
+        }else{
+            this._id = options.editData._id;
+            this._isVerified = options.editData.verificado;
+            this.edName.value = options.editData.nombre;
+            let html = geoos.temasBiblioteca.reduce((html, t) => {
+                let isChecked = options.editData.temas && options.editData.temas.find(tm => tm == t.code);
+                html += `
+                    <div class='mt-2'>
+                        <input id='edTema_${t.code}' type='checkbox' data-code='${t.code}' class='tema-toggler float-left mr-2' ${isChecked?'checked':''} />
+                        ${t.name}
+                    </div>
+                `;
+                return html;
+            }, "")
+            this.temasContainer.html = html;
+            this.edDescripcion.value = options.editData.descripcion;
+            this.edContactarme.checked = options.editData.contactar;
+            $(this.view).find("#title").html("Editar Publicación en Biblioteca");
+            $(this.view).find("#cmdOk").text("Actualizar");
+            fetch(`fotoBiblio/${this._id}`)
+                .then(response => response.blob())
+                .then(imageBlob => {
+                    let readerLoad = new FileReader();
+                    readerLoad.onloadend = _ => {
+                        this.creaCroppie(readerLoad.result);
+                    }
+                    readerLoad.readAsDataURL(imageBlob);
+                });
+            
+        }
+        
         this.dragOverListener = e => {
             e.stopPropagation();
             e.preventDefault();
@@ -93,15 +125,25 @@ class WPublish extends ZDialog {
             }, []);
             if (!temas.length) throw "Debe seleccionar al menos un tema o categoría para la capa de desea publicar."
             let contactar = this.edContactarme.checked;
-            await zPost("publicaBiblioteca.geoos", {nombre, descripcion, foto, temas, contactar, capa:JSON.stringify(this.layer.serialize())});
+            if (!this.isEdit) await zPost("publicaBiblioteca.geoos", {nombre, descripcion, foto, temas, contactar, capa:JSON.stringify(this.layer.serialize())});
+            else await zPost("saveBibliotecPublicada.geoos", {id: this._id, nombre, descripcion, foto, temas, contactar, verificado: this._isVerified, capa:JSON.stringify(this.layer.serialize())});
             if (this.croppie) {
                 this.croppie.destroy();
                 this.croppie = null;
             }
-            this.close();            
+            this.close(this.isEdit);            
         } catch(error) {
             this.showDialog("common/WError", {message:error.toString()})
         }
     }
+
+    base64ToBase64url(input) {
+        // Replace non-url compatible chars with base64url standard chars and remove leading =
+        return input
+          .replace(/\+/g, '_')
+          .replace(/\//g, '-')
+          .replace(/=+$/g, '');
+    }
+
 }
 ZVC.export(WPublish);

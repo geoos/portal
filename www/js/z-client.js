@@ -14,7 +14,6 @@ function zPost(url, args, onOk, onError) {
     xhr.send(JSON.stringify(args?args:{}));
     xhr.onload = () => {
         if (xhr.status != 200) {
-            console.log("xhr", xhr);
             let msg = xhr.responseText?xhr.responseText:xhr.statusText;
             if (onError) onError(msg)
             else zClientDefaultErrorHandler(msg)

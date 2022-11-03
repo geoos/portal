@@ -140,7 +140,8 @@ class ViewTool extends ZCustomController {
     }
 
     onCmdToolsAdd_click() {
-        this.triggerEvent("addTool");
+        const selected = window.geoos.getSelectedTool();
+        this.triggerEvent("addTool", selected ? selected.type : null);
     }
 
     async selectionChange(sel) {
