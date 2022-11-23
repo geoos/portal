@@ -78,7 +78,7 @@ class ToolDistance extends GEOOSTool {
     }
     
     async isValid() {
-        //console.log("isValid", this.layerId, this.object);
+        //console.log("isValid", this, this.layerId, this.object);
         if (this.object.type.startsWith("user-object/")) return window.geoos.getUserObject(this.object.code)?true:false;
         /*
         let layer = window.geoos.getLayer(this.layerId);
