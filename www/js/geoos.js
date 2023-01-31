@@ -21,6 +21,8 @@ class GEOOS {
         this.events.on("map", "click", async p => await this.unselectObject())
         await this.inicializaPlugins();
         await GEOOSTool.inicializaDashboards();
+        this.buildMonstationsLayers();
+
         console.log("[GEOOS] Inicializado");
     }
 
@@ -336,7 +338,7 @@ class GEOOS {
         return layers;
     }
 
-    async getAvailableLayers(type, dimCode) {
+    async getAvailableLayers(type, dimCode, monstationsLayerCode) {
         let layers = [];
         if (type == "variables") {
             for (let geoServer of this.geoServers) {
@@ -456,11 +458,56 @@ class GEOOS {
                     }
                 }
             }
+        } else if (type == "monstations") {
+            if (!monstationsLayerCode) {
+                return this.monstationsLayers;
+            } else {
+                console.log("Rescartar variables monitoreadas de", monstationsLayerCode);
+                let layer = this.monstationsLayers.find(l => l.code == monstationsLayerCode);
+                if (!layer) throw "No se encontró la capa de monstations " + monstationsLayerCode;
+                for (let code of layer.variables) {
+                    let v = await layer.zRepoServer.client.getVariable(code);
+                    if (!v) {
+                        console.error("No se encontró la variable " + code + " en el ZRepoServer " + layer.zRepoServer.url);
+                        continue;
+                    }
+                    v.options = v.options || {};
+                    layers.push({
+                        type:"minz", name:v.name, path:layer.varStationPath, variable:v,
+                        zRepoServer:layer.zRepoServer,
+                        providers:[layer.provider],
+                        subjects:layer.subjects || [],
+                        regions:layer.regions || [],
+                        types:layer.types || [],
+                        code:v.code
+                    });
+                }
+            }
         } else {
             throw "Layer type '" + type + "' not yet supported";
         }
         layers.sort((l1, l2) => (l1.name > l2.name?1:-1))
         return layers;
+    }
+
+    getZRepoServerByURL(url) {
+        return this.zRepoServers.find(s => s.url == url);
+    }
+
+    buildMonstationsLayers() {
+        this.monstationsLayers = this.config.capasMonitoreo || [];
+        // Asignar zRepoServer
+        this.monstationsLayers = this.monstationsLayers.map(c => {
+            let zRepoServer = this.getZRepoServerByURL(c.zRepoServer);
+            if (!zRepoServer) throw "No se encontró el ZRepoServer definido en la capa de Monitore de Estaciones: " + c.code;
+            c.type = "monstations";
+            c.zRepoServer = zRepoServer;
+            c.providers = [c.provider];
+            c.subjects = c.subjects || [];
+            c.regions = c.regions || [];
+            c.types = c.types || [];
+            return c;
+        });
     }
 
     getMultimediaLayer(code) {

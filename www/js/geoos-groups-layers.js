@@ -180,6 +180,8 @@ class GEOOSGroup {
             return false;
         } else if (layerConfig.type == "multimedia") {
             return this.layers.find(l => (l instanceof GEOOSMultimediaLayer && l.config.code == layerConfig.code))?true:false;
+        } else if (layerConfig.type == "monstations") {
+            return this.layers.find(l => (l instanceof GEOOSMonStationsLayer && l.config.code == layerConfig.code))?true:false;
         } else throw "layer type '" + layerConfig.type + "' not handled yet in 'containsLayer'"
     }
 
@@ -241,6 +243,9 @@ class GEOOSLayer {
                 opacity:100                
             }
             return new GEOOSStationsLayer(config)
+        } else if (layerConfig.type == "monstations") {
+            layerConfig.opacity = 100;
+            return new GEOOSMonStationsLayer(layerConfig)
         }
         throw "Layer type '" + layerConfig.type + "' not yet handled"
     }

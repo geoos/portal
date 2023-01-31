@@ -40,14 +40,17 @@ class GEOOSQuery {
         if (includeUnit) txt += "[" + this.unit + "]";
     }
 
-    static newEmptySelector(caption, minZDimension, layerName) {
+    static newEmptySelector(caption, minZDimension, layerName, layer) {
+        let monstationsLayerCode = null;
+        if (layer instanceof GEOOSMonStationsLayer) monstationsLayerCode = layer.config.code;
         return new GEOOSQuery({
             type:"selector",
             code:"selector",
             name:caption || "[Seleccione Variables]",
             icon:"img/icons/search.svg",
             minZDimension:minZDimension,
-            layerName:layerName
+            layerName:layerName,
+            monstationsLayerCode
         })
     }
 
@@ -89,7 +92,7 @@ class GEOOSQuery {
     }
     registerListeners(container, listeners) {
         container.find("#varName" + this.id).onclick = _ => {
-            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName, singleSelection:listeners.singleSelection}, variables => {
+            container.showDialog("common/WSelectVariables", {dimCode:this.config.minZDimension, layerName:this.config.layerName, singleSelection:listeners.singleSelection, monstationsLayerCode: this.config.monstationsLayerCode}, variables => {
                 if (listeners.onSelect) listeners.onSelect(variables)
             })
         }
@@ -97,7 +100,7 @@ class GEOOSQuery {
     getLegendColorHTML() {
         let html = "";
         html += `<div class="row mt-1">`;
-        html += `  <div id="selLegend$        console.log("icon", icon);t-left mt-1">Leyendas</span>`;
+        html += `  <div id="selLegend$" class="textt-left mt-1">Leyendas</span>`;
         html += `  </div>`;
         html += `  <div id="selColor${this.id}" class="col" style="cursor: pointer;" >`;
         html += `    <i class="far ${this.color?"fa-dot-circle":"fa-circle"} mr-2 float-left mt-1"></i>`;
@@ -372,6 +375,7 @@ class MinZQuery extends GEOOSQuery {
         let c = new MinZQuery(q.zRepoServer, q.variable, q.groupingDimension, q.fixedFilter, q.filters, q.accum);
         c.descripcionAgrupador = q.descripcionAgrupador;
         c.descripcionFiltros = q.descripcionFiltros;
+        c.monstationsLayerCode = q.monstationsLayerCode;
         return c;
     }
 
@@ -393,7 +397,8 @@ class MinZQuery extends GEOOSQuery {
             startTime:this.startTime, endTime:this.endTime, temporality: this.temporality,
             filters:this.filters, fixedFilter:this.fixedFilter, 
             groupingDimension:this.groupingDimension, timeDescription:this.timeDescription, 
-            zRepoServer:this.zRepoServer.url, variable:this.variable.code
+            zRepoServer:this.zRepoServer.url, variable:this.variable.code,
+            monstationsLayerCode:this.monstationsLayerCode
         }
     }
     static deserialize(cfg) {
@@ -406,6 +411,7 @@ class MinZQuery extends GEOOSQuery {
         q.temporality = cfg.temporality;
         q.color = cfg.color;
         q.legend = cfg.legend;
+        q.monstationsLayerCode = cfg.monstationsLayerCode;
         return q;
     }
 
@@ -631,7 +637,7 @@ class MinZQuery extends GEOOSQuery {
     }
 
     query(args) {
-        let fixedFilter = JSON.parse(JSON.stringify(this.fixedFilter));
+        let fixedFilter = JSON.parse(JSON.stringify(this.fixedFilter || {}));
         if (args.objectCode && fixedFilter) {
             if (fixedFilter.valor == "${codigo-objeto}") fixedFilter.valor = args.objectCode;
         }

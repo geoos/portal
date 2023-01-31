@@ -27,6 +27,14 @@ class AnalysisPanel extends ZCustomController {
                     let q = new MinZQuery(estacion.server, v0, null, {ruta:"estacion", valor:"${codigo-objeto}"}, [], accum);
                     await q.construyeDescripcionFiltros();
                     initialAnalyzerConfig = {watcher1:q.serialize()}
+                } else if (this.selectedObject.type == "monstation") {
+                    initialAnalyzerCode = "time-serie";
+                    initialAnalyzerConfig = {}
+                    let v0 = this.selectedLayer.variable; // Variable default es la que se usa para búsqueda de estaciones en el período
+                    let accum = v0.options && v0.options.defaults && v0.options.defaults.accum?v0.options.defaults && v0.options.defaults.accum:"avg";
+                    let q = new MinZQuery(this.selectedLayer.zRepoServer, v0, null, {ruta:this.selectedLayer.varStationPath, valor:"${codigo-objeto}"}, [], accum);
+                    await q.construyeDescripcionFiltros();
+                    initialAnalyzerConfig = {watcher1:q.serialize()}
                 } else {
                     if (this.selectedLayer.options && this.selectedLayer.options.defaults && this.selectedLayer.options.defaults.analyzerCode) {
                         initialAnalyzerCode = this.selectedLayer.options.defaults.analyzerCode;

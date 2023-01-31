@@ -1,14 +1,16 @@
 class WSelectVariables extends ZDialog {
     async onThis_init(options) {
+        console.log("select", options);
         this.dimCode = options.dimCode;
         this.layerName = options.layerName;
         this.singleSelection = options.singleSelection;
         this.selectedIcon = options.singleSelection?"fa-dot-circle":"fa-check-square";
         this.unselectedIcon = options.singleSelection?"fa-circle":"fa-square";
+        this.monstationsLayerCode = options.monstationsLayerCode;
         
         this.infoVarCode = null;
         this.infoContent.hide();
-        this.infoPanel.hide();
+        this.infoPanel.hide();        
         if (this.dimCode) {
             if (this.dimCode != "rie.estacion") {
                 this.edLayerType.setRows([{
@@ -23,6 +25,13 @@ class WSelectVariables extends ZDialog {
                     code:"variables", name:"Otras Variables en el mismo Punto"
                 }], "stations")
             }
+        } else if (this.monstationsLayerCode) {
+            this.edLayerType.setRows([{
+                code:"monstations", name:"Monitoreadas en la Estaciones"
+            }, {
+                code:"variables", name:"Otras Variables en el mismo Punto"
+            }], "stations")
+
         } else {
             this.edLayerType.setRows([{
                 code:"variables", name:"Variables en Centro"
@@ -44,7 +53,7 @@ class WSelectVariables extends ZDialog {
         let layerType = this.edLayerType.value;
         this.filters = {};
         this.sections.forEach(section => this.filters[section.code] = [])
-        this.layers = await window.geoos.getAvailableLayers(layerType, this.dimCode);
+        this.layers = await window.geoos.getAvailableLayers(layerType, this.dimCode, this.monstationsLayerCode);
         this.refresh();
     }
 
@@ -82,6 +91,7 @@ class WSelectVariables extends ZDialog {
             layers.forEach(layer => {
                 let sectionCodes = layer[section.code];
                 if (!sectionCodes.length) {
+                    if (!section.data.find(r => r.code == "no")) console.error("NO nLayers", section.code, layer[section.code], "Revisar provider, es obligatorio");
                     section.data.find(r => r.code == "no").nLayers++;
                 } else {
                     sectionCodes.forEach(code => {

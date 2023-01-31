@@ -38,9 +38,12 @@ class AddPanel extends ZCustomController {
         else $(this.tMultimedia.find("I")).addClass("fa-circle");
         if (t == "special") $(this.tSpecial.find("I")).addClass("fa-dot-circle");
         else $(this.tSpecial.find("I")).addClass("fa-circle");
+        if (t == "monstations") $(this.tMonStations.find("I")).addClass("fa-dot-circle");
+        else $(this.tMonStations.find("I")).addClass("fa-circle");
     }
     async onTVariables_click() {this.layerType = "variables"; await this.refreshLayerType();}
     async onTVector_click() {this.layerType = "vector"; await this.refreshLayerType();}
+    async onTMonStations_click() {this.layerType = "monstations"; await this.refreshLayerType();}
     async onTTiles_click() {this.layerType = "tiles"; await this.refreshLayerType();}
     async onTMultimedia_click() {this.layerType = "multimedia"; await this.refreshLayerType();}
     async onTSpecial_click() {this.layerType = "special"; await this.refreshLayerType();}

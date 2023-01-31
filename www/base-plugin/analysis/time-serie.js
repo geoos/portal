@@ -200,7 +200,7 @@ class GEOOSAnalyzerTimeSerie extends GEOOSAnalyzer {
 }
 
 GEOOSAnalyzer.register("time-serie", "Serie de Tiempo", 
-    o => (o.type == "station" || o.type == "vector-object" || o.type == "user-object"), 
+    o => (o.type == "station" || o.type == "vector-object" || o.type == "user-object" || o.type == "monstation"), 
     (o, listeners) => (new GEOOSAnalyzerTimeSerie(o, listeners)),
     350
 )

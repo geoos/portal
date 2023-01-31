@@ -6,7 +6,7 @@ class TimeSerieVars extends ZCustomController {
 
     async refresh() {
         if (!this.analyzer.watcher1) {
-            let selector = GEOOSQuery.newEmptySelector("Seleccionar Variable Principal", this.analyzer.layer.minZDimension, this.analyzer.layer.name);
+            let selector = GEOOSQuery.newEmptySelector("Seleccionar Variable Principal", this.analyzer.layer.minZDimension, this.analyzer.layer.name, this.analyzer.layer);
             this.edWatcher1.html = await selector.getHTML(false);
             selector.registerListeners(this.edWatcher1, {
                 singleSelection:true,
@@ -49,7 +49,7 @@ class TimeSerieVars extends ZCustomController {
         }
 
         if (!this.analyzer.watcher2) {
-            let selector = GEOOSQuery.newEmptySelector("Comparar con Variable", this.analyzer.layer.minZDimension, this.analyzer.layer.name);
+            let selector = GEOOSQuery.newEmptySelector("Comparar con Variable", this.analyzer.layer.minZDimension, this.analyzer.layer.name, this.analyzer.layer);
             this.edWatcher2.html = await selector.getHTML(true);
             selector.registerListeners(this.edWatcher2, {
                 singleSelection:true,

@@ -245,8 +245,8 @@ class ZPop {
         let html = "<div id='sub-items'></div>";
         if (this.options.onSearch) {
             html += "<hr class='zpop-divider' />";
-            html += "<form class='form-inline zpop-search-container' tabindex='0'>";
-            html += "<input type='text' tabindex='0' placeholder='" + this.options.searchPlaceholder + "' class='form-control form-control-sm zpop-search' />";
+            html += "<form class='form-inline zpop-search-container'>";            
+            html += "<input type='text' placeholder='" + this.options.searchPlaceholder + "' class='form-control form-control-sm zpop-search' />";
             html += "<i class='fas fa-search fa-lg float-right zpop-search-icon searcher'></i>";
             html += "<i class='fas fa-times fa-lg float-right zpop-search-icon clearer' style='color:gray; cursor:pointer; display:none;'></i>";
             html += "</form>";

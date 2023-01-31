@@ -180,6 +180,9 @@ class ZRepoClient {
         let variables = await this.getVariables();
         return variables.find(v => (v.code == code));
     }
+    getVariableFromCache(code) {
+        return this.variables.find(v => (v.code == code));
+    }
 
     async getDataSets() {
         if (this.dataSets) return this.dataSets;
