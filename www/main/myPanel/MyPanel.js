@@ -532,11 +532,11 @@ class MyPanel extends ZCustomController {
                         message:"¿Confirma que desea eliminar la Capa '" + layer.name + "'?"
                     }, async _ => {
                         try {
-                            await group.removeLayer(layerId);
+                            await group.removeLayer(layerId, true);
                             await window.geoos.events.trigger("portal", "layerDeleted", layer);
                             this.refresh();
                         } catch(error) {
-                            console.log("error")
+                            console.log(error);
                             this.showDialog("common/WError", {
                                 subtitle:"Advertencia",
                                 message:error.toString()
