@@ -138,7 +138,7 @@
                     console.log("Seleccionado lenguaje default", lang);
                 }
                 window.language = lang;
-                const langPreprocessor = new ZLangPreprocessor(window.mensajes, lang);
+                const langPreprocessor = new ZLangPreprocessor(window.mensajes, "es");
                 window.toLang = msg => (langPreprocessor.parseHTML(msg));
                 ZVC.options.htmlPreprocessor = html => (langPreprocessor.parseHTML(html))
                 await ZVC.fromElement("main");
