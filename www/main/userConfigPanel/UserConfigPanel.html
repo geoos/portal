@@ -7,14 +7,18 @@
     <div id="userConfigContent" class="container-fluid pb-2">
         <ul id="tabUserConfigPanel" class="nav nav-tabs justify-content-end" role="tablist">
             <li class="nav-item">
-              <a id="tabMapType" class="nav-link active" data-toggle="tab" href="#mapTypePage" role="tab" aria-selected="false">Mapa</a>
+              <a id="tabGeneral" class="nav-link active" data-toggle="tab" href="#generalPage" role="tab" aria-selected="false">General</a>
             </li>
+            <li class="nav-item">
+                <a id="tabMapType" class="nav-link" data-toggle="tab" href="#mapTypePage" role="tab" aria-selected="false">Mapa</a>
+              </li>
             <li class="nav-item">
               <a id="tabGrid" class="nav-link" data-toggle="tab" href="#gridPage" role="tab" aria-selected="false">Grilla</a>
             </li>
         </ul>
         <div id="tabUserConfigTabContent" class="tab-content p-2">
-            <div id="mapTypePage" class="tab-pane fade active show" data-z-component="./MapTypePage" role="tabpanel" style="overflow-y: auto;"></div>
+            <div id="generalPage" class="tab-pane fade active show" data-z-component="./GeneralPage" role="tabpanel" style="overflow-y: auto;"></div>
+            <div id="mapTypePage" class="tab-pane fade" data-z-component="./MapTypePage" role="tabpanel" style="overflow-y: auto;"></div>
             <div id="gridPage" class="tab-pane fade" data-z-component="./GridPage" role="tabpanel" style="overflow-y: auto;"></div>
         </div>
     </div>

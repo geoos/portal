@@ -106,6 +106,8 @@
         <script src="js/color-utils.js"></script>
         <script src="js/zrepo-client.js"></script>
         <script src="js/geoos-plugins.js"></script>
+        <script src="lang/z-language-preprocessor.js"></script>
+        <script src="lang/mensajes.js"></script>
         <script src="js/geoos.js"></script>
 
         <script src="js/html2canvas.min.js"></script>
@@ -120,6 +122,11 @@
                 ZVC.options.debug.events = false;
                 require.config({ paths: { 'vs': 'monaco/min/vs' }});
                 require(['vs/editor/editor.main'], () => {});
+                let lang = window.localStorage.getItem("lang") || "es";
+                window.language = lang;
+                const langPreprocessor = new ZLangPreprocessor(window.mensajes, "es");
+                window.toLang = msg => (langPreprocessor.parseHTML(msg));
+                ZVC.options.htmlPreprocessor = html => (langPreprocessor.parseHTML(html))
                 await ZVC.fromElement("main");
             });
         </script>
