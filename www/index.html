@@ -118,13 +118,27 @@
         </style>
 
         <script>            
+            const getNavigatorLanguage = () => {
+                if (navigator.languages && navigator.languages.length) {
+                    return navigator.languages[0];
+                } else {
+                    return navigator.userLanguage || navigator.language || navigator.browserLanguage || 'en';
+                }
+            }
             document.addEventListener("DOMContentLoaded", async _ => {                
                 ZVC.options.debug.events = false;
                 require.config({ paths: { 'vs': 'monaco/min/vs' }});
                 require(['vs/editor/editor.main'], () => {});
-                let lang = window.localStorage.getItem("lang") || "es";
+                let lang = window.localStorage.getItem("lang");
+                if (!lang) {
+                    lang = getNavigatorLanguage();
+                    if (!lang) lang = "es";
+                    if (lang.length > 2) lang = lang.substr(0,2);
+                    window.localStorage.setItem("lang", lang);
+                    console.log("Seleccionado lenguaje default", lang);
+                }
                 window.language = lang;
-                const langPreprocessor = new ZLangPreprocessor(window.mensajes, "es");
+                const langPreprocessor = new ZLangPreprocessor(window.mensajes, lang);
                 window.toLang = msg => (langPreprocessor.parseHTML(msg));
                 ZVC.options.htmlPreprocessor = html => (langPreprocessor.parseHTML(html))
                 await ZVC.fromElement("main");
