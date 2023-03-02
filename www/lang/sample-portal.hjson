@@ -1,0 +1,194 @@
+{
+    webServer:{http:{port:8090}}
+
+    #Available base Maps 
+    maps:[{
+        code:"esri-world-physical", name:"Esri - World Physical Map"
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service'
+            maxZoom: 8
+        }
+    }, {
+        code:"open-topo", name:"OSM - Open Topo"
+        url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+        options:{
+            maxZoom: 17
+            attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+        }
+        includeLabels:true
+    }, {
+        code:"esri-world-imagery", name:"Esri - World Imagery"
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+        }
+    }, {
+        code:"stamen-terrain", name:"Stamen - Terrain"
+        url:'https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.{ext}'
+        options:{
+            attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: 'abcd',
+            minZoom: 0,
+            maxZoom: 18,
+            ext: 'png'
+        }
+        includeLabels:true
+    }, {
+        code:"esri-world-street", name:"Esri - World Street Map",
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+        }
+        includeLabels:true
+    }, {
+        code:"esri-world-terrain", name:"Esri - World Terrain",
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}',
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; Source: USGS, Esri, TANA, DeLorme, and NPS',
+            maxZoom:13
+        }
+    }, {
+        code:"esri-ocean-basemap", name:"Esri - Ocean Base Map",
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+            maxZoom:13
+        }
+        includeLabels:true
+    }, {
+        code:"esri-natgeo", name:"Esri - NatGeo World Map",
+        url:'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+        options:{
+            attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+            maxZoom:16
+        }
+        includeLabels:true
+    }]
+
+    plugins:["base-plugin"]
+
+    # Here
+    hereAPIKey:"eG2NCop0Fa_k1JUQUaiZvkt-pQKlSlYODS_UwKqaD6c"
+
+    # Servers
+    eoServers:["https://geoserver.geoos.org"]
+    zRepoServers:[{url:"https://zrepo.geoos.org", token:"geoos-public"}]
+    
+    # Variables Clasification
+    varSubjects:[{
+        code:"meteo", name:"Metereología"
+    }, {
+        code:"oce", name:"Oceanografía"
+    }, {
+        code:"geo", name:"Geología"
+    }, {
+        code:"geopolitica", name:"División Geopolítica"
+    }, {
+        code:"senso", name:"Datos desde Senso"
+    }, {
+        code:"test", name:"Pruebas"
+    }]
+    
+    varTypes:[{
+        code:"sat", name:"Telemetría Satelital"
+    }]
+    
+    varRegions:[{
+        code:"centro", name:"Zona Centro"
+    }]
+
+    smtp:{
+        transport:{
+            service:"gmail"
+            auth:{user:"geoos.mailer@gmail.com", pass:"XXXXXX"}
+        }
+        from:"GEOOS <geoos.mailer@gmail.com>"
+        templateRegistra:"<html><p>Su código de registro de usario en el portal GEOOS es <b>${codigoRegistro}</b>.</p><p>Ingrese este código en el formulario que lo solicita para continuar con el registro.</p><br /><p><i>Este es un correo automático del Portal GEOOS.\nPor favor no contestar.</i></p></html>"
+        templateRecupera:"<html><p>Su código de regeneración de contraseña en el portal GEOOS es <b>${codigoRegistro}</b>.</p><p>Ingrese este código en el formulario que lo solicita para generar una nueva contraseña.</p><br /><p><i>Este es un correo automático del Portal GEOOS.\nPor favor no contestar.</i></p></html>"
+    }
+
+    defaultGroupLayers:["noaa-gfs4.WND_10M", "noaa-gfs4.PRMSL"]
+
+    zRepoAnalysisDashboards:[{
+        id:"b2bXGybtZsmqLtegpXs6SN7F6uugPX8XnsHdq-3l", name:"Diario - Estaciones Meteorológicas"
+    }]
+
+    temasBiblioteca:[{
+        code:"meteo", name:"Meteorología"
+    }, {
+        code:"oce", name:"Oceanografía"
+    }, {
+        code:"geop", name:"Geopolítica"
+    }, {
+        code:"cclim", name:"Cambio Climático"
+    }, {
+        code:"pesca", name:"Pesca"
+    }, {
+        code:"contam", name:"Contaminación"
+    }, {
+        code:"biologia", name:"Biología"
+    }, {
+        code:"salud", name:"Salud"
+    }, {
+        code:"otro", name:"Otros Temas"
+    }]
+    adminsBiblioteca:["jjimenez@zonar.cl", "miguel.fernandez.d@pucv.cl", "joaquim.pereira@pucv.cl", "samuel.hormazabal@pucv.cl"]
+    capasMultimedia:[{
+        code:"camarasVivo"
+        name:"Chile - Cámaras en Vivo"
+        source:"google-spreadsheet"        
+        # docID el ID en la URL al editarlo
+        docID:"1L_PqpdRS0IzSwGtwKn6KFSKOSEioVN9EtUhemxrmTgc"
+        # Desde el json de credenciales descargado
+        # El documento se debe compartir (como Editor) con este email
+        client_email: "geoos-multimedia@geoos-capas-multimedia.iam.gserviceaccount.com"
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDsQnTMCtS+yN+Y\n7t7Mk0b2XOMqy3gRkqmVqM1UdikdXqpcqeLAJinRIZrpnM/Q/MQ6oTkL3lsLIjad\nrUQPScX2CbYeKakULJVfeX5wM5RwLxzxTUxQ4OSCZXBfnb4bKuDGIm46OAZ3zZkA\nX4vXISwxG0Y5NqGexo/oLMkoAF6B0MhuhyznrJb1yRFkZynN+c9elYV9T/HzUfw9\nIqIGadtMAgs/2rh1OFVEkasH3NwU0qwCwJhNqSIY3wYad71iVWOFOyZctiU2F3wa\nCJkK7aEajko4bx8WHxcQJkoFodBZWBUgqygk9rCrldT4HO1lPRxR0G79y+6pRxMJ\n13ccPvnPAgMBAAECggEAJZtufAw9USEodm+Ph4DqCs0+W9GHi0SNOgVkqc0lPkeT\nVqy0K2HnxiJTRlxvuBSEJ9ECA6GhXGRVzUOHUeesWz2wf5yiDVQLcucj+Tg8qJ7X\nPJHRVA54UUlUWeQCHtD0dpWEdj/0x50yfZy35caiAi8VPoYzs9Jnlc2LN5LXeFI1\nRri37Bg73bpTQFgK8W7K2hon/9B4mknAYXOkl2kfcp3EaKl73gXyKGuV8Pub0ZJy\nht/xmQMDYqacMSOG8hWpteA3OlLrUkYs8Y9rs1gm4EFodkWfDXbcsgm6bOs48BDv\npHrk26BUuadl6wVVmDhzkI9WXLZLLIzpEYIBWaKcAQKBgQD6YX1Jr+O+Iz1hbJ3a\nxR/nX+pAggizuMuduJ/9bz/TYKK52k6mMv54o4ub7cR8Xs+uUwgmB48ptUJJDS+L\nHEO8Jf4RJWYYXTdM6ywpOPghmxn2r07MZJg26jULfmyxcRSyihGIutxR+oq8v5Me\nhnZqcMdEasnxxoltZM4qyuxKhwKBgQDxj9YXtppSAFUWL0OI6ZgIwhRx4+egH8SJ\nbtEFsYbq+AFOGQjRroy0OjU3PDd4hDBvtx63jQ5HkCCxeagxvkynFr/nBM5XUioE\n+x9Aor90sLk3eEo0YnYiraMyMXlLyJwg4oNn5HqOvbPwgUr4jMNDuCFXCg8k3XAo\n0xiKdiJAeQKBgQDmQygEz2SD5Ua6xTg7DJS1paj6IFw+ZFGlwDgqy9gH3lRo1ZMF\nF9qdOdLX2QedVVhrumLBDqyjr9XA9wZlSd4lN097l0hYWcnUzGa1lnXj+g8bpcez\nA0RVJHkaE++EFDnzpDRR6X9bSS20Pf7f0MswQn2PtyH3Xx3d5BoSksJSGwKBgQC9\njOKwpOcfZYde6yORccuNQ84LOIzvBz6PoVd/ojh+dLGBeP+EmfVrDynm9+eHOCNR\n5l3CJnuICD6/RPmIXw2DJ8TaINlRh/XVBsEVVR/rDymnr0p7JLASsjIXFt9Zakep\nPlVi1tSc4ZsrJCmSM9KddwUiaZBMmz6BqnPdYqmp8QKBgQC33T7Z/ffPy6g+uiGy\nlZQZ+K75UXDAXIWEnfwlDGT8zoMUjQZAvYcPPXf8vv6uqzW/Q4SStoJ1+YRlq7qV\nGx+xf5aFPMsuaxHL+y8ngK6Mw9NC1rjtEQhavH2u/b4nn3x4F9f8vLijqDjxxxvT\nClLlAB9EaU1bd2tFa5Jmen6BhQ==\n-----END PRIVATE KEY-----\n",
+    }, { 
+        # Cuenta: contactogeoos@gmail.com
+        # Instrucciones: https://theoephraim.github.io/node-google-spreadsheet/#/getting-started/authentication
+        #   - Proyecto GEOOS - Capas Multimedia, usando credenciales para un Service Account       
+        code:"test-multimedia"
+        name:"Prueba de Archivos Multimedia"
+        source:"google-spreadsheet"
+        tolerancia:{unidad:"año", valor:1}
+        # docID el ID en la URL al editarlo
+        docID:"1D8Fd5kXq7zIe7m7zt9HsXrHPm-kDaNO3LOCrcdqAtto"
+        # Desde el json de credenciales descargado
+        # El documento se debe compartir (como Editor) con este email
+        client_email: "geoos-multimedia@geoos-capas-multimedia.iam.gserviceaccount.com"
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDsQnTMCtS+yN+Y\n7t7Mk0b2XOMqy3gRkqmVqM1UdikdXqpcqeLAJinRIZrpnM/Q/MQ6oTkL3lsLIjad\nrUQPScX2CbYeKakULJVfeX5wM5RwLxzxTUxQ4OSCZXBfnb4bKuDGIm46OAZ3zZkA\nX4vXISwxG0Y5NqGexo/oLMkoAF6B0MhuhyznrJb1yRFkZynN+c9elYV9T/HzUfw9\nIqIGadtMAgs/2rh1OFVEkasH3NwU0qwCwJhNqSIY3wYad71iVWOFOyZctiU2F3wa\nCJkK7aEajko4bx8WHxcQJkoFodBZWBUgqygk9rCrldT4HO1lPRxR0G79y+6pRxMJ\n13ccPvnPAgMBAAECggEAJZtufAw9USEodm+Ph4DqCs0+W9GHi0SNOgVkqc0lPkeT\nVqy0K2HnxiJTRlxvuBSEJ9ECA6GhXGRVzUOHUeesWz2wf5yiDVQLcucj+Tg8qJ7X\nPJHRVA54UUlUWeQCHtD0dpWEdj/0x50yfZy35caiAi8VPoYzs9Jnlc2LN5LXeFI1\nRri37Bg73bpTQFgK8W7K2hon/9B4mknAYXOkl2kfcp3EaKl73gXyKGuV8Pub0ZJy\nht/xmQMDYqacMSOG8hWpteA3OlLrUkYs8Y9rs1gm4EFodkWfDXbcsgm6bOs48BDv\npHrk26BUuadl6wVVmDhzkI9WXLZLLIzpEYIBWaKcAQKBgQD6YX1Jr+O+Iz1hbJ3a\nxR/nX+pAggizuMuduJ/9bz/TYKK52k6mMv54o4ub7cR8Xs+uUwgmB48ptUJJDS+L\nHEO8Jf4RJWYYXTdM6ywpOPghmxn2r07MZJg26jULfmyxcRSyihGIutxR+oq8v5Me\nhnZqcMdEasnxxoltZM4qyuxKhwKBgQDxj9YXtppSAFUWL0OI6ZgIwhRx4+egH8SJ\nbtEFsYbq+AFOGQjRroy0OjU3PDd4hDBvtx63jQ5HkCCxeagxvkynFr/nBM5XUioE\n+x9Aor90sLk3eEo0YnYiraMyMXlLyJwg4oNn5HqOvbPwgUr4jMNDuCFXCg8k3XAo\n0xiKdiJAeQKBgQDmQygEz2SD5Ua6xTg7DJS1paj6IFw+ZFGlwDgqy9gH3lRo1ZMF\nF9qdOdLX2QedVVhrumLBDqyjr9XA9wZlSd4lN097l0hYWcnUzGa1lnXj+g8bpcez\nA0RVJHkaE++EFDnzpDRR6X9bSS20Pf7f0MswQn2PtyH3Xx3d5BoSksJSGwKBgQC9\njOKwpOcfZYde6yORccuNQ84LOIzvBz6PoVd/ojh+dLGBeP+EmfVrDynm9+eHOCNR\n5l3CJnuICD6/RPmIXw2DJ8TaINlRh/XVBsEVVR/rDymnr0p7JLASsjIXFt9Zakep\nPlVi1tSc4ZsrJCmSM9KddwUiaZBMmz6BqnPdYqmp8QKBgQC33T7Z/ffPy6g+uiGy\nlZQZ+K75UXDAXIWEnfwlDGT8zoMUjQZAvYcPPXf8vv6uqzW/Q4SStoJ1+YRlq7qV\nGx+xf5aFPMsuaxHL+y8ngK6Mw9NC1rjtEQhavH2u/b4nn3x4F9f8vLijqDjxxxvT\nClLlAB9EaU1bd2tFa5Jmen6BhQ==\n-----END PRIVATE KEY-----\n",
+    }]
+
+    capasMonitoreo:[{
+        code:"monitoreo-huinay"
+        name: "Estaciones Monitoreo Huinay"
+        provider: "huinay"  // en config.hjson del geoserver
+        client_email: "monitoreo-huinay@geoos-monitoreo-huinay.iam.gserviceaccount.com"
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDETS35XV2GFXNk\nVXx4EuOVAU9hm71Vn5XwvC5iraGjslESoYo5g+KSoi4ZJFKbcY6LWBIKG0lG7wJF\n5WFnDwjU6H1GxZA9WcmKhiNgjwVHnesBKtONY2fc5C8qhcVHTWZY0iByUbqK0O5X\nPCs1IrtlOLGuPcYpquEhvghaDBYporhtP+vkB79jrGpPjLVN8JPl1nfQ8CpHnrTC\nI5JilsHASnrHbIoyDXVjZSDO+8c9kN5F4WfZYGHqWwhVN1EE2nAG+BVohg4VN20f\n87cL/8tkle7TCe7DBFlSOiyFK9J4js72gEzjQP/pl0w2Lz1DJY92LiYb4isVP/lu\nnb23GOvTAgMBAAECggEAMgmgYfOgLtkR8G3wC+V4uJc8ZlueEBDdVh+JzWKIFOOT\n0eV2iAGrxAfuKz98hR4VoURiWMwqyheLo0h8oxoMfMUEhgE/KrxT6OkXZHogdOh2\nqnYBtgU0SPSrZzHxHyNGJvbtCWb234KxdnAibWl8jik89XbOp/lkaMb5dwaksZjT\nsS6FJTz61EQrPU/CANb8IJ9/rNUv0e6iuXNNovBXmW5qpkdgvrkpRE2TN9cWZDuC\nH2EwNkev+yfpfjHuWcpRpskEBfFoS5U4CPg0lsLVcNoUTwrwEKu4uHRlz7BVwWqg\nZzs387AwoGe/Svkw7Ox+UqQZJNMwkvFL3D/cv7dJ+QKBgQDzXphU7g5eXf+oPPhw\n/gHZu+AfiYTCfZDrY2ea7rRmoFF5NP6Hpuk2/UJMFrWbm03AuKnXzcam2VZKzz0T\nMU5jDZggjQrXcOyFJ+u0KDvnk8nx4mGIDajGC1X+M7RgqHOweXC79QN889ARo7MO\nwCPZVqURW4YAB7lGPvMt6W0xuwKBgQDOfT059h4oAR2q20gP3QQNLIjqyht0zDsH\neG7C8LVk1hgRNxDcYHcAtDNP2BsLWSq0wCCTKBj6y4JX97U6VDrwqTAaBPcZW3DR\nDmDKrEzTH+aI8OJHh4yLtjCbVXyp0cFOYQ3FN/Ktnxc0CHOlyWCIzK2gCPwCgLKp\nI/KKO1igyQKBgQDbyfuDADdjzDqegunQieW78Su476ZBS8t8ehrQVnIAGRtbfpu8\ngOYwLksYko3TCVAQE/X3mrSkbLW8/CppUec8F8Pi6d33sdk5bFM3Mfrf6p2/4LY6\nfDOHICe6WpG1lYxdvV8tsFpFF6A6vf9w+9+kYdbTtTdwgYk2wpU2SpC+DwKBgExg\ndLIowBTJ/OBCxc/gT2xUCbzWzvsPw9HKkSWYBXBr5HERrjHlmH7xKH2jELXM4IgE\n/MeRsFOrzOWe4TDXEQoNepZVOdTuRrd9Gv48Zxo8lXgXqYsNr0XKOQZrw3XI+Th1\nm7NUM3ZW/y0m5yfuab+P/bTRPe3rDqqTelX5B5pJAoGBAJwqn23g16SFuNrDoIMQ\nkYJKQRU7cxqWrRHMlXb23IA5K1SuALhod7Evv11rtYuEiRKEiZtosUhQ5C5nMxxW\nsMHfv0PUhQVbHxbkK4c6aHg1O4EyYIaDoDlmYn+jMlhCZrVkc5ab198ZgzXLizAr\n+K3i5LmhHTn0qRDok3WD0D3l\n-----END PRIVATE KEY-----\n",
+        parentFolderId: "1XtkIZoO_glPWCO_bA7dUFl7n-a-HbZ7i"     // id del Folder en Drive que contiene las nuevas planillas (Id en link de compartir)
+        importedFolderId: "13kQ28trIQGI5D2TaUUnRBodPS2lx9M5B"   // Donde moverlos luego de importados (Id en link de compartir)
+        discardedFolderId: "1HCVpnKLDdbNJstRWwxz8dqU7JfXx0wkC"
+        withErrorsFolderId: "1or_t6_hvHsw4Ts1CwgteOeQIL0M-xbAC"
+        // Configuración despliegues y búsquedas
+        search:{toleranceDays:15, variable: "huinay.temp_profundidad"}
+        zRepoServer: "http://localhost:8096"
+        pointsDimension: "huinay.estacion"
+        levelsDimension: "huinay.profundidad"
+        varlLevelPath: "profundidad"
+        varStationPath: "estacion"
+        variables:["huinay.temp_profundidad"]
+    }, {
+        code:"monboyas-ulagos"
+        name: "Boyas Universidad de los Lagos"
+        provider: "ulagos"  // en config.hjson del geoserver
+        // Configuración despliegues y búsquedas
+        search:{toleranceDays:1, variable: "ulagos.vel_corriente_profundidad"}
+        zRepoServer: "http://localhost:8096"
+        pointsDimension: "ulagos.estacion"
+        levelsDimension: "ulagos.profundidad"
+        varlLevelPath: "profundidad"
+        varStationPath: "estacion"
+        variables:["ulagos.vel_corriente_profundidad"]
+    }]
+}
