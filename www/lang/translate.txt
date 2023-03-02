@@ -1,0 +1,58 @@
+Instrucciones Translate
+
+- Instrucciones para Linux o Mac OSX. Cambiar comandos a equivalentes Windows si es necesario
+
+**** Prerequisitos
+	- node js (14.0 ó superior)
+	- docker (version engina 20.0 ó superior)
+
+
+mkdir ./geoos-lang
+cd ./geoos-lang
+git clone -b https://github.com/geoos/portal.git
+cd ./portal
+npm install
+cd ..
+mkdir ./dev-data
+mkdir ./dev-data/mongo-data
+mkdir ./dev-data/config
+cp ./portal/www/lang/sample-portal.hjson ./dev-data/config/portal.hjson
+cp ./portal/www/lang/geoos.yml ./dev-data
+cd ./dev-data
+
+**** Descargar imágenes. No es necesario, pero puede ser útil para detectar errores más fácilmente
+docker pull mongo:4.4.1-bionic 
+docker pull node:14-alpine
+
+**** Si es el primer stack de docker swarm que se intala, ejecutar "docker swarm init" (el siguiente comando lo indicará de ser necesario)
+
+docker stack deploy -c ./geoos.yml geoos
+
+**** Validar que los dos servicios levantaron bien (REPLICAS 1/1)
+docker service ls
+ID             NAME           MODE         REPLICAS   IMAGE                PORTS
+8dm3vag3ulgq   geoos_db       replicated   1/1        mongo:4.4.1-bionic   
+a92m7ltjxv9o   geoos_portal   replicated   1/1        node:14-alpine       *:8090->8090/tcp
+
+**** Detección de errores
+* Para ver los logs de los servicios
+docker service logs geoos_portal -f 
+docker service logs geoos_db -f 
+
+Si lo servicios no alcanzan a levantar y no se pueden ver los logs, es posible hacer
+docker service ps geoos_portal --no-trunc
+docker service ps geoos_db --no-trunc
+
+**** Proceso de traducción
+El Portal geoos se basa en el frameworh GUI zvc (https://github.com/otrojota/zvc) que permite que cada componente de la GUI se diseñe como un par de archivos html (vista) y js (controlador). Las principales ventajas de este framework, y que se aprovechan en el Portal geoos, son: 
+* Liviano
+* No requiere etapa de empaquetamiento para hacer deploy. Los cambios se ven reflejados inmediatamente
+* Permite separación y reutilización de componentes
+* Incluye interceptores en el proceso de carga de los componentes, lo que permite diseñar ahí el reemplazo de mensajes multilenguaje
+
+En el archivo ./portal/www/lang/mensajes.json se definen códigos de mensajes y su traducción a los diferentes idiomas soportados (es, pt, por ahora). Los mensajes se almacenan en una estructura jerárquica, como objetos JavaScript, en donde el último nivel debe corresponder a un mapa de textos para los códigos de lenguajes soportados. Por ejemplo: "mainMenu.miPanel: {es: 'Mi Panel', pt:'Meu Painel'}". Dentro de lass vistas (html) el mensaje anterior se referencia como $[mainMenu.miPanel]
+
+En el directorio ./portal/www/main se encuentran las vistas y controladores que se utilizan en el portal. Utilizando la nomenclatura $[codigo.mensaje] se referencia a la ruta de los códigos definidos en "mensajes.js" y se recarga la página para ver los resultados.
+
+La funcion global window.toLang(texto) puede ser usada desde los controladores para traducir textos dinámicos que generen los controladores.
+
