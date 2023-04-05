@@ -38,7 +38,15 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
         this.objects.splice(idx, 1);
         if (!silent) this.refresh();
     } 
-
+    editUserObject(eo, silent) {
+        let idx = this.objects.findIndex(o => (o.id == eo.id));
+        if (idx < 0) throw "No se encontró el objeto " + eo.id;
+        if (eo.type == "area"){
+            eo.points = eo.points.map(p => {p.locked = eo.locked; return p});
+        }
+        this.objects[idx] = eo;
+        if (!silent) this.refresh();
+    } 
     async create() {
         this.objectSelectedListener = selection => {
             //if (selection.layer.id == this.id) this.konvaLeafletLayer.getVisualizer("geoJsonTiles").redraw();
@@ -73,7 +81,7 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
                 } else {
                     this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
                 }
-                window.geoos.mapPanel.mapContainer.view.style.cursor = "crosshair";
+                if (!subObjectInfo.locked) window.geoos.mapPanel.mapContainer.view.style.cursor = "crosshair";
             },
             onmouseout: object => {
                 this.konvaLeafletLayer.getVisualizer("legends").unsetContextLegend();
@@ -155,7 +163,9 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
             level:o.level,
             code:o.id,
             icon:"img/icons/" + o.type + ".svg",
-            name:o.name
+            name:o.name,
+            locked: o.locked,
+            userObjectType: o.type
         }))
     }
 
@@ -172,7 +182,7 @@ class GEOOSUserObjectsLayer extends GEOOSLayer {
 }
 
 class GEOOSUserObject {
-    constructor(type, id, name, parentObject) {
+    constructor(type, id, name, locked, parentObject) {
         this.parentObject = parentObject;
         if (!id) id = type + "_" + parseInt(Math.random() * 9999999999);
         if (!name) {
@@ -189,6 +199,7 @@ class GEOOSUserObject {
             code:"time-serie", watcher1:{type:"raster", id:"default", format:"time-serie", geoServer:"geoos-main", dataSet:"noaa-gfs4", variable:"TMP_2"}}
         }
         this.level = parentObject?parentObject.level+1:0;
+        this.locked = locked || true;
     }
     static deserialize(s, parentObject) {
         let o;
@@ -197,12 +208,13 @@ class GEOOSUserObject {
         o.analysisConfig = s.analysisConfig;
         o.watchers = s.watchers.reduce((list, w) => ([...list, GEOOSQuery.deserialize(w)]), []);
         o.watcherResults = {};
-        o.watchers.forEach(w => o.watcherResults[w.id] = {aborter:null, results:null})
+        o.watchers.forEach(w => o.watcherResults[w.id] = {aborter:null, results:null});
+        o.locked = s.locked;
         return o;
     }
 
     serialize() {
-        let s = {id:this.id, type:this.type, name:this.name}
+        let s = {id:this.id, type:this.type, name:this.name, locked: this.locked}
         s.watchers = this.watchers.reduce((list, w) => ([...list, w.serialize()]), []);
         s.analysisConfig = this.analysisConfig;
         return s;
@@ -301,13 +313,13 @@ class GEOOSUserObject {
 }
 
 class GEOOSUserObjectPoint extends GEOOSUserObject {
-    constructor(id, name, lat, lng, parentObject) {
-        super("point", id, name, parentObject);
+    constructor(id, name, lat, lng, locked, parentObject) {
+        super("point", id, name, locked, parentObject);
         this.lat = lat; this.lng = lng;
     }
 
     static deserialize(s, parentObject) {
-        return new GEOOSUserObjectPoint(s.id, s.name, s.lat, s.lng, parentObject);
+        return new GEOOSUserObjectPoint(s.id, s.name, s.lat, s.lng, s.locked, parentObject);
     }
 
     getPropertyPanels() {
@@ -348,7 +360,7 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
     }
 
     getInteractionObjectInfo(interactionObject) {
-        return {name:this.name, center:this.getCenter()}
+        return {name:this.name, center:this.getCenter(), locked: this.locked}
     }
 
     getKonvaElements(visualizer) {
@@ -359,9 +371,8 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
         let element =  new Konva.Circle(opts);
         elements.push(element);
         this.canvasCenter = p; // used in dragBoundFunc in area objects
-
         if (visualizer.interactions) {
-            opts.draggable = true;
+            opts.draggable = this.parentObject? !this.parentObject.locked : !this.locked;
             opts.listening = true;
             opts.dragBoundFunc = this.dragBoundFunc; // from area
             delete opts.fill;
@@ -378,8 +389,8 @@ class GEOOSUserObjectPoint extends GEOOSUserObject {
 }
 
 class GEOOSUserObjectArea extends GEOOSUserObject {
-    constructor(id, name, p1, p2) {
-        super("area", id, name);
+    constructor(id, name, p1, p2, locked) {
+        super("area", id, name, locked);
         // deserialize sends null as 3rd parameter and assigns points
         if (p1) {
             let lngW = Math.min(p1.lng, p2.lng);
@@ -387,10 +398,10 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
             let latN = Math.max(p1.lat, p2.lat);
             let latS = Math.min(p1.lat, p2.lat);
             this.points = [
-                new GEOOSUserObjectPoint(null, this.name + "-nw", latN, lngW, this),
-                new GEOOSUserObjectPoint(null, this.name + "-ne", latN, lngE, this),
-                new GEOOSUserObjectPoint(null, this.name + "-sw", latS, lngW, this),
-                new GEOOSUserObjectPoint(null, this.name + "-se", latS, lngE, this)
+                new GEOOSUserObjectPoint(null, this.name + "-nw", latN, lngW, locked, this),
+                new GEOOSUserObjectPoint(null, this.name + "-ne", latN, lngE, locked, this),
+                new GEOOSUserObjectPoint(null, this.name + "-sw", latS, lngW, locked, this),
+                new GEOOSUserObjectPoint(null, this.name + "-se", latS, lngE, locked, this)
             ];
 
             // Points dragging restrictions
@@ -422,7 +433,7 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
     }
 
     static deserialize(s, parentObject) {
-        let area = new GEOOSUserObjectArea(s.id, s.name);
+        let area = new GEOOSUserObjectArea(s.id, s.name, s.locked);
         let points = s.points.reduce((list, p) => ([...list, GEOOSUserObject.deserialize(p, area)]), []);
         area.points = points;
         return area;
@@ -448,6 +459,14 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
             return this.points[idx];
         }
         return this;
+    }
+
+    getPropertyPanels() {
+        return [{
+            code:"point-object-properties", name:"Propiedades del Área", path:"./userObjects/AreaObjectProperties"
+        }, {
+            code:"user-object-watchers", name:"Observar Variables", path:"./userObjects/UOWatchers"
+        }]
     }
 
     serialize() {
@@ -511,7 +530,7 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
 
     getInteractionObjectInfo(interactionObject) {
         if (interactionObject.userObjectType == "point") return this.points[interactionObject.userObjectIndex].getInteractionObjectInfo(interactionObject);
-        return {name:this.name, center:this.getCenter()}
+        return {name:this.name, center:this.getCenter(), locked: this.locked}
     }
 
     async refresh() {
@@ -530,7 +549,7 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
             stroke: 'black',
             strokeWidth: 1,
             closed: true,
-            draggable:true,
+            draggable: !this.locked,
             shadowOffsetX : 5,
             shadowOffsetY : 5,
             shadowBlur : 10,
@@ -543,7 +562,7 @@ class GEOOSUserObjectArea extends GEOOSUserObject {
                 fill: 'rgba(0,0,0,0.05)',
                 stroke: 'black',
                 closed: true,
-                draggable:true,
+                draggable: !this.locked,
                 listening:true
             });
             interPoly.userObjectType = "area";

@@ -215,15 +215,15 @@ class LegendsVisualizer extends KonvaLeafletVisualizer {
             x:p0.x, y:p0.y, radius:5, fill:"black"
         });
         this.konvaLayer.add(marker);
-
         let kText = new Konva.Text({
             x:0, y:0,
-            text:this.contextLegend.label,
+            text: this.contextLegend.label + " \nLatitud\n" + window.geoos.formatNumber(this.contextLegend.lat, 6) + " \nLongitud\n" + window.geoos.formatNumber(this.contextLegend.lng, 6),
             fontSize:14,
             fontFamily:"Calibri",
             fill:"white",
             listening:false
         });
+
         let txtWidth = kText.width();
         let txtHeight = kText.height();
 
@@ -250,4 +250,6 @@ class LegendsVisualizer extends KonvaLeafletVisualizer {
         })
         this.konvaLayer.add(kText);
     }
+
+
 }

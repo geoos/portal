@@ -10,6 +10,7 @@ class ToolsPanel extends ZCustomController {
         //setTimeout(_ => this.toggle("normal"), 300);
         window.geoos.events.on("portal", "groupActivated", async _ => await this.refresh());
         window.geoos.events.on("tools", "toolAdded", async tool => await this.loadViewTools(tool.id));
+        window.geoos.events.on("tools", "toolEdited", async tool => await this.loadEditTool(tool));
     }    
 
     get width() {
@@ -112,7 +113,6 @@ class ToolsPanel extends ZCustomController {
     async onCmdOpenTools_click() {
         const element = document.querySelector("#cmdOpenTools");
         if(!element.classList.contains("disabled")){
-            console.log("enabled");
             if (this.status == "min") await this.toggle("normal");
             else if (this.status == "normal") await this.toggle("max");
         }
@@ -139,6 +139,14 @@ class ToolsPanel extends ZCustomController {
         if (this.status == "max") await this.toggle("normal");
         this.contenType = "new";
         await this.toolsMainLoader.load("./AddTool", {initialToolCode:toolCode});
+        this.doResize();
+        this.checkEnabled();
+    }
+
+    async loadEditTool(toolEdited) {
+        if (this.status == "max") await this.toggle("normal");
+        this.contenType = "edit";
+        await this.toolsMainLoader.load("./AddTool", {initialToolCode:toolEdited.type, toolEdited});
         this.doResize();
         this.checkEnabled();
     }

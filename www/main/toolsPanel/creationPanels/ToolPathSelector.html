@@ -13,13 +13,25 @@
                             <i class="fas fa-arrow-down"></i>
                         </button>
                     </div>
-                    <div class="btn-group ml-auto" role="group" aria-label="Second group">
+                    <!--<div class="btn-group ml-auto" role="group" aria-label="Second group">
                         <button id="cmdNewPoint" type="button" class="btn btn-sm btn-secondary geoos-panel-ok">
                             Nuevo Punto
                         </button>
                     </div>
+                    -->
+                    <div class="btn-group ml-auto" role="group" aria-label="Second group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">
+                            <i class="fas fa-plus-circle"></i>
+                            Agregar
+                        </button>
+                        <div class="dropdown-menu">
+                            <a id="cmdNewPoint" class="dropdown-item" href="#"><i class="fa fa-map-marker" aria-hidden="true" style="padding-left:-15px; padding-right:4px"></i>Nuevo</a>
+                            <a id="cmdImportPoint" class="dropdown-item" href="#"><i class="fas fa-file-csv" aria-hidden="true" style="padding-left:-15px; padding-right:4px"></i>Importar desde Archivo</a>
+                        </div>
+                      </div>
                 </div>
-                <select id="edAdded" size="10" class="form-control" style="margin-top: 5px;" data-z-id-field="id" data-z-label-field="name"></select>
+                <!-- <select id="edAdded" size="7" class="form-control" style="margin-top: 5px;" data-z-id-field="id" data-z-label-field="name"></select>-->
+                <div id="edAdded" class="list-point-group border rounded" style="height: 150px; max-height: 150px; margin-top: 5px; flex: 1 1 100%;"></div>
             </div>
             <div class="col-2">
                 <button id="cmdAdd" class="btn geoos-panel-ok btn-secondary w-100" style="margin-top: 130px;"><i class="fas fa-arrow-left"></i></button>
@@ -27,8 +39,16 @@
             </div>
             <div class="col-5">
                 <h6 style="margin-top: 57px;">Puntos Disponibles</h6>
-                <select id="edAvailable" size="10" class="form-control" style="margin-top: 10px;" data-z-id-field="id" data-z-label-field="name"></select>
+                <select id="edAvailable" size="7" class="form-control" style="margin-top: 10px;" data-z-id-field="id" data-z-label-field="name"></select>
+            </div>
+        </div>
+        <div class="row text-center" id="pointPropertiesInfo">
+            <div class="col-12">
+                <hr class="mt-5" style="height:1px;width:80%;margin: auto;border:none;color:#f2f2f2;background-color:#f2f2f2;" />
+                <h5 id="lblPointPropertiesCaption" class="mt-2">Propiedades del Punto</h5>
+                <div id="pointPropertiesLoader" data-z-load="common/Empty" style="margin-left: -20px;"></div>
             </div>
         </div>
     </div>
+    <input id="edFilePointSelector" type="file" accept=".csv" style="width: 1px; height: 1px; margin-top: -20px; opacity: 0.01;" />
 </div>

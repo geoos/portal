@@ -1043,3 +1043,55 @@ a:hover {
     margin-top: 4px;
     cursor: crosshair;
 }
+
+/*For tool distance */
+
+.list-point-group {
+    border: 1px solid white;
+    color: white;
+    margin-bottom: 5px;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='white' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px
+}
+
+.list-point-item {
+    background: #444343;
+    color: white;
+    font-size: 1rem;
+    height: 18px;
+    padding-top: 2px;
+    margin-left: 0px;
+}
+
+.list-point-item.active {
+    background: rgb(206, 206, 206);
+    color: rgb(16, 16, 16)
+}
+
+.list-point-group .scoll-pane::-webkit-scrollbar { 
+    display: none;  
+}
+  
+.list-point-item .point-icon {
+    height: 17px;
+    width: 17px;
+}
+
+.dropdown-toggle {
+    font-size: 0.875rem;
+}
+
+.dropdown-menu {
+    background: #444343;
+}
+
+.dropdown-item {
+    font-size: 0.813rem;
+    background: #444343;
+    color: white;
+}
+
+    

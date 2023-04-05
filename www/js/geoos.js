@@ -57,7 +57,7 @@ class GEOOS {
 
     formatNumber(value, decimals, unit) {
         let pow = Math.pow(10, decimals);
-        let txt = (Math.floor(value * pow) / pow).toLocaleString() + "";
+        let txt = (Math.floor(value * pow) / pow).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: decimals + 1}) + "";
         if (unit) txt += " [" + unit + "]";
         return txt;
     }
@@ -879,6 +879,16 @@ class GEOOS {
         this.events.trigger("userObject", "deleted", id);
     }
 
+    async editUserObject(o) {
+        let g = this.getActiveGroup();
+        let l = g.getUserObjectsLayer();
+        if (!l) throw "No User Objects Layer in Active Group";
+        l.editUserObject(o);
+        await this.checkToolsValidity();
+        await this.events.trigger("layer", "layerItemsChanged", l);
+        this.events.trigger("userObject", "lockChange", o);
+    }
+
     getTools() {
         return this.getActiveGroup().tools;
     }
@@ -894,6 +904,14 @@ class GEOOS {
     async addTool(tool) {
         let g = this.getActiveGroup();
         g.tools.push(tool);        
+        await this.selectTool(tool.id);
+        await this.events.trigger("tools", "toolAdded", tool);
+    }
+    async editTool(tool) {
+        let g = this.getActiveGroup();
+        let idx = this.getTools().findIndex(t => (t.id == tool.id));
+        if (idx < 0) throw "No se encontró herramienta " + id;
+        g.tools[idx] = tool;       
         await this.selectTool(tool.id);
         await this.events.trigger("tools", "toolAdded", tool);
     }

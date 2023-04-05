@@ -2,6 +2,7 @@ class UserObjectProperties extends ZCustomController {
     onThis_init(userObject) {
         this.userObject = userObject;
         this.edUserObjectName.value = userObject.name;
+        
     }    
 
     onEdUserObjectName_change() {

@@ -2,9 +2,9 @@ class AddTool extends ZCustomController {
     async onThis_init(options) {
         if (!window.geoos.getActiveGroup().tools.length) this.cmdCancelAddTool.hide();
         else this.cmdCancelAddTool.show();
-        this.edToolType.setRows(GEOOSTool.tools, options?options.initialToolCode:null)
+        this.edToolType.setRows(GEOOSTool.tools, options?options.initialToolCode:null);
         this.cmdGenerateTool.disable();
-        await this.refreshTool()
+        await this.refreshTool(options)
     }
 
     doResize() {
@@ -18,10 +18,18 @@ class AddTool extends ZCustomController {
 
     async refresh() {await this.refreshTool()}
     onEdToolType_change() {this.refreshTool()}
-    async refreshTool() {
+    async refreshTool(options) {
         let tool = this.edToolType.selectedRow;
         this.iconTool.view.src = tool.factories.icon;
-        await this.toolAddLoader.load(tool.factories.creationPanelPath, tool.factories.creationPanelOptions);
+        let optionsToLoad = tool.factories.creationPanelOptions;
+        this.toolEditedId = null;
+        if (options && options.toolEdited) {
+            optionsToLoad = {...tool.factories.creationPanelOptions, ...options};
+            this.edNewToolName.value = options.toolEdited.caption;
+            this.toolEditedId = options.toolEdited.id;
+            this.cmdGenerateTool.enable();
+        }
+        await this.toolAddLoader.load(tool.factories.creationPanelPath, optionsToLoad);
     }
 
     onToolAddLoader_change() {this.checkIsValid()}
@@ -43,8 +51,9 @@ class AddTool extends ZCustomController {
     }
 
     onCmdGenerateTool_click() {
-        let tool = this.edToolType.selectedRow.factories.factory(this.edNewToolName.value.trim(), this.toolAddLoader.content.getCreateOptions());
-        window.geoos.addTool(tool);
+        let tool = this.edToolType.selectedRow.factories.factory(this.toolEditedId ? this.toolEditedId: null, this.edNewToolName.value.trim(), this.toolAddLoader.content.getCreateOptions());
+        if (!this.toolEditedId) window.geoos.addTool(tool);
+        else window.geoos.editTool(tool);
     }
     onCmdCancelAddTool_click() {
         this.triggerEvent("cancelAdd");

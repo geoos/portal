@@ -189,7 +189,7 @@ GEOOSTool.register("3d-chart", "Gráficos 3D sobre Lat / Lng", {
     icon:window.geoos.getPlugin("base").basePath + "/tools/img/3d-chart.png",
     menuIcon:window.geoos.getPlugin("base").basePath + "/tools/img/menu-3d-chart.svg",
     menuLabel:"Mapa 3D",
-    factory:(name, creationPanelResult) => (new Tool3DChart(null, name, creationPanelResult)),
+    factory:(id, name, creationPanelResult) => (new Tool3DChart(id, name, creationPanelResult)),
     deserialize:(id, name, config) => {
         let tool = new Tool3DChart(id, name, {layerId:config.layerId, object:config.object})
         tool.config = config;

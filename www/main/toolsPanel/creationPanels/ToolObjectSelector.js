@@ -18,14 +18,17 @@ class ToolObjectSelector extends ZCustomController {
                 }
             }
         }
+        this.userObjectLockChangeListener = uo => this.refresh({layerId:uo.layer.id, type:"user-object/" + uo.type, code:uo.id})
     }
     async onThis_activated() {
         window.geoos.events.on("userObject", "added", this.userObjectAddedListener)
         window.geoos.events.on("userObject", "rename", this.userObjectRenameListener)
+        window.geoos.events.on("userObject", "lockChange", this.userObjectLockChangeListener)
     }
     async onThis_deactivated() {
         window.geoos.events.remove(this.userObjectAddedListener)
         window.geoos.events.remove(this.userObjectRenameListener)
+        window.geoos.events.remove(this.userObjectLockChangeListener)
     }
 
     refresh(select) {

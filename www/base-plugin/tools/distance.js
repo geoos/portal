@@ -95,12 +95,12 @@ class ToolDistance extends GEOOSTool {
 GEOOSTool.register("distance", "Medidor de Distancia", {    
     creationPanelPath:"./creationPanels/ToolPathSelector",
     creationPanelOptions:{
-        caption:"Agregue puntos a la Ruta"
+        caption:"Seleccionar puntos para medir distancia"
     },
     icon:window.geoos.getPlugin("base").basePath + "/tools/img/distance.png",
     menuIcon:window.geoos.getPlugin("base").basePath + "/tools/img/distance.svg",
     menuLabel:"Medir Distancia",
-    factory:(name, creationPanelResult) => (new ToolDistance(null, name, creationPanelResult)),
+    factory:(id, name, creationPanelResult) => (new ToolDistance(id, name, creationPanelResult)),
     deserialize:(id, name, config) => {
         let tool = new ToolDistance(id, name, {points:config.points})
         tool.config = config;

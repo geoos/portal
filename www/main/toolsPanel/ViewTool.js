@@ -174,20 +174,25 @@ class ViewTool extends ZCustomController {
     }
 
     async toggleConfigureTool() {
-        if (this.showingProperties) {
-            this.showingProperties = false;
-            this.cmdConfigureTool.removeClass("configure-selected");
-            await this.destroyPanels();
+        let selected = window.geoos.getSelectedTool();
+        if(selected instanceof ToolDistance){
+            await window.geoos.events.trigger("tools", "toolEdited", selected); 
+        }else{
+            if (this.showingProperties) {
+                this.showingProperties = false;
+                this.cmdConfigureTool.removeClass("configure-selected");
+                await this.destroyPanels();
+                this.doResize();
+                return;
+            }
+            this.showingProperties = true;
+            this.cmdConfigureTool.addClass("configure-selected");
+            await this.refreshPropertyPanels();
+            if (window.geoos.toolsPanel.status != "max") {
+                await window.geoos.toolsPanel.toggle("max");
+            }
             this.doResize();
-            return;
         }
-        this.showingProperties = true;
-        this.cmdConfigureTool.addClass("configure-selected");
-        await this.refreshPropertyPanels();
-        if (window.geoos.toolsPanel.status != "max") {
-            await window.geoos.toolsPanel.toggle("max");
-        }
-        this.doResize();
     }
     async onCmdConfigureTool_click() {this.toggleConfigureTool()}
 

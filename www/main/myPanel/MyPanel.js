@@ -17,6 +17,7 @@ class MyPanel extends ZCustomController {
         window.geoos.events.on("group", "rename", group => this.groupRename(group))
         window.geoos.events.on("layer", "rename", layer => this.layerRename(layer))
         window.geoos.events.on("userObject", "rename", userObject => this.userObjectRename(userObject))
+        window.geoos.events.on("userObject", "lockChange", _ => this.userObjectLockChange())
     }
 
     doResize(size) {
@@ -79,7 +80,7 @@ class MyPanel extends ZCustomController {
     }
     onCmdImportGroup_click() {
         this.importGroup();
-    }
+    } 
 
     refresh() {
         if (!this.open) return;
@@ -126,11 +127,13 @@ class MyPanel extends ZCustomController {
                             html += `  <div class="visualizer-name">${layerItem.name}</div>`;
                             html += `</div>`;
                         } else if (layerItem.type == "user-object") {
+                            if (layerItem.level > 0) continue;
                             let objectSelected = selection.type == "user-object" && selection.element.id == layerItem.code;
                             html += `<div class="my-panel-user-object" data-code="${layerItem.code}" style="padding-left:${(20 * layerItem.level)}px;">`;
                             html += `  <img class="user-object-icon" src="${layerItem.icon}" style="filter:invert(1);" />`;
                             html += `  <div class="user-object-name"><span ${objectSelected?" class='my-panel-selected-name'":""}>${layerItem.name}</span></div>`;
                             if (layerItem.level == 0) {
+                                html += `  <i class="user-object-looked fa fa-${layerItem.locked ? "lock" : "unlock"} ml-2 float-right" style="cursor: pointer; margin-top:-12px; font-size:12px; margin-right:24px; "></i>`;
                                 html += `  <i class="user-object-deleter far fa-trash-alt ml-2 float-right" style="cursor: pointer; margin-top:-12px; font-size:12px; margin-right:6px; "></i>`;
                             }
                             html += `</div>`;
@@ -159,6 +162,7 @@ class MyPanel extends ZCustomController {
         $myContainer.find(".layer-context").click(e => this.layerContext_click(e));
         $myContainer.find(".group-name").click(e => this.groupName_click(e));
         $myContainer.find(".layer-name").click(e => this.layerName_click(e));
+        $myContainer.find(".user-object-looked").click(e => this.userObjectLooked_click(e));
 
         $myContainer.find(".layer-name").draggable({
             scroll: false,            
@@ -348,6 +352,23 @@ class MyPanel extends ZCustomController {
                 _ => window.geoos.removeUserObject(uo.id));
         }
     }
+
+    async userObjectLooked_click(e) {
+        let uoNameDiv = $(e.currentTarget);
+        let uoDiv = uoNameDiv.parent();
+        let uoCode = uoDiv.data("code");
+        let uo = window.geoos.getUserObject(uoCode);
+        if (uo) {
+            let msg = `¿Confirma que desea ${uo.locked ? "desbloquear" : "bloquear"} el ${uo.type == "point" ? "punto" : "área"} '${uo.name}'?.`;
+            if (uo.locked) msg += "Recuerde que una vez desbloqueado puede generar modificaciones en análisis previos."
+            this.showDialog("common/WConfirm", {message:msg}, 
+                async _ => {
+                    uo.locked = !uo.locked; 
+                    await window.geoos.editUserObject(uo);
+                });
+        }
+    }
+
     async toggleVisualizer(visualizer) {
         let query = ".my-panel-layer-items[data-group-id='" + visualizer.layer.group.id + "'][data-layer-id='" + visualizer.layer.id + "'] .my-panel-visualizer[data-code='" + visualizer.code + "'] img";
         let activator = $(this.myContainer.view).find(query)
@@ -606,6 +627,11 @@ class MyPanel extends ZCustomController {
     }
     userObjectRename(userObject) {
         $(this.myContainer.view).find(".my-panel-user-object[data-code='" + userObject.id + "'] .user-object-name span").text(userObject.name);
+    }
+    async userObjectLockChange() {
+        if (window.geoos.configPanel.open) {
+            await window.geoos.configPanel.refresh(window.geoos.selection);
+        }
     }
     layerDuplicate(layer) {
         let s = layer.serialize();

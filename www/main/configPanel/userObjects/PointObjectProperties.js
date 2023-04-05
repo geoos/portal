@@ -1,25 +1,41 @@
 class PointObjectProperties extends ZCustomController {
     onThis_init(userObject) {
-        console.log("userObject", userObject);
         this.userObject = userObject;
         this.refresh();
-        this.movedListener = id => {
-            if (id == this.userObject.id || (this.userObject.parentObject && this.userObject.parentObject.id == id)) {
+        this.movedListener = uo => {
+            if (uo.id == this.userObject.id || (this.userObject.parentObject && this.userObject.parentObject.id == uo.id)) {
+                this.refresh();
+            }
+        }
+        this.lockedListener = uo => {
+            if (uo.id == this.userObject.id || (this.userObject.parentObject && this.userObject.parentObject.id == uo.id)) {
                 this.refresh();
             }
         }
     }
     onThis_activated() {
         window.geoos.events.on("userObject", "moved", this.movedListener);
+        window.geoos.events.on("userObject", "lockChange", this.lockedListener);
     }
     onThis_deactivated() {
         window.geoos.events.remove(this.movedListener);
+        window.geoos.events.remove(this.lockedListener);
     }
 
     refresh() {
         this.edUserObjectName.value = this.userObject.name;
         this.edLatitud.value = this.userObject.lat;
         this.edLongitud.value = this.userObject.lng;
+        const isLocked = this.userObject.parentObject ? this.userObject.parentObject.locked : this.userObject.locked;
+        if (isLocked){
+            this.edLatitud.disable();
+            this.edLongitud.disable();
+            this.lockedLbl.show();
+        }else{
+            this.edLatitud.enable();
+            this.edLongitud.enable();
+            this.lockedLbl.hide();
+        }
     }
 
     onEdUserObjectName_change() {
