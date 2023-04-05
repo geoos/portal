@@ -231,7 +231,7 @@ class GEOOS {
                 (await client.getAllValores("rie.tipoEstacion")).forEach(t => this.estaciones.tipos[t.code] = t);
                 let rowsEstaciones = await client.getAllValores("rie.estacion");
                 for (let e of rowsEstaciones) {
-                    if (e.variables) {
+                    if (e.variables && e.variables.length) {
                         e.server = server;
                         e.providers = [e.proveedor];
                         e.types = [e.tipo];                    
