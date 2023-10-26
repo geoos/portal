@@ -3,6 +3,7 @@ const config = require("./lib/Config");
 async function startHTTPServer() {
     try {
         await (require("./lib/MongoDB")).init();
+        const fs = require("fs");
         const zServer = require("./lib/z-server");
         const express = require('express');
         const app = express();
@@ -59,12 +60,22 @@ async function startHTTPServer() {
             }
         });
 
+        let version = "?";
+        try {
+            let txt = fs.readFileSync("./build.sh").toString();
+            txt = txt.split("\n")[0];
+            let p = txt.indexOf("=");
+            version = txt.substring(p+1);
+        } catch(error) {
+            console.error(error);
+        }
+
         let webServerConfig = config.getWebServerConfig();
         if (webServerConfig.http) {
             let port = webServerConfig.http.port;
             httpServer = http.createServer(app);
             httpServer.listen(port, "::", _ => {
-                console.log("[GEOOS HTTP Server 0.88] Listenning at Port " + port);
+                console.log("[GEOOS HTTP Server " + version + "] Listenning at Port " + port);
             });
         }
     } catch(error) {

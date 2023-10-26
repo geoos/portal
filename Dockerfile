@@ -1,4 +1,4 @@
-# // Multiplataforma (prod: 0.95)
+# // Multiplataforma (prod: 1.24)
 # docker buildx build --push --platform linux/amd64 -t docker.homejota.net/geoos/portal:latest -t docker.homejota.net/geoos/portal:1.24 .
 #
 
